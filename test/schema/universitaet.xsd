@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<xsd:element name="Universitaet" type="UniInfoTyp" />
+
+	<xsd:complexType name="UniInfoTyp">
+		<xsd:sequence>
+			<xsd:element name="UniLeitung">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Rektor" type="xsd:string" />
+						<xsd:element name="Kanzler" type="xsd:string" />
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="Fakultaeten">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Fakultaet" minOccurs="0" maxOccurs="unbounded" type="FakultaetenTyp" />
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>
+		<xsd:attribute name="UnivName" type="xsd:string" />
+	</xsd:complexType>
+
+	<xsd:complexType name="FakultaetenTyp">
+		<xsd:sequence>
+			<xsd:element name="FakName" type="xsd:string" />
+			<xsd:element name="ProfessorIn" minOccurs="0" maxOccurs="unbounded">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Name" type="xsd:string" />
+						<xsd:element name="Rang" type="xsd:string" />
+						<xsd:element name="Raum" type="xsd:string" />
+						<xsd:element name="Vorlesungen" minOccurs="0" maxOccurs="unbounded" type="VorlInfo" />
+					</xsd:sequence>
+					<xsd:attribute name="PersNr" type="xsd:ID" />
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+
+	<xsd:complexType name="VorlInfo">
+		<xsd:sequence>
+			<xsd:element name="Vorlesung" minOccurs="1" maxOccurs="unbounded">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="Titel" type="xsd:string" />
+						<xsd:element name="SWS" type="xsd:integer" />
+					</xsd:sequence>
+					<xsd:attribute name="VorlNr" type="xsd:ID" />
+					<xsd:attribute name="Voraussetzungen" type="xsd:IDREFS" />
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+
+</xsd:schema>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="basic">
+		<xs:complexType>
+			<xs:sequence minOccurs="0" maxOccurs="2">
+				<xs:element name="e1" />
+				<xs:element name="e2" />
+				<xs:element name="e3" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:element name="unbounded">
+		<xs:complexType>
+			<xs:sequence minOccurs="2" maxOccurs="unbounded">
+				<xs:element name="e1" />
+				<xs:element name="e2" />
+				<xs:element name="e3" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:element name="seq">
+		<xs:complexType>
+			<xs:sequence minOccurs="0" maxOccurs="2">
+				<xs:element name="e1" minOccurs="0" maxOccurs="2" />
+				<xs:choice>
+					<xs:element name="e2" minOccurs="1" maxOccurs="2" />
+					<xs:element name="e3" minOccurs="0" maxOccurs="2" />
+				</xs:choice>
+				<xs:element name="e4" minOccurs="0" maxOccurs="1" />
+				<xs:sequence>
+					<xs:element name="e5" minOccurs="0" />
+					<xs:element name="e6" minOccurs="0" />
+				</xs:sequence>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:element name="min">
+		<xs:complexType>
+			<xs:sequence minOccurs="5" maxOccurs="unbounded" />
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

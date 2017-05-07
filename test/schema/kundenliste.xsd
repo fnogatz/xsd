@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<xsd:element name="kundenliste">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="kunde" minOccurs="0" maxOccurs="unbounded">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="kundennr" type="xsd:integer"/>
+							<xsd:element name="anrede" type="xsd:string"/>
+							<xsd:element name="vorname" type="xsd:string"/>
+							<xsd:element name="nachname" type="xsd:string"/>
+							<xsd:element name="email" type="xsd:string"/>
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+</xsd:schema>

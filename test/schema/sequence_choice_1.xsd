@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="sequence">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="e1" type="xs:string" />
+				<xs:choice>
+					<xs:element name="e2" type="xs:string" minOccurs="0" />
+					<xs:element name="e3" type="xs:string" minOccurs="2" maxOccurs="2" />
+				</xs:choice>
+				<xs:element name="e4" type="xs:string" minOccurs="0" maxOccurs="2" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

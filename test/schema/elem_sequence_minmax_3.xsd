@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="kdliste">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="kunde" minOccurs="2" maxOccurs="4">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="kdnr" type="xs:integer" />
+							<xs:element name="anrede" type="xs:string" minOccurs="0" />
+							<xs:element name="vorname" type="xs:string" />
+							<xs:element name="nachname" type="xs:string" />
+							<xs:element name="notiz" type="xs:string" minOccurs="0" maxOccurs="unbounded" />
+							<xs:element name="stammkunde" type="xs:boolean" minOccurs="0" />
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

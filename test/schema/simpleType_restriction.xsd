@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<!--xsd basetype-->
+	<xs:element name="s0">
+		<xs:simpleType>
+			<xs:restriction base="xs:integer" />
+		</xs:simpleType>
+	</xs:element>
+<!--min/maxIn/Exclusive-->
+	<xs:element name="s1">
+		<xs:simpleType>
+			<xs:restriction base="xs:integer">
+				<xs:minExclusive value="12"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="s2">
+		<xs:simpleType>
+			<xs:restriction base="xs:integer">
+				<xs:minInclusive value="12"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="s3">
+		<xs:simpleType>
+			<xs:restriction base="xs:integer">
+				<xs:maxInclusive value="21"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="s4">
+		<xs:simpleType>
+			<xs:restriction base="xs:integer">
+				<xs:maxExclusive value="21"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+<!--min/maxIn/Exclusive combined-->
+	<xs:element name="s5">
+		<xs:simpleType>
+			<xs:restriction base="xs:integer">
+				<xs:maxInclusive value="21"/>
+				<xs:minInclusive value="12"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="s6">
+		<xs:simpleType>
+			<xs:restriction base="xs:integer">
+				<xs:minExclusive value="12"/>
+				<xs:maxInclusive value="21"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="s7">
+		<xs:simpleType>
+			<xs:restriction base="xs:integer">
+				<xs:minInclusive value="-12"/>
+				<xs:maxExclusive value="-3"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="s8">
+		<xs:simpleType>
+			<xs:restriction base="xs:integer">
+				<xs:minExclusive value="-25"/>
+				<xs:maxExclusive value="12"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+<!--enumeration-->
+	<xs:element name="s9">
+		<xs:simpleType>
+			<xs:restriction base="xs:integer">
+				<xs:enumeration value="-1" />
+				<xs:enumeration value="2" />
+				<xs:enumeration value="13" />
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="s10">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:enumeration value="a" />
+				<xs:enumeration value="b" />
+				<xs:enumeration value="c" />
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+<!--user simpleType as basetype-->
+	<xs:element name="s11">
+		<xs:simpleType>
+			<xs:restriction base="mySimple" />
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="s12">
+		<xs:simpleType>
+			<xs:restriction base="mySimple">
+				<xs:minInclusive value="1"/>
+				<xs:maxInclusive value="3"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:simpleType name="mySimple">
+		<xs:restriction base="xs:integer">
+			<xs:enumeration value="1" />
+			<xs:enumeration value="2" />
+			<xs:enumeration value="3" />
+			<xs:enumeration value="4" />
+			<xs:enumeration value="5" />
+			<xs:enumeration value="6" />
+		</xs:restriction>
+	</xs:simpleType>
+</xs:schema>

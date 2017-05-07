@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="att" type="myType" />
+	<xs:complexType name="myType">
+		<xs:attribute name="my" type="mySimple" />
+		<xs:attribute name="two">
+			<xs:simpleType>
+				<xs:restriction base="xs:integer" />
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:simpleType name="mySimple">
+		<xs:restriction base="xs:integer" />
+	</xs:simpleType>
+</xs:schema>

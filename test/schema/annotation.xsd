@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<xsd:annotation id="000">
+		<xsd:appinfo source="htt://any">
+			<anything />
+		</xsd:appinfo>
+		<xsd:documentation source="p://any">
+			Some documentation stuff.
+		</xsd:documentation>
+	</xsd:annotation>
+	<xsd:element name="kundenliste">
+		<xsd:complexType>
+				<xsd:annotation>
+					<xsd:documentation>
+						Some random documentation stuff.
+					</xsd:documentation>
+				</xsd:annotation>
+			<xsd:sequence>
+				<xsd:annotation>
+					<xsd:documentation>
+						Some documentation stuff.
+					</xsd:documentation>
+				</xsd:annotation>
+				<xsd:element name="kunde" minOccurs="0" maxOccurs="unbounded">
+					<xsd:annotation>
+						<xsd:documentation>
+							Some documentation stuff.
+						</xsd:documentation>
+					</xsd:annotation>
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="kundennr" type="xsd:integer"/>
+							<xsd:element name="anrede" type="xsd:string"/>
+							<xsd:element name="vorname" type="xsd:string"/>
+							<xsd:element name="nachname" type="xsd:string"/>
+							<xsd:element name="email" type="xsd:string"/>
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+</xsd:schema>

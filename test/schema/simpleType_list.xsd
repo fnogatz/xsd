@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<!--xsd type-->
+	<xs:element name="s0">
+		<xs:simpleType>
+			<xs:list itemType="xs:integer" />
+		</xs:simpleType>
+	</xs:element>
+<!--user defined simple type-->
+	<xs:element name="s1">
+		<xs:simpleType>
+			<xs:list itemType="myType" />
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="s2">
+		<xs:simpleType>
+			<xs:list>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="a" />
+						<xs:enumeration value="b" />
+						<xs:enumeration value="c" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:list>
+		</xs:simpleType>
+	</xs:element>
+	<xs:simpleType name="myType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="d" />
+			<xs:enumeration value="e" />
+			<xs:enumeration value="f" />
+		</xs:restriction>
+	</xs:simpleType>
+</xs:schema>
