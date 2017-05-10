@@ -25,11 +25,11 @@ The identifier given in the square brackets references the tested XML Schema (lo
 
 ## Define Tests
 
-Each file in the `schema` directory will be used as a XSD instance. The test runner `test.pl` will look for a corresponding Prolog file in the `validation` directory. There, new tests can be specified in the following form using the `{|xsd|| ... |}` quasi quotation:
+Each file in the `schema` directory will be used as a XSD instance. The test runner `test.pl` will look for a corresponding Prolog file in the `validation` directory. There, new tests can be specified in the following form using the `{|xml|| ... |}` quasi quotation:
 
 ```prolog
 Testname:
-{|xsd||
+{|xml||
   <!-- Some XSD instance, i.e. XML document -->
 |}.
 ```
