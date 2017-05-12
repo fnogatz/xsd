@@ -1,0 +1,7 @@
+env:
+  - TRAVIS_SWI_VERSION="stable"
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install -y autoconf make libgmp-dev libxt-dev libjpeg-dev libxpm-dev libxft-dev
+  - rm -rf ~/.swivm && git clone https://github.com/fnogatz/swivm.git ~/.swivm && (cd ~/.swivm && git checkout `git describe --abbrev=0 --tags`) && source ~/.swivm/swivm.sh && swivm install $TRAVIS_SWI_VERSION && swivm use
+script: swipl -q -g main -t halt -s test/test.pl
