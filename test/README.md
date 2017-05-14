@@ -7,7 +7,7 @@ Definition of input/output tests for the XML Validator following the [Test Anyth
 The defined tests can be run using the following command:
 
 ```shell
-swipl -q -t main -s test.pl
+swipl -q -g main -t halt -s test.pl
 ```
 
 This produces a TAP compatible output like the following:
