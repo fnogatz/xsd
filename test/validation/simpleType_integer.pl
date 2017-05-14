@@ -3,6 +3,11 @@
 	<num>123</num>
 |}.
 
+'xs:integer with leading zero':
+{|xml||
+	<num>0123</num>
+|}.
+
 'Signed xs:integer':
 {|xml||
 	<num>+123</num>
