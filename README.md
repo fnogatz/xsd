@@ -49,4 +49,4 @@ Please see `FEATURES.md` for full list of currently supported components of the 
 
 ## Environment
 
-Developed and tested in SWI-Prolog, version 7.4.1, 64 bit. 
+Developed and tested in SWI-Prolog, version 7.4.1, 64 bit.
