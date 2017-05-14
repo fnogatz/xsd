@@ -136,24 +136,24 @@ source = anyURI >
 ## Primitive Datatypes
 
 ```
-string
+anyAtomicType
+anySimpleType
 boolean
 byte
 decimal
-float
 double
+float
 int
 integer
 long
-short
 negativeInteger
 nonNegativeInteger
 nonPositiveInteger
 positiveInteger
+short
+string
 unsignedByte
 unsignedInt
 unsignedLong
 unsignedShort
-anySimpleType
-anyAtomicType
 ```
