@@ -64,7 +64,6 @@ validate(schema, D_File, D_ID, 1, S_File, S_ID) :-
 	% validate: D_ID and one child 'element' in schema
 	child(S_File, S_ID, S_Child_ID),
 	node(S_File, ns(_, 'http://www.w3.org/2001/XMLSchema'), element, S_Child_ID),
-		writeln(schema),
 	validate_tabled(element, D_File, D_ID, 1, S_File, S_Child_ID).
 
 /*
@@ -150,7 +149,6 @@ validate(simpleType, D_File, D_ID, 1, S_File, S_ID) :-
 */
 validate(sequence, D_File, D_ID, Validated_Nodes, S_File, S_ID) :-
 	node(S_File, ns(_, 'http://www.w3.org/2001/XMLSchema'), sequence, S_ID),
-		writeln('sequence'),
 	get_n_siblings(D_File, D_ID, Validated_Nodes, D_Nodes),
 	get_children(S_File, S_ID, S_Children),
 	
@@ -172,7 +170,6 @@ validate(sequence, D_File, D_ID, Validated_Nodes, S_File, S_ID) :-
 */
 validate(choice, D_File, D_ID, Validated_Nodes, S_File, S_ID) :-
 	node(S_File, ns(_, 'http://www.w3.org/2001/XMLSchema'), choice, S_ID),
-		writeln('choice'),
 	get_n_siblings(D_File, D_ID, Validated_Nodes, D_Nodes),
 	get_children(S_File, S_ID, S_Children),
 	
@@ -194,7 +191,6 @@ validate(choice, D_File, D_ID, Validated_Nodes, S_File, S_ID) :-
 */
 validate(all, D_File, D_ID, N_Siblings, S_File, S_ID) :-
 	node(S_File, ns(_, 'http://www.w3.org/2001/XMLSchema'), all, S_ID), 
-		writeln('all'),
 	attribute(S_File, S_ID, maxOccurs, '1'),
 	get_children(S_File, S_ID, S_IDs), 
 	count_remaining_siblings(D_File, D_ID, N_Siblings),
@@ -202,7 +198,6 @@ validate(all, D_File, D_ID, N_Siblings, S_File, S_ID) :-
 	validate_all(D_File, D_IDs, S_File, S_IDs). 
 validate(all, _D_File, _D_ID, 0, S_File, S_ID) :-
 	node(S_File, ns(_, 'http://www.w3.org/2001/XMLSchema'), all, S_ID), 
-		writeln('all'),
 	attribute(S_File, S_ID, minOccurs, '0').
 	
 
@@ -249,8 +244,6 @@ validate_element(D_File, D_ID, S_File, S_ID) :-
 	attribute(S_File, S_ID, type, S_Type_NameNS),
 	namespace(S_Type_NameNS, NS_Prefix, S_Type_Name),
 	resolve_namespace(S_File, S_ID, NS_Prefix, 'http://www.w3.org/2001/XMLSchema'),
-		writeln(elem),%write(D_ID),write("	"),writeln(S_ID),
-		writeln(S_Type_Name),
 	(
 		% one child node in Document (is text node with ID = Child_Node)
 		get_children(D_File, D_ID, [Child_Node]),
@@ -264,7 +257,6 @@ validate_element(D_File, D_ID, S_File, S_ID) :-
 	validate_xsd_simpleType(S_Type_Name, D_Text).
 validate_element(D_File, D_ID, S_File, S_ID) :-
 	validate_element_name(D_File, D_ID, S_File, S_ID),
-		writeln(element),%write(D_ID),write("	"),writeln(S_ID),
 	(
 		% nested type: type definition in child node
 		child(S_File, S_ID, S_Type_ID)
@@ -276,7 +268,6 @@ validate_element(D_File, D_ID, S_File, S_ID) :-
 	% S_Type: [complexType, simpleType]
 	node(S_File, ns(_, 'http://www.w3.org/2001/XMLSchema'), S_Type, S_Type_ID),
 	member(S_Type, [complexType, simpleType]),
-		writeln(S_Type),
 	validate_tabled(S_Type, D_File, D_ID, 1, S_File, S_Type_ID).
 
 /*
