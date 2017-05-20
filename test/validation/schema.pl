@@ -12,3 +12,8 @@
 {|xml||
 	<other />
 |}.
+
+'Support xmlns:xsi':
+{|xml||
+	<num xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">123</num>
+|}.

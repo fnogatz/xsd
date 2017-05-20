@@ -162,7 +162,6 @@ validate(sequence, D_File, D_ID, Validated_Nodes, S_File, S_ID) :-
 		;
 		atom_number(MaxOccurs, Max)
 	),
-	
 	validate_sequence(D_File, D_Nodes, S_File, S_Children, S_Children, Min, Max).
 
 /*
@@ -212,7 +211,7 @@ validate(attribute, D_File, D_ID, 1, S_File, S_ID) :-
 	findall(attribute(D_File, D_ID, Name, Value), 
 		attribute(D_File, D_ID, Name, Value), 
 		D_Attribute_List),
-	validate_attribute(D_File, D_Attribute_List, S_File, S_Attribute_IDs).
+	validate_attributes(D_File, D_Attribute_List, S_File, S_Attribute_IDs).
 
 /*
 	#### (End of validate/6) ####
@@ -379,7 +378,7 @@ validate_sequence(_D_File, [], _S_File, S_Remaining_IDs, S_IDs, Min, Max) :-
 	Max >= 0.
 validate_sequence(D_File, [], S_File, S_Remaining_IDs, S_IDs, Min, _Max) :-
 	% empty sequence -> every element in sequence validates against zero elements
-	forall(member(S_ID, S_Remaining_IDs), validate(_S_Type, D_File, _D_ID, 0, S_File, S_ID)),
+	forall(member(S_ID, S_Remaining_IDs), validate(_S_Type, D_File, [], 0, S_File, S_ID)),
 	(
 		Min =< 1
 		;
@@ -469,33 +468,37 @@ validate_all(D_File, [D_ID|D_IDs], S_File, S_IDs) :-
 	validate_all(D_File, D_IDs, S_File, S_IDs0).
 
 /*
-	validate_attribute/4
-	validate_attribute(D_File, D_Attribute_List, S_File, S_Attribute_IDs)
+	validate_attributes/4
+	validate_attributes(D_File, D_Attribute_List, S_File, S_Attribute_IDs)
 	
 	`D_Attribute_List`: List of `attribute/4` nodes.
 	`S_Attribute_IDs`: List of IDs correspoding to <xs:attribute .. /> nodes
 */
-validate_attribute(_D_File, [], _S_File, []).	
-validate_attribute(_D_File, [], S_File, S_Attribute_IDs) :-
+validate_attributes(_D_File, [], _S_File, []).	
+validate_attributes(_D_File, [], S_File, S_Attribute_IDs) :-
 	forall(member(S_ID, S_Attribute_IDs), 
 		\+attribute(S_File, S_ID, use, 'required')).
-validate_attribute(D_File, [D_Attribute|D_Attributes], S_File, S_Attribute_IDs) :-
-	D_Attribute = attribute(D_File, _D_ID, Name, Value),
-	
+
+validate_attributes(D_File, [D_Attribute|D_Attributes], S_File, S_Attribute_IDs) :-
+	D_Attribute = attribute(D_File, _D_ID, Name, _Value),
+
 	member(S_ID, S_Attribute_IDs),
-	\+attribute(S_File, S_ID, use, 'prohibited'), 
 	attribute(S_File, S_ID, name, Name),
-	(
-		% type as attribute
-		attribute(S_File, S_ID, type, S_Type),
-		validate_simpleType(Value, S_File, S_ID, S_Type)
-		;
-		% type as child
-		child(S_File, S_ID, S_Child),
-		validate_simpleType(Value, S_File, S_Child)
-	),
+	\+attribute(S_File, S_ID, use, 'prohibited'),
+
+	validate_attribute(D_Attribute, S_File, S_ID),
+
 	delete(S_Attribute_IDs, S_ID, S_Attribute_IDs0),
-	validate_attribute(D_File, D_Attributes, S_File, S_Attribute_IDs0).
+	validate_attributes(D_File, D_Attributes, S_File, S_Attribute_IDs0).
+
+validate_attribute(D_Attribute, S_File, S_ID) :-
+	D_Attribute = attribute(_D_File, _D_ID, _Name, Value),
+	attribute(S_File, S_ID, type, S_Type),
+	validate_simpleType(Value, S_File, S_ID, S_Type).
+validate_attribute(D_Attribute, S_File, S_ID) :-
+	D_Attribute = attribute(_D_File, _D_ID, _Name, Value),
+	child(S_File, S_ID, S_Child),
+	validate_simpleType(Value, S_File, S_Child).
 
 
 /*
@@ -508,7 +511,8 @@ validate_attribute(D_File, [D_Attribute|D_Attributes], S_File, S_Attribute_IDs) 
 	Currently, only some (minOccurs, maxOccurs, use) XML-Schema-Defaults are supported.
 */
 attribute(File_ID, ID, Attribute_Name, Value) :-
-	node_attribute(File_ID, ID, Attribute_Name, Value).
+	node_attribute(File_ID, ID, Attribute_Name, Value),
+	Attribute_Name \= _NS:_Name.
 
 % XML-Schema Defaults
 attribute(File_ID, ID, minOccurs, '1') :-

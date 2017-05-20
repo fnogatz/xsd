@@ -8,6 +8,12 @@
 	</kundendaten>
 |}.
 
+'Empty sequence'(fail):
+{|xml||
+	<kundendaten>
+	</kundendaten>
+|}.
+
 'Missing elements in sequence'(fail):
 {|xml||
 	<kundendaten>
