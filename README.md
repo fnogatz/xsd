@@ -1,6 +1,6 @@
 # XML Validator in SWI-Prolog
 
-Validate a XML Document against XML Schema in SWI-Prolog. 
+Validate an XML Document against an XML Schema in SWI-Prolog. 
 
 ## Installation
 
