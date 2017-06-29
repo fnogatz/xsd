@@ -159,4 +159,5 @@ unsignedByte
 unsignedInt
 unsignedLong
 unsignedShort
+NMTOKEN
 ```
