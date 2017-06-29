@@ -140,6 +140,7 @@ anyAtomicType
 anySimpleType
 boolean
 byte
+date
 decimal
 double
 float

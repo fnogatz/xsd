@@ -80,6 +80,8 @@ validate_xsd_simpleType(unsignedShort, V) :-
 	validate_xsd_simpleType(integer, V),
 	facet(minInclusive, 0, V),
 	facet(maxInclusive, 65535, V). 
+validate_xsd_simpleType(date, V) :-
+	V =~ '^-?([1-9][0-9]*)?[0-9]{4}-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])((\\+|-)(14:00|1[0-3]:[0-5][0-9]|0[0-9]:[0-5][0-9]))?$'.
 
 /* 
 	FACETS
