@@ -18,6 +18,8 @@ validate_xsd_simpleType('IDREFS', _).
 validate_xsd_simpleType('IDREF', _).
 validate_xsd_simpleType('NMTOKEN', V) :-
 	V =~ '^[a-zA-Z0-9_-]+$'.
+validate_xsd_simpleType('NMTOKENS', V) :-
+	V =~ '^[a-zA-Z0-9_-]+( [a-zA-Z0-9_-]+)*$'.
 
 % any
 validate_xsd_simpleType(anySimpleType, _).

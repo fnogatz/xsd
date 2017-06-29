@@ -160,4 +160,5 @@ unsignedInt
 unsignedLong
 unsignedShort
 NMTOKEN
+NMTOKENS
 ```
