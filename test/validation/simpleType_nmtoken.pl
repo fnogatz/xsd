@@ -13,6 +13,11 @@
 	<simple>1950-10-04</simple>
 |}.
 
+'NMTOKEN #4':
+{|xml||
+	<simple>US</simple>
+|}.
+
 'NMTOKEN must not be empty'(fail):
 {|xml||
 	<simple></simple>
