@@ -153,6 +153,7 @@ nonPositiveInteger
 positiveInteger
 short
 string
+time
 unsignedByte
 unsignedInt
 unsignedLong
