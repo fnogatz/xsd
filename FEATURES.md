@@ -141,6 +141,7 @@ anySimpleType
 boolean
 byte
 date
+datetime
 decimal
 double
 float
