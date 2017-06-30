@@ -71,7 +71,7 @@ validate(schema, D_File, D_ID, 1, S_File, S_ID) :-
 	Resolves references to other elements in the document using the attribute ref
 */
 validate(Node, D_File, D_ID, Validated_Nodes, S_File, S_ID) :-
-	attribute(S_File, S_ID, ref, S_QNameNS),
+	attribute(S_File, S_ID, ref, S_QName),
 
 	attribute(S_File, S_ID0, name, S_QName),
 	validate(Node, D_File, D_ID, Validated_Nodes, S_File, S_ID0).
