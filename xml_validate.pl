@@ -355,10 +355,8 @@ validate_restriction(_D_Text, _S_File, []).
 % min/max facets
 validate_restriction(D_Text, S_File, [S_ID|S_IDs]) :-
 	node(S_File, ns(_, 'http://www.w3.org/2001/XMLSchema'), Facet, S_ID), 
-	member(Facet, [maxInclusive, maxExclusive, minInclusive, minExclusive]),
 	attribute(S_File, S_ID, value, Val),
-	atom_number(Val, Val0),
-	facet(Facet, Val0, D_Text),
+	facet(Facet, Val, D_Text),
 	validate_restriction(D_Text, S_File, S_IDs).
 % enumeration
 validate_restriction(D_Text, S_File, S_IDs) :-

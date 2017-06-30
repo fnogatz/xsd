@@ -4,6 +4,8 @@
 		facet/3
 	]).
 
+:- use_module(messages).
+
 % https://github.com/mndrix/regex
 :- use_module(library(regex)). 
 
@@ -95,16 +97,35 @@ validate_xsd_simpleType(datetime, V) :-
 	FACETS
 */
 facet(enumeration, List, V) :-
+	!,
 	member(V, List).
 facet(maxInclusive, Max, V) :-
-	atom_number(V, N),
-	N =< Max.
+	!,
+	number(Max, Max_),
+	number(V, V_),
+	V_ =< Max_.
 facet(maxExclusive, Max, V) :-
-	atom_number(V, N),
-	N < Max.
+	!,
+	number(Max, Max_),
+	number(V, V_),
+	V_ < Max_.
 facet(minInclusive, Min, V) :-
-	atom_number(V, N),
-	N >= Min.
+	!,
+	number(Min, Min_),
+	number(V, V_),
+	V_ >= Min_.
 facet(minExclusive, Min, V) :-
-	atom_number(V, N),
-	N > Min.
+	!,
+	number(Min, Min_),
+	number(V, V_),
+	V_ > Min_.
+facet(Facet, _, _) :-
+	!,
+	warning('Facet ~w is not yet supported.', [Facet]),
+	fail.
+
+number(In, In) :-
+	number(In),
+	!.
+number(In, Out) :-
+	atom_number(In, Out).
