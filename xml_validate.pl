@@ -66,6 +66,16 @@ validate(schema, D_File, D_ID, 1, S_File, S_ID) :-
 	node(S_File, ns(_, 'http://www.w3.org/2001/XMLSchema'), element, S_Child_ID),
 	validate_tabled(element, D_File, D_ID, 1, S_File, S_Child_ID).
 
+/* 
+	ref
+	Resolves references to other elements in the document using the attribute ref
+*/
+validate(Node, D_File, D_ID, Validated_Nodes, S_File, S_ID) :-
+	attribute(S_File, S_ID, ref, S_QNameNS),
+
+	attribute(S_File, S_ID0, name, S_QName),
+	validate(Node, D_File, D_ID, Validated_Nodes, S_File, S_ID0).
+
 /*
 	element
 */
@@ -232,6 +242,7 @@ validate_element(D_File, D_ID, S_File, S_ID) :-
 	
 	get_children(S_File, S_ID, []),
 	\+attribute(S_File, S_ID, type, _),
+	\+attribute(S_File, S_ID, ref, _),
 	
 	get_children(D_File, D_ID, []),
 	\+attribute(D_File, D_ID, _Name, _Value).
