@@ -111,4 +111,12 @@
 			<xs:enumeration value="6" />
 		</xs:restriction>
 	</xs:simpleType>
+<!--pattern-->
+	<xs:element name="s13">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:pattern value="[a-z]" />
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
 </xs:schema>

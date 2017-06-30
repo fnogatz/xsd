@@ -119,6 +119,9 @@ facet(minExclusive, Min, V) :-
 	number(Min, Min_),
 	number(V, V_),
 	V_ > Min_.
+facet(pattern, Pattern, V) :-
+	!,
+	regex(Pattern, [], V, _).
 facet(Facet, _, _) :-
 	!,
 	warning('Facet ~w is not yet supported.', [Facet]),
