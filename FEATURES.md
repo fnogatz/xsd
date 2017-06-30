@@ -15,6 +15,7 @@
 maxOccurs = ( nonNegativeInteger | unbounded ) : 1
 minOccurs = nonNegativeInteger : 1
 name = NCName
+ref = QName
 type = QName >
     Content: ( annotation ?, ( complexType | simpleType )?)
 </ element >
@@ -56,6 +57,7 @@ minOccurs = nonNegativeInteger : 1>
 ```
 < attribute
 name = NCName
+ref = QName
 type = QName
 use = ( optional | prohibited | required ) : optional >
     Content: ( annotation ?, simpleType ?)
