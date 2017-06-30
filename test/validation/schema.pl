@@ -17,3 +17,13 @@
 {|xml||
 	<num xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">123</num>
 |}.
+
+'Support xmlns':
+{|xml||
+	<compl xmlns="http://some.org/url" />
+|}.
+
+'Support xmlns:some':
+{|xml||
+	<compl xmlns:some="http://some.org/url" />
+|}.

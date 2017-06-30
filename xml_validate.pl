@@ -493,6 +493,14 @@ validate_attributes(_D_File, [], S_File, S_Attribute_IDs) :-
 validate_attributes(D_File, [D_Attribute|D_Attributes], S_File, S_Attribute_IDs) :-
 	D_Attribute = attribute(D_File, _D_ID, Name, _Value),
 
+	% skip xmlns attributes
+	( Name = xmlns ; Name = xmlns:_ ),
+
+	validate_attributes(D_File, D_Attributes, S_File, S_Attribute_IDs).	
+
+validate_attributes(D_File, [D_Attribute|D_Attributes], S_File, S_Attribute_IDs) :-
+	D_Attribute = attribute(D_File, _D_ID, Name, _Value),
+
 	member(S_ID, S_Attribute_IDs),
 	attribute(S_File, S_ID, name, Name),
 	\+attribute(S_File, S_ID, use, 'prohibited'),

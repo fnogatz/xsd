@@ -2,4 +2,9 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
 	<xs:element name="num" type="xs:integer" />
 	<xs:element name="text" type="xs:string" />
+	<xs:element name="compl">
+		<xs:complexType>
+			<xs:sequence />
+		</xs:complexType>
+	</xs:element>
 </xs:schema>
