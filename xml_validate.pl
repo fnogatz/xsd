@@ -492,13 +492,22 @@ validate_attributes(D_File, [D_Attribute|D_Attributes], S_File, S_Attribute_IDs)
 	validate_attributes(D_File, D_Attributes, S_File, S_Attribute_IDs0).
 
 validate_attribute(D_Attribute, S_File, S_ID) :-
-	D_Attribute = attribute(_D_File, _D_ID, _Name, Value),
-	attribute(S_File, S_ID, type, S_Type),
-	validate_simpleType(Value, S_File, S_ID, S_Type).
-validate_attribute(D_Attribute, S_File, S_ID) :-
-	D_Attribute = attribute(_D_File, _D_ID, _Name, Value),
-	child(S_File, S_ID, S_Child),
-	validate_simpleType(Value, S_File, S_Child).
+	D_Attribute = attribute(_D_File, _D_ID, _Name, D_Value),
+	% check fixed values
+	(attribute(S_File, S_ID, fixed, S_FixedVal) ->
+		S_FixedVal = D_Value
+		;
+		true
+	),
+	% validate simpleType (reference or nested)
+	(
+		attribute(S_File, S_ID, type, S_Type),
+		validate_simpleType(D_Value, S_File, S_ID, S_Type)
+	;
+		child(S_File, S_ID, S_Child),
+		validate_simpleType(D_Value, S_File, S_Child)
+	).
+
 
 
 /*

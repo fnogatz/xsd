@@ -55,6 +55,7 @@ minOccurs = nonNegativeInteger : 1>
 
 ```
 < attribute
+fixed = string
 name = NCName
 type = QName
 use = ( optional | prohibited | required ) : optional >
