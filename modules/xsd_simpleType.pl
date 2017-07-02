@@ -122,6 +122,21 @@ facet(minExclusive, Min, V) :-
 facet(pattern, Pattern, V) :-
 	!,
 	regex(Pattern, [], V, _).
+facet(length, Length, V) :-
+	!,
+	number(Length, Length_),
+	atom_length(V, Length_).
+facet(minLength, Length, V) :-
+	!,
+	number(Length, Length_),
+	atom_length(V, V_Length),
+	V_Length >= Length_.
+facet(maxLength, Length, V) :-
+	!,
+	number(Length, Length_),
+	atom_length(V, V_Length),
+	V_Length =< Length_.
+
 facet(Facet, _, _) :-
 	!,
 	warning('Facet ~w is not yet supported.', [Facet]),

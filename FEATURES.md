@@ -75,7 +75,7 @@ name = NCName >
 
 < restriction
 base = QName >
-    Content: ( annotation ?, ( minExclusive | minInclusive | maxExclusive | maxInclusive | enumeration | pattern )*)
+    Content: ( annotation ?, ( minExclusive | minInclusive | maxExclusive | maxInclusive | enumeration | pattern | length | minLength | maxLength )*)
 </ restriction >
 
 < list

@@ -119,4 +119,28 @@
 			</xs:restriction>
 		</xs:simpleType>
 	</xs:element>
+<!--length-->
+	<xs:element name="s14">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:length value="5" />
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+<!--minLength-->
+	<xs:element name="s15">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:minLength value="3" />
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+<!--maxLength-->
+	<xs:element name="s16">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:maxLength value="3" />
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
 </xs:schema>

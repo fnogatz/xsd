@@ -182,3 +182,53 @@
 {|xml||
 	<s13>A</s13>
 |}.
+
+'length #1':
+{|xml||
+	<s14>abcde</s14>
+|}.
+
+'length too short #1'(fail):
+{|xml||
+	<s14></s14>
+|}.
+
+'length too short #2'(fail):
+{|xml||
+	<s14>abcd</s14>
+|}.
+
+'length too big #1'(fail):
+{|xml||
+	<s14>abcdef</s14>
+|}.
+
+'minLength #1':
+{|xml||
+	<s15>abc</s15>
+|}.
+
+'minLength #2':
+{|xml||
+	<s15>abcde</s15>
+|}.
+
+'minLength too short'(fail):
+{|xml||
+	<s15>ab</s15>
+|}.
+
+'maxLength #1':
+{|xml||
+	<s16>abc</s16>
+|}.
+
+'maxLength #2':
+{|xml||
+	<s16>a</s16>
+|}.
+
+'maxLength too big'(fail):
+{|xml||
+	<s16>abcd</s16>
+|}.
