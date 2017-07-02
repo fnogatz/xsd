@@ -27,15 +27,7 @@ validate(D_File, S_File) :-
 	!.
 
 /*
-	validate/6
-	validate(Type, D_File, D_ID, Validated_Nodes, S_File, S_ID)
-	
-	Validates a schema node `S_ID` from the document `S_File` with identifier `Type` against 
-		`Validated_Nodes` many sibling nodes, beginning with `D_ID`, from document `D_File`. 
-*/
-
-/*
-	validate_tabled/6
+	validate_tabled/7
 	
 	Tabling for validate/6
 	Checks, wether validate/6 was previously called with the given parameters, 
@@ -43,16 +35,16 @@ validate(D_File, S_File) :-
 	otherwise, validate/6 is called and the result is saved to avoid double calculations
 */
 validate_tabled(Type, D_File, D_ID, Validated_Nodes, S_File, S_ID) :-
-	\+var(Validated_Nodes),
-	table(validate(Type, D_File, D_ID, Validated_Nodes, S_File, S_ID), Valid),
-	!,
-	Valid = true.
-validate_tabled(Type, D_File, D_ID, Validated_Nodes, S_File, S_ID) :-
-	(validate(Type, D_File, D_ID, Validated_Nodes, S_File, S_ID) ->
-		asserta(table(validate(Type, D_File, D_ID, Validated_Nodes, S_File, S_ID), true))
+	(table(validate(Type, D_File, D_ID, Validated_Nodes, S_File, S_ID), Valid) ->
+		!, call(Valid)
+	;
+		(validate(Type, D_File, D_ID, Validated_Nodes, S_File, S_ID) ->
+			asserta(table(validate(Type, D_File, D_ID, Validated_Nodes, S_File, S_ID), true))
 		;
-		asserta(table(validate(Type, D_File, D_ID, Validated_Nodes, S_File, S_ID), false)),
-		false
+			asserta(table(validate(Type, D_File, D_ID, Validated_Nodes, S_File, S_ID), false)),
+			!,
+			false
+		)
 	).
 
 
