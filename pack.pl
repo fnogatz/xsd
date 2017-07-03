@@ -1,6 +1,6 @@
 name(xsd).
 
-version('0.1.0').
+version('0.1.1').
 download('https://github.com/jonakalkus/swipl-xsd/releases/*.zip').
 
 title('XML Schema validation with Prolog').
