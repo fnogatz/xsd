@@ -39,7 +39,9 @@
 	
 	<xs:element name="min">
 		<xs:complexType>
-			<xs:sequence minOccurs="5" maxOccurs="unbounded" />
+			<xs:sequence minOccurs="3" maxOccurs="unbounded">
+				<xs:element name="e1" />
+			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
 </xs:schema>

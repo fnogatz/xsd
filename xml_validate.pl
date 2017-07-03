@@ -379,11 +379,11 @@ validate_sequence(_D_File, [], _S_File, S_Remaining_IDs, S_IDs, Min, Max) :-
 	Max >= 0.
 validate_sequence(D_File, [], S_File, S_Remaining_IDs, S_IDs, Min, _Max) :-
 	% empty sequence -> every element in sequence validates against zero elements
-	forall(member(S_ID, S_Remaining_IDs), validate(_S_Type, D_File, [], 0, S_File, S_ID)),
+	forall(member(S_ID, S_Remaining_IDs), (node(S_File, ns(_, 'http://www.w3.org/2001/XMLSchema'), S_Type, S_ID), validate(S_Type, D_File, [], 0, S_File, S_ID))),
 	(
 		Min =< 1
 		;
-		forall(member(S_ID, S_IDs), validate(__S_Type, D_File, __D_ID, 0, S_File, S_ID))
+		forall(member(S_ID, S_IDs), (node(S_File, ns(_, 'http://www.w3.org/2001/XMLSchema'), S_Type, S_ID), validate(S_Type, D_File, null, 0, S_File, S_ID)))
 	).
 validate_sequence(D_File, D_IDs, S_File, [S_ID], S_IDs, Min, Max) :-
 	Max > 0, 
@@ -461,7 +461,7 @@ validate_choice(D_File, D_IDs, S_File, S_IDs, Min, Max) :-
 */
 validate_all(_D_File, [], _S_File, []).
 validate_all(D_File, [], S_File, S_IDs)	:-
-	forall(member(S_ID, S_IDs), validate(_S_Type, D_File, _D_ID, 0, S_File, S_ID)).
+	forall(member(S_ID, S_IDs), (node(S_File, ns(_, 'http://www.w3.org/2001/XMLSchema'), S_Type, S_ID), validate(S_Type, D_File, null, 0, S_File, S_ID))).
 validate_all(D_File, [D_ID|D_IDs], S_File, S_IDs) :-
 	member(S_ID, S_IDs),
 	validate_tabled(element, D_File, D_ID, 1, S_File, S_ID),

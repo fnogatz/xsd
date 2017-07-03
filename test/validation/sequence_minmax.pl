@@ -103,9 +103,33 @@
 	</unbounded>
 |}.
 
-'MinOccurs sequence #2':
+'MinOccurs sequence #2'(fail):
 {|xml||
 	<min />
+|}.
+
+'MinOccurs sequence #3'(fail):
+{|xml||
+	<min>
+		<e1 />
+	</min>
+|}.
+
+'MinOccurs sequence #4'(fail):
+{|xml||
+	<min>
+		<e1 />
+		<e1 />
+	</min>
+|}.
+
+'MinOccurs sequence #5':
+{|xml||
+	<min>
+		<e1 />
+		<e1 />
+		<e1 />
+	</min>
 |}.
 
 % seq
