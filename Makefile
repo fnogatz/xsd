@@ -26,3 +26,6 @@ clean.cli:
 
 package: test
 	tar cvzf $(packfile) prolog test pack.pl README.md LICENSE cli.pl FEATURES.md
+
+release: test
+	hub release create -m v$(version) v$(version)
