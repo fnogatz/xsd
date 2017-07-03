@@ -1,3 +1,4 @@
+:- asserta(user:file_search_path(library, 'prolog')).
 :- use_module(library(quasi_quotations)).
 
 :- use_module(library(xsd)).
