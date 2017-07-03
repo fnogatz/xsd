@@ -1,10 +1,12 @@
 # XML Validator in SWI-Prolog
 
-Validate an XML Document against an XML Schema in SWI-Prolog. 
+Validate an XML Document against an XML Schema in SWI-Prolog.
 
 ## Installation
 
 All you need is [SWI-Prolog](http://www.swi-prolog.org/). See there for installation instructions.
+
+Only for development purposes the [`library(tap)`](https://github.com/mndrix/tap) is needed.
 
 ### Pre-Compilation
 
@@ -18,10 +20,10 @@ The `.exe` suffix is chosen for compatibility with Windows systems.
 
 ## Usage as CLI
 
-xml-validate provides a command line interface. You can directly execute it via
+A command line interface is provided, too. You can directly execute it via
 
 ```shell
-swipl -g main cli.pl -- schema.xsd instance.xml 
+swipl -g main cli.pl -- schema.xsd instance.xml
 ```
 
 Call with `--help` instead of the filenames to get more options.
@@ -32,32 +34,33 @@ After the pre-compilation step mentioned before, the created executable can be c
 
 ## Usage with SWI-Prolog
 
-The module `xml_validate` exports the following predicates:
+The `library(xsd)` exports the following predicates:
 
-*   `flatten_xml(+Input, ?Identifier)`
+*   `xsd_validate(+Schema, +Document)`
 
-    Loads an XML File from source `Input` into the prolog database. 
+    Validates an XML Document with Identifier `Document` against an XML Schema `Schema`.
+
+The `library(xsd/flatten)` exports the following predicates:
+
+*   `xml_flatten(+Input, ?Identifier)`
+
+    Loads an XML file from source `Input` into the prolog database. 
     An `Identifier` can be freely chosen, otherwise it will be generated.
-
-*   `validate(+Document, +Schema)`
-
-    Validates an XML Document with Identifier `Document` against an XML Schema `Schema`. 
 
 *   `remove_file(+Identifier)`
 
-    Deletes all nodes corresponding to `Identifier` from the prolog database. 
+    Deletes all nodes corresponding to `Identifier` from the prolog database.
 
-### Example call
+### Example Call
 
 ```prolog
-?- flatten_xml('path/to/document.xml', xml),
-   flatten_xml('path/to/schema.xsd', xsd),
-   validate(xml, xsd).
+?- use_module(library(xsd)),
+   xsd_validate('path/to/schema.xsd', 'path/to/instance.xml').
 ```
 
-## XML File representation
+## XML File Representation
 
-Once an XML File is loaded using `flatten_xml/2`, it will be represented by the following predicates:
+Once an XML file is loaded using `xml_flatten/2`, it will be represented by the following predicates:
 
 *   `node(File_ID, Namespace, Node, ID)`
 
@@ -65,7 +68,7 @@ Once an XML File is loaded using `flatten_xml/2`, it will be represented by the 
 
 *   `node_attribute(File_ID, ID, Attribute, Value)`
 
-    For every attribute a `node_attribute/4` fact is generated. It stores the `Attribute` and `Value` of an attribute associated to node `ID` inside document `File_ID`. 
+    For every attribute a `node_attribute/4` fact is generated. It stores the `Attribute` and `Value` of an attribute associated to node `ID` inside document `File_ID`.
 
 *   `text_node(File_ID, ID, Node)`
 
@@ -73,7 +76,7 @@ Once an XML File is loaded using `flatten_xml/2`, it will be represented by the 
 
 ## Supported Features
 
-Please see `FEATURES.md` for full list of currently supported components of the XML Schema Definition Language. 
+Please see [`FEATURES.md`](https://github.com/jonakalkus/swipl-xsd/blob/master/FEATURES.md) for full list of currently supported components of the XML Schema Definition Language.
 
 ## Environment
 

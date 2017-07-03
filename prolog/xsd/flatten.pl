@@ -1,6 +1,6 @@
-:- module(xml_flatten, 
+:- module(flatten, 
 	[
-		flatten_xml/2, 
+		xml_flatten/2, 
 		node/4, 
 		node_attribute/4, 
 		text_node/3, 
@@ -8,7 +8,7 @@
 	]).
 
 :- use_module(library(sgml)).
-:- use_module(xml_helper).
+:- use_module(library(xsd/xsd_helper)).
 
 /*
 	node/4
@@ -68,8 +68,8 @@ load_xml(Input,XML) :-
 
 
 /*
-	flatten_xml/2
-	flatten_xml(Input, File_ID)
+	xml_flatten/2
+	xml_flatten(Input, File_ID)
 	
 	Load a XML file specified by `Input` and flatten
 		its DOM tree. This will result in multiple `node/4`, `node_attribute/4`
@@ -77,10 +77,10 @@ load_xml(Input,XML) :-
 	`File_ID` can be user-defined, otherwise will be set to the next unused integer. 
 	
 	Examples:
-		flatten_xml(string(input_as_atom),File_ID).
-		flatten_xml(path_to_file,File_ID)
+		xml_flatten(string(input_as_atom),File_ID).
+		xml_flatten(path_to_file,File_ID)
 */
-flatten_xml(Input, File_ID) :- 
+xml_flatten(Input, File_ID) :- 
 	load_xml(Input,XML),
 	root_id(Root_ID),
 	register_file_id(File_ID),

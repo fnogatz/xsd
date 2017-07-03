@@ -1,10 +1,10 @@
-:- module(xsd_simpleType, 
+:- module(simpletype, 
 	[
 		validate_xsd_simpleType/2, 
 		facet/3
 	]).
 
-:- use_module(messages).
+:- use_module(library(xsd/xsd_messages)).
 
 % https://github.com/mndrix/regex
 :- use_module(library(regex)). 

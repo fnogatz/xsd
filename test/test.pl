@@ -1,5 +1,8 @@
 :- use_module(library(quasi_quotations)).
-:- use_module('../xml_validate').
+
+:- use_module(library(xsd)).
+:- use_module(library(xsd/flatten)).
+:- use_module(library(xsd/validate)).
 
 % Support {|xsd|| ... |} quasi quotations
 :- quasi_quotation_syntax(xml).
@@ -7,7 +10,7 @@ xml(Content, _Args, _Variables, Result) :-
    with_quasi_quotation_input(
       Content,
       Stream,
-      flatten_xml(stream(Stream), File_ID)
+      flatten:xml_flatten(stream(Stream), File_ID)
    ),
    Result = File_ID.
 
@@ -42,9 +45,9 @@ term_expansion(run_tests, Tests) :-
    ).
 
 set_test_paths(Path, Schema_Path, Validation_Path) :-
-   source_file_property(Main_Module_File_Location, module(xml_validate)),
+   source_file_property(Main_Module_File_Location, module(xsd)),
    file_directory_name(Main_Module_File_Location, Main_Module_Path),
-   absolute_file_name('./test', Path, [relative_to(Main_Module_Path), file_type(directory)]),
+   absolute_file_name('../test', Path, [relative_to(Main_Module_Path), file_type(directory)]),
    absolute_file_name('./schema', Schema_Path, [relative_to(Path), file_type(directory)]),
    absolute_file_name('./validation', Validation_Path, [relative_to(Path), file_type(directory)]),
    assert(path(test, Path)),
@@ -54,7 +57,7 @@ set_test_paths(Path, Schema_Path, Validation_Path) :-
 define_tests(Identifier, Sub_Tests) :-
    path(schema, Path),
    absolute_file_name(Identifier, Absolute_Filename, [relative_to(Path),extensions([xsd])]),
-   flatten_xml(Absolute_Filename, Identifier),
+   flatten:xml_flatten(Absolute_Filename, Identifier),
    define_sub_tests(Identifier, Sub_Tests).
 
 define_sub_tests(Identifier, Sub_Tests) :-
@@ -76,7 +79,9 @@ define_tap_test(Test_Definition, Tap_Test) :-
       with_output_to(
          codes(_Output),
          Test_Run
-      )
+      ),
+      % remove all the tabled predicates
+      validate:cleanup
    ),
    Tap_Test = (Tap_Test_Name :- Test).
 
@@ -86,11 +91,11 @@ get_tap_test_name(Test_Definition, Tap_Test_Name) :-
 
 get_tap_test_run(
    test_definition(Identifier, _, Test_File_ID, success),
-   validate(Test_File_ID, Identifier)
+   validate:validate(Identifier, Test_File_ID)
 ).
 get_tap_test_run(
    test_definition(Identifier, _, Test_File_ID, fail),
-   (\+validate(Test_File_ID, Identifier))
+   (\+validate:validate(Identifier, Test_File_ID))
 ).
 
 

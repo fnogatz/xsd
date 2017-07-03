@@ -1,4 +1,4 @@
-:- module(messages, 
+:- module(xsd_messages, 
 	[
 		warning/1,
 		warning/2

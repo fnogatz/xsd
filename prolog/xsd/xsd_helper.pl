@@ -1,4 +1,4 @@
-:- module(xml_helper, 
+:- module(xsd_helper, 
 	[
 		node_type/3, 
 		split_id/3, 
@@ -18,6 +18,7 @@
 		namespace/3
 	]).
 
+:- use_module(library(xsd/flatten)).
 
 /*
 	HELPER 

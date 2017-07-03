@@ -1,4 +1,4 @@
-:- use_module(xml_validate).
+:- use_module(library(xsd)).
 
 opts_spec([
   [
@@ -34,10 +34,8 @@ main(Opts,PositionalArgs) :-
 
 main(_Opts,PositionalArgs) :-
   PositionalArgs = [Xsd, Xml],
-  flatten_xml(Xsd, xsd),
-  flatten_xml(Xml, xml),
   (
-    validate(xml, xsd),
+    xsd_validate(Xsd, Xml),
     success
   ;
     no_success

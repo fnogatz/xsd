@@ -1,12 +1,22 @@
-:- module(xml_validate, [
-   validate/2
-  ]).
-:- reexport(modules/xml_flatten).
+:- module(validate, [
+		validate/2,
+		xsd_table/2,
+		cleanup/0
+	]).
 
-:- use_module(modules/xml_helper).
-:- use_module(modules/xsd_simpleType).
+:- use_module(library(xsd/xsd_helper)).
+:- use_module(library(xsd/simpletype)).
+:- use_module(library(xsd/flatten)).
 
-:- dynamic table/2.
+:- dynamic xsd_table/2.
+
+/*
+	cleanup/0
+	Removes all the asserted tabled predicates.
+*/
+cleanup :-
+	retractall(xsd_table(_,_)).
+
 /*
 	validate/2
 	Validates given XML document `D_File` against XSD schema `S_File`. 
@@ -14,15 +24,8 @@
 	
 	?- validate(xml_file, xsd_file).
 */
-validate(D_File, S_File) :-
-	% TODO retractall/2 for test purposes only, some sort of reasonable garbage collection (for tabling) is missing
-	retractall(table(_,_)),
-	(validate_tabled(schema, D_File, [0], 1, S_File, [0]) ->
-		retractall(table(_,_))
-		;
-		retractall(table(_,_)),
-		false
-	),
+validate(S_File, D_File) :-
+	validate_tabled(schema, D_File, [0], 1, S_File, [0]),
 	% only one solution
 	!.
 
@@ -31,17 +34,17 @@ validate(D_File, S_File) :-
 	
 	Tabling for validate/6
 	Checks, wether validate/6 was previously called with the given parameters, 
-	then the result is already saved as a table/2 fact. 
+	then the result is already saved as a xsd_table/2 fact. 
 	otherwise, validate/6 is called and the result is saved to avoid double calculations
 */
 validate_tabled(Type, D_File, D_ID, Validated_Nodes, S_File, S_ID) :-
-	(table(validate(Type, D_File, D_ID, Validated_Nodes, S_File, S_ID), Valid) ->
+	(xsd_table(validate(Type, D_File, D_ID, Validated_Nodes, S_File, S_ID), Valid) ->
 		!, call(Valid)
 	;
 		(validate(Type, D_File, D_ID, Validated_Nodes, S_File, S_ID) ->
-			asserta(table(validate(Type, D_File, D_ID, Validated_Nodes, S_File, S_ID), true))
+			asserta(xsd_table(validate(Type, D_File, D_ID, Validated_Nodes, S_File, S_ID), true))
 		;
-			asserta(table(validate(Type, D_File, D_ID, Validated_Nodes, S_File, S_ID), false)),
+			asserta(xsd_table(validate(Type, D_File, D_ID, Validated_Nodes, S_File, S_ID), false)),
 			!,
 			false
 		)
