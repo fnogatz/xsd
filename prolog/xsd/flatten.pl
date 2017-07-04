@@ -88,10 +88,6 @@ xml_flatten(Input, File_ID) :-
 	!.
 
 
-
-
-	
-
 /*
 	root_id/1
 	root_id(ID)
@@ -110,6 +106,7 @@ root_id([]).
 */
 new_id(Base_ID,Pos,ID) :-
 	ID = [Pos|Base_ID].
+
 
 /*
 	register_file_id/2
@@ -130,9 +127,8 @@ register_file_id(File_ID) :-
 	% user chosen ID mustn't be already in use by another file
 	(\+file_id(File_ID),!; throw("File_ID is already in use.")),
 	assertz(file_id(File_ID)).
-	
 
-	
+
 /*
 	xml_flatten_nodes/4
 	
