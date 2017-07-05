@@ -8,26 +8,9 @@
 :- use_module(library(xsd/simpletype)).
 :- use_module(library(xsd/flatten)).
 
-:- dynamic xsd_table/2.
+:- use_module(library(settings)).
+:- setting(use_tabling, boolean, true, 'Use Tabling').
 
-/*
-	cleanup/0
-	Removes all the asserted tabled predicates.
-*/
-cleanup :-
-	retractall(xsd_table(_,_)).
-
-/*
-	validate/2
-	Validates given XML document `D_File` against XSD schema `S_File`. 
-	(Both files must be loaded using `flatten_xml/2`)
-	
-	?- validate(xml_file, xsd_file).
-*/
-validate(S_File, D_File) :-
-	validate_tabled(D_File, [0], 1, S_File, [0]),
-	% only one solution
-	!.
 
 /*
 	validate_tabled/6
@@ -37,6 +20,9 @@ validate(S_File, D_File) :-
 	then the result is already saved as a xsd_table/2 fact. 
 	otherwise, validate/6 is called and the result is saved to avoid double calculations
 */
+:- if(setting(use_tabling, true)).
+:- dynamic xsd_table/2.
+
 validate_tabled(D_File, D_ID, Validated_Nodes, S_File, S_ID) :-
 	(xsd_table(validate(D_File, D_ID, Validated_Nodes, S_File, S_ID), Valid) ->
 		!, call(Valid)
@@ -49,6 +35,26 @@ validate_tabled(D_File, D_ID, Validated_Nodes, S_File, S_ID) :-
 			false
 		)
 	).
+cleanup :-
+	retractall(xsd_table(_,_)).
+:- else.
+validate_tabled(D_File, D_ID, Validated_Nodes, S_File, S_ID) :-
+	validate(D_File, D_ID, Validated_Nodes, S_File, S_ID).
+cleanup.
+xsd_table(_,_).
+:- endif.
+
+/*
+	validate/2
+	Validates given XML document `D_File` against XSD schema `S_File`. 
+	(Both files must be loaded using `flatten_xml/2`)
+	
+	?- validate(xml_file, xsd_file).
+*/
+validate(S_File, D_File) :-
+	validate_tabled(D_File, [0], 1, S_File, [0]),
+	% only one solution
+	!.
 
 
 /*
