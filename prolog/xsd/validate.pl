@@ -112,7 +112,7 @@ validate(D_File, D_ID, 1, S_File, S_ID) :-
 	(
 	N_Children = 0 ->
 		% no children -> validate schema against no element (equals non-existing element -> [1])
-		validate_tabled(D_File, [1], N_Children, S_File, S_Type_ID)
+		validate_tabled(D_File, [1], 0, S_File, S_Type_ID)
 	;
 		% validate all N_Children otherwise
 		get_nth_child(D_File, D_ID, 1, Child_ID),
