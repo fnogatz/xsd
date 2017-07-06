@@ -34,7 +34,7 @@
 	false.
 */
 node_type(File, ID, node) :-
-	node(File, _NS, _Name, ID).
+	node(File, ID, _NS, _Name).
 node_type(File, ID, text_node) :-
 	text_node(File, ID, _).
 	
@@ -127,7 +127,7 @@ get_nth_sibling(D_File, ID, Nth, Nth_ID) :-
 	Resolves namespace `URI` for given `Prefix` inside Document `File` at position `id`
 */
 resolve_namespace(File, ID, Prefix, URI) :-
-	node(File, ns(Prefix, URI), _, ID),
+	node(File, ID, ns(Prefix, URI), _),
 	!.
 resolve_namespace(File, ID, Prefix, URI) :-
 	node_attribute(File, ID, xmlns:Prefix, URI),

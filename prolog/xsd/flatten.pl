@@ -12,7 +12,7 @@
 
 /*
 	node/4
-	node(File_ID,Namespace,Node_Type_Without_NS,ID)
+	node(File_ID,ID,Namespace,Node_Type_Without_NS)
 	
 	node_attribute/4
 	node_attribute(File_ID,ID,Attribute,Value)
@@ -156,7 +156,7 @@ xml_flatten_nodes(File_ID,Base_ID,Pos,[Node|Nodes]) :-
 	namespace(Node_Type,Namespace,Node_Type_Without_NS),
 	% flatten the node's attributes
 	xml_flatten_attributes(File_ID,ID,Node_Attributes),
-	assertz(node(File_ID,Namespace,Node_Type_Without_NS,ID)),
+	assertz(node(File_ID,ID,Namespace,Node_Type_Without_NS)),
 	% flatten sibling nodes
 	Next_Pos is Pos+1,
 	xml_flatten_nodes(File_ID,Base_ID,Next_Pos,Nodes),

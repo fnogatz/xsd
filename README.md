@@ -64,7 +64,7 @@ The `library(xsd/flatten)` exports the following predicates:
 
 Once an XML file is loaded using `xml_flatten/2`, it will be represented by the following predicates:
 
-*   `node(File_ID, Namespace, Node, ID)`
+*   `node(File_ID, ID, Namespace, Node)`
 
     Each node in the document `File_ID` is represented by a node/4 fact with the unique identifier `ID`. Also, the namespace and the name of the element are stated. 
 
