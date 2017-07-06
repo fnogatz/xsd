@@ -12,7 +12,7 @@ Only for development purposes the [`library(tap)`](https://github.com/mndrix/tap
 
 It is possible to create a pre-compiled file which increases the tool's performance significantly. The command line interface is compiled using swipl's [`-c` option](http://www.swi-prolog.org/pldoc/doc_for?object=section%282,%272.10%27,swi%28%27/doc/Manual/compilation.html%27%29%29):
 
-```shell
+```sh
 swipl -g main -o cli.exe -c cli.pl
 ```
 
@@ -22,7 +22,7 @@ The `.exe` suffix is chosen for compatibility with Windows systems.
 
 A command line interface is provided, too. You can directly execute it via
 
-```shell
+```sh
 swipl -g main cli.pl -- schema.xsd instance.xml
 ```
 
@@ -30,7 +30,9 @@ Call with `--help` instead of the filenames to get more options.
 
 After the pre-compilation step mentioned before, the created executable can be called via:
 
+```sh
 ./cli.exe schema.xsd instance.xml
+```
 
 ## Usage with SWI-Prolog
 
