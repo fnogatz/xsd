@@ -4,7 +4,7 @@ packfile = xsd-$(version).tgz
 SWIPL := swipl
 CLI := ./cli.exe
 
-all: clean install test package
+all: install
 
 install: cli
 
