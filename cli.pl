@@ -10,6 +10,24 @@ opts_spec([
     help([
       'display this help'
     ])
+  ],
+  [
+    opt(without_tabling),
+    type(boolean),
+    default(false),
+    longflags([ 'without-tabling ']),
+    help([
+      'Run validation without tabling'
+    ])
+  ],
+  [
+    opt(profile),
+    type(boolean),
+    default(false),
+    longflags([ 'profile' ]),
+    help([
+      'Print profiling information'
+    ])
   ]
 ]).
 
@@ -32,14 +50,11 @@ main(Opts,PositionalArgs) :-
   writeln(Help),
   halt(0).
 
-main(_Opts,PositionalArgs) :-
+main(Opts,PositionalArgs) :-
   PositionalArgs = [Xsd, Xml],
-  (
-    xsd_validate(Xsd, Xml),
+  ( xsd_validate(Xsd, Xml, Opts) ->
     success
-  ;
-    no_success
-  ).
+  ; no_success ).
 
 main(_,_) :- halt(1).
 

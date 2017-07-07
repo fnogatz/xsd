@@ -1,5 +1,6 @@
 :- module(xsd, [
-		xsd_validate/2
+		xsd_validate/2,
+		xsd_validate/3
 	]).
 
 :- use_module(library(xsd/validate)).
