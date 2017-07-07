@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="basic">
+		<xs:complexType>
+			<xs:choice minOccurs="0" maxOccurs="3">
+				<xs:element name="e1" />
+				<xs:element name="e2" />
+				<xs:element name="e3" />
+			</xs:choice>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="unbounded">
+		<xs:complexType>
+			<xs:choice minOccurs="2" maxOccurs="unbounded">
+				<xs:element name="e1" />
+				<xs:element name="e2" />
+				<xs:element name="e3" />
+			</xs:choice>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="choice">
+		<xs:complexType>
+			<xs:choice minOccurs="0" maxOccurs="3">
+				<xs:element name="e1" minOccurs="2" maxOccurs="2" />
+				<xs:choice>
+					<xs:element name="e2" minOccurs="1" maxOccurs="2" />
+					<xs:element name="e3" minOccurs="0" maxOccurs="2" />
+				</xs:choice>
+				<xs:element name="e4" minOccurs="0" maxOccurs="1" />
+				<xs:sequence>
+					<xs:element name="e5" minOccurs="0" />
+					<xs:element name="e6" minOccurs="0" />
+				</xs:sequence>
+			</xs:choice>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>
