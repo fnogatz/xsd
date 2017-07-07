@@ -1,5 +1,6 @@
 :- module(validate, [
 		validate/2,
+		validate/3,
 		xsd_table/2,
 		cleanup/0
 	]).
@@ -52,6 +53,9 @@ xsd_table(_,_).
 	?- validate(xml_file, xsd_file).
 */
 validate(S_File, D_File) :-
+	validate(S_File, D_File, []).
+
+validate(S_File, D_File, _Options) :-
 	validate_tabled(D_File, [0], 1, S_File, [0]),
 	% only one solution
 	!.

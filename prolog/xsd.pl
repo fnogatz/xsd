@@ -11,10 +11,10 @@
 xsd_validate(Xsd, Xml) :-
 	xsd_validate(Xsd, Xml, []).
 
-xsd_validate(Xsd, Xml, _Options) :-
+xsd_validate(Xsd, Xml, Options) :-
 	ensure_flattened(Xsd, Xsd_),
 	ensure_flattened(Xml, Xml_),
-	validate:validate(Xsd_, Xml_).
+	validate:validate(Xsd_, Xml_, Options).
 
 ensure_flattened(Id, Id) :-
 	xml_loaded(Id, _).
