@@ -529,10 +529,16 @@ validate_attributes(D_File, [D_Attribute|D_Attributes], S_File, S_Attribute_IDs)
 	D_Attribute = attribute(D_File, _D_ID, Name, _Value),
 
 	member(S_ID, S_Attribute_IDs),
-	attribute(S_File, S_ID, name, Name),
 	\+attribute(S_File, S_ID, use, 'prohibited'),
-
-	validate_attribute(D_Attribute, S_File, S_ID),
+	
+	(
+		attribute(S_File, S_ID, name, Name),
+		validate_attribute(D_Attribute, S_File, S_ID)
+		;
+		attribute(S_File, S_ID, ref, Name),
+		attribute(S_File, S_ID0, name, Name),
+		validate_attribute(D_Attribute, S_File, S_ID0)
+	),
 
 	delete(S_Attribute_IDs, S_ID, S_Attribute_IDs0),
 	validate_attributes(D_File, D_Attributes, S_File, S_Attribute_IDs0).
