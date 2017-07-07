@@ -6,6 +6,8 @@ CLI := ./cli.exe
 
 all: install
 
+check: test.validate
+
 install: cli
 
 cli:
