@@ -1,4 +1,5 @@
 :- use_module(library(xsd)).
+:- use_module(library(optparse)).
 
 opts_spec([
   [
@@ -12,10 +13,10 @@ opts_spec([
     ])
   ],
   [
-    opt(without_tabling),
+    opt('without-tabling'),
     type(boolean),
     default(false),
-    longflags([ 'without-tabling ']),
+    longflags([ 'without-tabling' ]),
     help([
       'Run validation without tabling'
     ])

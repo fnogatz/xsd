@@ -9,8 +9,10 @@
 :- use_module(library(xsd/simpletype)).
 :- use_module(library(xsd/flatten)).
 
+:- use_module(library(statistics)).
 :- use_module(library(settings)).
-:- setting(use_tabling, boolean, true, 'Use Tabling').
+:- setting('without-tabling', boolean, false, 'Run without tabling').
+:- setting(profile, boolean, false, 'Show profile').
 
 
 /*
@@ -21,8 +23,11 @@
 	then the result is already saved as a xsd_table/2 fact. 
 	otherwise, validate/6 is called and the result is saved to avoid double calculations
 */
-:- if(setting(use_tabling, true)).
 :- dynamic xsd_table/2.
+validate_tabled(D_File, D_ID, Validated_Nodes, S_File, S_ID) :-
+	setting('without-tabling', true),
+	!,
+	validate(D_File, D_ID, Validated_Nodes, S_File, S_ID).
 
 validate_tabled(D_File, D_ID, Validated_Nodes, S_File, S_ID) :-
 	(xsd_table(validate(D_File, D_ID, Validated_Nodes, S_File, S_ID), Valid) ->
@@ -38,12 +43,6 @@ validate_tabled(D_File, D_ID, Validated_Nodes, S_File, S_ID) :-
 	).
 cleanup :-
 	retractall(xsd_table(_,_)).
-:- else.
-validate_tabled(D_File, D_ID, Validated_Nodes, S_File, S_ID) :-
-	validate(D_File, D_ID, Validated_Nodes, S_File, S_ID).
-cleanup.
-xsd_table(_,_).
-:- endif.
 
 /*
 	validate/2
@@ -55,10 +54,36 @@ xsd_table(_,_).
 validate(S_File, D_File) :-
 	validate(S_File, D_File, []).
 
-validate(S_File, D_File, _Options) :-
-	validate_tabled(D_File, [0], 1, S_File, [0]),
+validate(S_File, D_File, Options) :-
+	set_options(Options),
+	(setting(profile, true) ->
+		time(validate_tabled(D_File, [0], 1, S_File, [0]))
+	;	validate_tabled(D_File, [0], 1, S_File, [0])),
+%	validate_tabled(D_File, [0], 1, S_File, [0]),
 	% only one solution
+	!,
+	set_default_options(Options).
+
+set_options(Options) :-
+	maplist(set_option, Options),
 	!.
+
+set_option(Option) :-
+	Option =.. [Key, Value],
+	current_setting(Key),
+	set_setting(Key, Value).
+set_option(_Option) :-
+	true.
+
+set_default_options(Options) :-
+	maplist(set_default_option, Options),
+	!.
+set_default_option(Option) :-
+	Option =.. [Key, _Value],
+	current_setting(Key),
+	restore_setting(Key).
+set_default_option(_Option) :-
+	true.
 
 
 /*
