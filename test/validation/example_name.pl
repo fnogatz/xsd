@@ -1,4 +1,4 @@
-'Complex Example with nested type':
+'Complex Example with named types':
 {|xml||
 	<?xml version="1.0" encoding="UTF-8"?>
 	<shiporder orderid="889923"
