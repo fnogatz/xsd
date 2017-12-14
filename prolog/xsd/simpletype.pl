@@ -92,6 +92,14 @@ validate_xsd_simpleType(time, V) :-
 	V =~ '^(([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\\.[0-9]+)?|24:00:00(\\.0+)?)((\\+|-)(14:00|1[0-3]:[0-5][0-9]|0[0-9]:[0-5][0-9])|Z)?$'.
 validate_xsd_simpleType(datetime, V) :-
 	V =~ '^-?([1-9][0-9]*)?[0-9]{4}-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])T(([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\\.[0-9]+)?|24:00:00(\\.0+)?)((\\+|-)(14:00|1[0-3]:[0-5][0-9]|0[0-9]:[0-5][0-9])|Z)?$'.
+validate_xsd_simpleType(T, _) :-
+	check_for_single(T).
+
+check_for_single(T) :-
+	\+((clause(validate_xsd_simpleType(T,_), B), B \= check_for_single(_))),
+	!,
+	warning('Type ~w is not yet supported.', [T]),
+	false.
 
 /* 
 	FACETS
