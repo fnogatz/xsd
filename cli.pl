@@ -1,5 +1,6 @@
 :- use_module(library(xsd)).
 :- use_module(library(optparse)).
+:- consult('pack.pl').
 
 opts_spec([
   [
@@ -10,6 +11,16 @@ opts_spec([
     longflags([ 'help' ]),
     help([
       'display this help'
+    ])
+  ],
+  [
+    opt(version),
+    type(boolean),
+    default(false),
+    shortflags([ v, 'V' ]),
+    longflags([ 'version' ]),
+    help([
+      'display version'
     ])
   ],
   [
@@ -36,6 +47,13 @@ main :-
   opts_spec(OptsSpec),
   opt_arguments(OptsSpec,Opts,PositionalArgs),
   main(Opts,PositionalArgs).
+
+main(Opts,_PositionalArgs) :-
+  memberchk(version(true),Opts),
+  !,
+  version(V),
+  writeln(V),
+  halt(0).
 
 main(Opts,PositionalArgs) :-
   (
