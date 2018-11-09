@@ -232,3 +232,118 @@
 {|xml||
 	<s16>abcd</s16>
 |}.
+
+'fractionDigits=2 without fraction digits':
+{|xml||
+	<s17>1</s17>
+|}.
+
+'fractionDigits=2 with less than maximum fraction digits (positive)':
+{|xml||
+	<s17>456.1</s17>
+|}.
+
+'fractionDigits=2 with less than maximum fraction digits (negative)':
+{|xml||
+	<s17>-634.3</s17>
+|}.
+
+'fractionDigits=2 with exact fraction digits':
+{|xml||
+	<s17>689.12</s17>
+|}.
+
+'fractionDigits=2 with exact fraction digits and trailing zero':
+{|xml||
+	<s17>984.650</s17>
+|}.
+
+'fractionDigits=2 with too many fraction digits'(fail):
+{|xml||
+	<s17>6844.384</s17>
+|}.
+
+'fractionDigits=0 without fraction digits':
+{|xml||
+	<s18>65468</s18>
+|}.
+
+'fractionDigits=0 with redundant fraction digit':
+{|xml||
+	<s18>6984.0</s18>
+|}.
+
+'fractionDigits=0 with invalid fraction digit'(fail):
+{|xml||
+	<s18>35.1</s18>
+|}.
+
+'fractionDigits=-1'(fail):
+{|xml||
+	<s19>0</s19>
+|}.
+
+'totalDigits=4 without fraction digits and less than the maximum integer digits #1':
+{|xml||
+	<s20>845</s20>
+|}.
+
+'totalDigits=4 without fraction digits and less than the maximum integer digits #2':
+{|xml||
+	<s20>0</s20>
+|}.
+
+'totalDigits=4 without fraction digits and the exact number of integer digits':
+{|xml||
+	<s20>8455</s20>
+|}.
+
+'totalDigits=4 without fraction digits and too many integer digits'(fail):
+{|xml||
+	<s20>84551</s20>
+|}.
+
+'totalDigits=NaN':
+{|xml||
+	<s20>NaN</s20>
+|}.
+
+'totalDigits=4 with fraction digits and integer digits less than the maximum number':
+{|xml||
+	<s20>12.3</s20>
+|}.
+
+'totalDigits=4 with fraction digits and integer digits exactly the maximum number #1':
+{|xml||
+	<s20>0.123</s20>
+|}.
+
+'totalDigits=4 with fraction digits and integer digits exactly the maximum number #2':
+{|xml||
+	<s20>65.12</s20>
+|}.
+
+'totalDigits=4 with fraction digits and integer digits exactly the maximum number with redundant zeroes':
+{|xml||
+	<s20>0065.1200</s20>
+|}.
+
+'totalDigits=4 with fraction digits and too many integer digits'(fail):
+{|xml||
+	<s20>548.89</s20>
+|}.
+
+'totalDigits=4 with integer digits and too many fraction digits'(fail):
+{|xml||
+	<s20>89.465</s20>
+|}.
+
+'totalDigits=4 with too many fraction digits and integer digits'(fail):
+{|xml||
+	<s20>0.1234</s20>
+|}.
+
+'totalDigits=0'(fail):
+{|xml||
+	<s21>0</s21>
+|}.

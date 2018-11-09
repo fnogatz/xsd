@@ -144,14 +144,87 @@ facet(maxLength, Length, V) :-
 	number(Length, Length_),
 	atom_length(V, V_Length),
 	V_Length =< Length_.
+facet(fractionDigits, MaxLength, Value) :-
+	!,
+	validate_xsd_simpleType(nonNegativeInteger, MaxLength),
+	split_string(Value, ".eE", "", ValueParts), %["<integer_digits>", "<fraction_digits>", [...]]
+	length(ValueParts, ValuePartsLength),
+	(
+		% value has no fraction digits, so restriction is fulfilled
+		ValuePartsLength < 2; 
+
+		% otherwise fraction digit length must be validated
+		(
+			number(MaxLength, MaxFractionDigitLength),
+			ValueParts = [_, FractionDigits|_],
+			digit_length_fraction_part(FractionDigits, FractionDigitLength),
+			!,
+			FractionDigitLength =< MaxFractionDigitLength
+		)
+	).
+facet(totalDigits, _, Value) :-
+	Value =~ '^(\\+|-)?INF|NaN$'.
+facet(totalDigits, MaxLength, Value) :-
+	!,
+	validate_xsd_simpleType(positiveInteger, MaxLength),
+	number(MaxLength, MaxDigitLength),
+	split_string(Value, ".eE", "", ValueParts), %["<integer_digits>", "<fraction_digits>", [...]]
+	length(ValueParts, ValuePartsLength),
+	(
+		(
+			% value has only integer digits
+			ValuePartsLength =:= 1,
+			ValueParts = [IntDigits|_],
+			digit_length_integer_part(IntDigits, DigitLength)
+		);
+		(
+			% value has both integer and fraction digits
+			ValuePartsLength =:= 2,
+			ValueParts = [IntDigits,FractionDigits|_],
+			digit_length_integer_part(IntDigits, IntDigitsLength),
+			digit_length_fraction_part(FractionDigits, FractionDigitsLength),
+			DigitLength is IntDigitsLength + FractionDigitsLength
+		)
+	),
+	!,
+	DigitLength =< MaxDigitLength.
 
 facet(Facet, _, _) :-
 	!,
 	warning('Facet ~w is not yet supported.', [Facet]),
 	fail.
 
+
 number(In, In) :-
 	number(In),
 	!.
 number(In, Out) :-
 	atom_number(In, Out).
+
+% returns the length of significant integer digits
+digit_length_integer_part(IntegerDigitString, IntegerDigitLength) :-
+	% remove insignificant leading zeroes
+	string_to_list(IntegerDigitString, IntegerDigitList),
+	remove_leading_zeroes(IntegerDigitList, SanitizedIntegerDigitList),
+	length(SanitizedIntegerDigitList, SanitizedIntegerDigitListLength),
+
+	% if we removed all digits, then we removed a significant zero
+	(SanitizedIntegerDigitListLength =:= 0 ->
+		IntegerDigitLength = 1;
+		IntegerDigitLength = SanitizedIntegerDigitListLength
+	).
+
+% returns the length of significant fraction digits
+digit_length_fraction_part(FractionDigitString, FractionDigitLength) :-
+	% remove insignificant trailing zeroes
+	string_to_list(FractionDigitString, FractionDigitList),
+	reverse(FractionDigitList, ReversedFractionDigitList),
+	remove_leading_zeroes(ReversedFractionDigitList, SanitizedReversedFractionDigitList),
+	length(SanitizedReversedFractionDigitList, FractionDigitLength).
+
+% removes leading zeroes from a char code list
+remove_leading_zeroes([], []).
+remove_leading_zeroes([H|T], [H|T]) :-
+	H =\= 48. % 48 ='0'
+remove_leading_zeroes([48|T], T2) :-
+	remove_leading_zeroes(T, T2).
