@@ -1,3 +1,7 @@
+/*
+	This module is responsible for the validation of xml schema types.
+	@see https://www.w3.org/TR/xmlschema11-2/ for more information.
+*/
 :- module(simpletype, 
 	[
 		validate_xsd_simpleType/2, 
@@ -9,99 +13,201 @@
 % https://github.com/mndrix/regex
 :- use_module(library(regex)). 
 
-/*
-	SIMPLE TYPES
-	validate_xsd_simpleType(Type, Value)
-	
-	Validates `Value` against (XML-Schema) simpleType `Type`
-*/
-validate_xsd_simpleType('ID', _).
-validate_xsd_simpleType('IDREFS', _).
-validate_xsd_simpleType('IDREF', _).
-validate_xsd_simpleType('NMTOKEN', V) :-
-	V =~ '^[a-zA-Z0-9_-]+$'.
-validate_xsd_simpleType('NMTOKENS', V) :-
-	V =~ '^[a-zA-Z0-9_-]+( [a-zA-Z0-9_-]+)*$'.
 
-% any
-validate_xsd_simpleType(anySimpleType, _).
-validate_xsd_simpleType(anyAtomicType, _).
-% string
-validate_xsd_simpleType(string, _). 
-% numbers
-validate_xsd_simpleType(boolean, V) :-
-	facet(enumeration, ['true', 'false', '1', '0'], V).	
-validate_xsd_simpleType(byte, V) :- 
-	validate_xsd_simpleType(integer, V),
-	facet(minInclusive, -128, V),
-	facet(maxInclusive,  127, V).	
-validate_xsd_simpleType(decimal, V) :-
-	V =~ '^((\\+|-)?([0-9]+(\\.[0-9]*)?|\\.[0-9]+))$'. 	
-validate_xsd_simpleType(float, V) :-
-	V =~ '^((\\+|-)?([0-9]+(\\.[0-9]*)?|\\.[0-9]+)([Ee](\\+|-)?[0-9]+)?|(\\+|-)?INF|NaN)$'.
-validate_xsd_simpleType(double, V) :-
-	% TODO: 32 bit float/64bit double checken -> wie?
-	validate_xsd_simpleType(float, V).
-validate_xsd_simpleType(int, V) :- 
-	validate_xsd_simpleType(integer, V),
-	facet(minInclusive, -2147483648, V),
-	facet(maxInclusive,  2147483647, V).  
-validate_xsd_simpleType(integer, V) :-
-	V =~ '^(\\+|-)?[0-9]+$'.
-validate_xsd_simpleType(long, V) :-
-	validate_xsd_simpleType(integer, V),
-	facet(minInclusive, -9223372036854775808, V),
-	facet(maxInclusive,  9223372036854775807, V).
-validate_xsd_simpleType(short, V) :-
-	validate_xsd_simpleType(integer, V),
-	facet(minInclusive, -32768, V),
-	facet(maxInclusive,  32767, V). 
-% restricted numbers
-validate_xsd_simpleType(negativeInteger, V) :-
-	validate_xsd_simpleType(integer, V),
-	facet(maxInclusive, -1, V).
-validate_xsd_simpleType(nonNegativeInteger, V) :-
-	validate_xsd_simpleType(integer, V),
-	facet(minInclusive, 0, V).
-validate_xsd_simpleType(nonPositiveInteger, V) :-
-	validate_xsd_simpleType(integer, V),
-	facet(maxInclusive, 0, V).	
-validate_xsd_simpleType(positiveInteger, V) :-
-	validate_xsd_simpleType(integer, V),
-	facet(minInclusive, 1, V).		
-% unsigned numbers
-validate_xsd_simpleType(unsignedByte, V) :-
-	validate_xsd_simpleType(integer, V),
-	facet(minInclusive, 0, V),
-	facet(maxInclusive, 255, V). 	
-validate_xsd_simpleType(unsignedInt, V) :-
-	validate_xsd_simpleType(integer, V),
-	facet(minInclusive, 0, V),
-	facet(maxInclusive, 4294967295, V). 
-validate_xsd_simpleType(unsignedLong, V) :-
-	validate_xsd_simpleType(integer, V),
-	facet(minInclusive, 0, V),
-	facet(maxInclusive, 18446744073709551615, V). 
-validate_xsd_simpleType(unsignedShort, V) :-
-	validate_xsd_simpleType(integer, V),
-	facet(minInclusive, 0, V),
-	facet(maxInclusive, 65535, V). 
+/*
+	TYPE VALIDATION
+	validate_xsd_simpleType(Type, Value)
+	--> validates `Value` against (XML-Schema) type `Type`
+*/
+
+% top of hierarchy
+validate_xsd_simpleType('anyType', _).
+% TODO: TEST
+validate_xsd_simpleType('anySimpleType', V) :-
+	validate_xsd_simpleType('anyType', V),
+	V =~ '(\\d)*'.
+validate_xsd_simpleType('untyped', V) :-
+	validate_xsd_simpleType('anyType', V).
+
+% non atomic types
+% TODO: TEST
+validate_xsd_simpleType('IDREFS', V) :-
+	split_string(V, " ", "", List),
+	length(List, Length),
+	Length > 0,
+	validate_list_xsd_type('IDREF', List).
+% TODO: TEST
+validate_xsd_simpleType('NMTOKENS', V) :-
+	split_string(V, " ", "", List),
+	length(List, Length),
+	Length > 0,
+	validate_list_xsd_type('NMTOKEN', List).
+% TODO: TEST
+validate_xsd_simpleType('ENTITIES', V) :-
+	split_string(V, " ", "", List),
+	length(List, Length),
+	Length > 0,
+	validate_list_xsd_type('NMTOKEN', List).
+
+% atomic types
+validate_xsd_simpleType('anyAtomicType', V) :-
+	validate_xsd_simpleType('anySimpleType', V).
+% TODO: TEST
+validate_xsd_simpleType('untypedAtomic', V) :-
+	validate_xsd_simpleType('anyAtomicType', V).
+validate_xsd_simpleType(datetime, V) :-
+	validate_xsd_simpleType('anyAtomicType', V),
+	V =~ '^-?([1-9][0-9]*)?[0-9]{4}-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])T(([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\\.[0-9]+)?|24:00:00(\\.0+)?)((\\+|-)(14:00|1[0-3]:[0-5][0-9]|0[0-9]:[0-5][0-9])|Z)?$'.
 validate_xsd_simpleType(date, V) :-
+	validate_xsd_simpleType('anyAtomicType', V),
 	V =~ '^-?([1-9][0-9]*)?[0-9]{4}-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])((\\+|-)(14:00|1[0-3]:[0-5][0-9]|0[0-9]:[0-5][0-9])|Z)?$'.
 validate_xsd_simpleType(time, V) :-
+	validate_xsd_simpleType('anyAtomicType', V),
 	V =~ '^(([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\\.[0-9]+)?|24:00:00(\\.0+)?)((\\+|-)(14:00|1[0-3]:[0-5][0-9]|0[0-9]:[0-5][0-9])|Z)?$'.
-validate_xsd_simpleType(datetime, V) :-
-	V =~ '^-?([1-9][0-9]*)?[0-9]{4}-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])T(([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\\.[0-9]+)?|24:00:00(\\.0+)?)((\\+|-)(14:00|1[0-3]:[0-5][0-9]|0[0-9]:[0-5][0-9])|Z)?$'.
-validate_xsd_simpleType(anyURI, V) :-
+validate_xsd_simpleType(float, V) :-
+	validate_xsd_simpleType('anyAtomicType', V),
+	V =~ '^((\\+|-)?([0-9]+(\\.[0-9]*)?|\\.[0-9]+)([Ee](\\+|-)?[0-9]+)?|(\\+|-)?INF|NaN)$'.
+validate_xsd_simpleType(double, V) :-
+	validate_xsd_simpleType('anyAtomicType', V),
+	% TODO: differentiate between 32bit float and 64bit double value
+	validate_xsd_simpleType(float, V).
+%
+% TODO: gYearMonth, gYear, gMonthDay, gDay, gMonth
+%
+validate_xsd_simpleType('boolean', V) :-
+	validate_xsd_simpleType('anyAtomicType', V),
+	facet(enumeration, ['true', 'false', '1', '0'], V).
+%
+% TODO: base64Binary, hexBinary
+%
+validate_xsd_simpleType('anyURI', V) :-
+	validate_xsd_simpleType('anyAtomicType', V),
 	V =~ '^([a-zA-Z][a-zA-Z0-9+\\-.]*:(((//)?((([a-zA-Z0-9\\-._~!$&()*+,;=:]|(%[0-9a-fA-F][0-9a-fA-F]))*@)?((\\[(([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)|([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)?([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)?([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)?([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)?([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)?([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)?:|([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)?([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)?([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)?([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)?([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)?:([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)|([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)?([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)?([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)?([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)?(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)?|([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)?([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)?([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)?(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)?(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)?|([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)?([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)?(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)?(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)?(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)?|([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)?(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)?(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)?(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)?(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)?|([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?):((:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)?(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)?(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)?(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)?(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)?)|:((:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)?(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)?(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)?(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)?(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)?(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)?|:))])|(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]).([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]).([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]).([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]))|([a-zA-Z0-9\\-._~!$&()*+,;=]|(%[0-9a-fA-F][0-9a-fA-F]))*)(:[0-9]*)?))((/([a-zA-Z0-9\\-._~!$&()*+,;=:@]|(%[0-9a-fA-F][0-9a-fA-F]))*)*|/(([a-zA-Z0-9\\-._~!$&()*+,;=:@]|(%[0-9a-fA-F][0-9a-fA-F]))(/([a-zA-Z0-9\\-._~!$&()*+,;=:@]|(%[0-9a-fA-F][0-9a-fA-F]))*)*)?|([a-zA-Z0-9\\-._~!$&()*+,;=:@]|(%[0-9a-fA-F][0-9a-fA-F]))(/([a-zA-Z0-9\\-._~!$&()*+,;=:@]|(%[0-9a-fA-F][0-9a-fA-F]))*)*))(\\?([a-zA-Z0-9\\-._~!$&()*+,;=:@/?]|(%[0-9a-fA-F][0-9a-fA-F]))*)?(#([a-zA-Z0-9\\-._~!$&()*+,;=:@/?]|(%[0-9a-fA-F][0-9a-fA-F]))*)?)$'.
+%
+% TODO: QName, NOTATION
+%
+
+
+% durations
+% TODO: duration, yearMonthDuration, dayTimeDuration
+
+% decimals
+validate_xsd_simpleType('decimal', V) :-
+	validate_xsd_simpleType('anyAtomicType', V),
+	V =~ '^((\\+|-)?([0-9]+(\\.[0-9]*)?|\\.[0-9]+))$'.
+validate_xsd_simpleType('integer', V) :-
+	validate_xsd_simpleType('decimal', V),
+	V =~ '^(\\+|-)?[0-9]+$'.
+% non positive integers
+validate_xsd_simpleType('nonPositiveInteger', V) :-
+	validate_xsd_simpleType('integer', V),
+	facet(maxInclusive, 0, V).
+validate_xsd_simpleType('negativeInteger', V) :-
+	validate_xsd_simpleType('integer', V),
+	facet(maxInclusive, -1, V).
+% longs
+validate_xsd_simpleType('long', V) :-
+	validate_xsd_simpleType('integer', V),
+	facet(minInclusive, -9223372036854775808, V),
+	facet(maxInclusive,  9223372036854775807, V).
+validate_xsd_simpleType('int', V) :-
+	validate_xsd_simpleType('long', V),
+	facet(minInclusive, -2147483648, V),
+	facet(maxInclusive,  2147483647, V). 
+validate_xsd_simpleType('short', V) :-
+	validate_xsd_simpleType('int', V),
+	facet(minInclusive, -32768, V),
+	facet(maxInclusive,  32767, V).
+validate_xsd_simpleType('byte', V) :- 
+	validate_xsd_simpleType('short', V),
+	facet(minInclusive, -128, V),
+	facet(maxInclusive,  127, V).
+% non negative integers
+validate_xsd_simpleType('nonNegativeInteger', V) :-
+	validate_xsd_simpleType('integer', V),
+	facet(minInclusive, 0, V).
+% unsigned longs
+validate_xsd_simpleType('unsignedLong', V) :-
+	validate_xsd_simpleType('nonNegativeInteger', V),
+	facet(minInclusive, 0, V),
+	facet(maxInclusive, 18446744073709551615, V). 
+validate_xsd_simpleType('unsignedInt', V) :-
+	validate_xsd_simpleType('unsignedLong', V),
+	facet(minInclusive, 0, V),
+	facet(maxInclusive, 4294967295, V). 
+validate_xsd_simpleType('unsignedShort', V) :-
+	validate_xsd_simpleType('unsignedInt', V),
+	facet(minInclusive, 0, V),
+	facet(maxInclusive, 65535, V). 
+validate_xsd_simpleType('unsignedByte', V) :-
+	validate_xsd_simpleType('unsignedShort', V),
+	facet(minInclusive, 0, V),
+	facet(maxInclusive, 255, V).
+% positive integers
+validate_xsd_simpleType('positiveInteger', V) :-
+	validate_xsd_simpleType('nonNegativeInteger', V),
+	facet(minInclusive, 1, V).
+
+% strings
+% TODO: TEST
+validate_xsd_simpleType('string', V) :-
+	validate_xsd_simpleType('anyAtomicType', V).
+% TODO: TEST
+validate_xsd_simpleType('normalizedString', V) :-
+	% TODO: add normalization constraints
+	validate_xsd_simpleType('string', V).
+% TODO: TEST
+validate_xsd_simpleType('token', V) :-
+	% TODO: add token constraints
+	validate_xsd_simpleType('normalizedString', V).
+% TODO: TEST
+validate_xsd_simpleType('language', V) :-
+	% TODO: add language constraints
+	validate_xsd_simpleType('token', V).
+% TODO: TEST
+validate_xsd_simpleType('NMTOKEN', V) :-
+	validate_xsd_simpleType('token', V),
+	V =~ '^[a-zA-Z0-9_-]+$'.
+% TODO: TEST
+validate_xsd_simpleType('Name', V) :-
+	% TODO: add name constraints
+	validate_xsd_simpleType('token', V).
+% TODO: TEST
+validate_xsd_simpleType('NCName', V) :-
+	% TODO: add ncname constraints
+	validate_xsd_simpleType('Name', V).
+% TODO: TEST
+validate_xsd_simpleType('ID', V) :-
+	% TODO: add id constraints
+	validate_xsd_simpleType('NCName', V).
+% TODO: TEST
+validate_xsd_simpleType('IDREF', V) :-
+	% TODO: add idref constraints
+	validate_xsd_simpleType('NCName', V).
+% TODO: TEST
+validate_xsd_simpleType('ENTITY', V) :-
+	% TODO: add entity constraints
+	validate_xsd_simpleType('NCName', V).
+
 validate_xsd_simpleType(T, _) :-
 	check_for_single(T).
+
+
+/*
+	validate_list_xsd_type(Type, List)
+	--> validates every item in `List` against (XML-Schema) type `Type`
+*/
+validate_list_xsd_type(_, []).
+validate_list_xsd_type(Type, [H|T]) :-
+	validate_xsd_simpleType(Type, H),
+	validate_list_xsd_type(Type, T).
 
 check_for_single(T) :-
 	\+((clause(validate_xsd_simpleType(T,_), B), B \= check_for_single(_))),
 	!,
 	warning('Type ~w is not yet supported.', [T]),
 	false.
+
 
 /* 
 	FACETS
@@ -196,6 +302,10 @@ facet(Facet, _, _) :-
 	warning('Facet ~w is not yet supported.', [Facet]),
 	fail.
 
+
+/*
+	HELPER FUNCTIONS
+*/
 
 number(In, In) :-
 	number(In),
