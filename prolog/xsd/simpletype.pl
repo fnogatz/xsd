@@ -20,12 +20,10 @@
 	--> validates `Value` against (XML-Schema) type `Type`
 */
 
-% top of hierarchy
+% top of hierarchy (semantically equivalent in our case, but required by specification)
 validate_xsd_simpleType('anyType', _).
-% TODO: TEST
 validate_xsd_simpleType('anySimpleType', V) :-
-	validate_xsd_simpleType('anyType', V),
-	V =~ '(\\d)*'.
+	validate_xsd_simpleType('anyType', V).
 validate_xsd_simpleType('untyped', V) :-
 	validate_xsd_simpleType('anyType', V).
 
@@ -52,27 +50,33 @@ validate_xsd_simpleType('ENTITIES', V) :-
 % atomic types
 validate_xsd_simpleType('anyAtomicType', V) :-
 	validate_xsd_simpleType('anySimpleType', V).
-% TODO: TEST
 validate_xsd_simpleType('untypedAtomic', V) :-
 	validate_xsd_simpleType('anyAtomicType', V).
-validate_xsd_simpleType(datetime, V) :-
+validate_xsd_simpleType('datetime', V) :-
 	validate_xsd_simpleType('anyAtomicType', V),
 	V =~ '^-?([1-9][0-9]*)?[0-9]{4}-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])T(([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\\.[0-9]+)?|24:00:00(\\.0+)?)((\\+|-)(14:00|1[0-3]:[0-5][0-9]|0[0-9]:[0-5][0-9])|Z)?$'.
-validate_xsd_simpleType(date, V) :-
+validate_xsd_simpleType('date', V) :-
 	validate_xsd_simpleType('anyAtomicType', V),
 	V =~ '^-?([1-9][0-9]*)?[0-9]{4}-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])((\\+|-)(14:00|1[0-3]:[0-5][0-9]|0[0-9]:[0-5][0-9])|Z)?$'.
-validate_xsd_simpleType(time, V) :-
+validate_xsd_simpleType('time', V) :-
 	validate_xsd_simpleType('anyAtomicType', V),
 	V =~ '^(([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\\.[0-9]+)?|24:00:00(\\.0+)?)((\\+|-)(14:00|1[0-3]:[0-5][0-9]|0[0-9]:[0-5][0-9])|Z)?$'.
-validate_xsd_simpleType(float, V) :-
+validate_xsd_simpleType('float', V) :-
 	validate_xsd_simpleType('anyAtomicType', V),
+	% TODO: validate value range (32bit)
 	V =~ '^((\\+|-)?([0-9]+(\\.[0-9]*)?|\\.[0-9]+)([Ee](\\+|-)?[0-9]+)?|(\\+|-)?INF|NaN)$'.
-validate_xsd_simpleType(double, V) :-
+validate_xsd_simpleType('double', V) :-
 	validate_xsd_simpleType('anyAtomicType', V),
-	% TODO: differentiate between 32bit float and 64bit double value
-	validate_xsd_simpleType(float, V).
+	% TODO: validate value range (64bit)
+	validate_xsd_simpleType('float', V).
 %
-% TODO: gYearMonth, gYear, gMonthDay, gDay, gMonth
+% TODO: gYearMonth
+%
+validate_xsd_simpleType('gYear', V) :-
+	validate_xsd_simpleType('anyAtomicType', V),
+	V =~ '^-?([1-9][0-9]{3,}|0[0-9]{3})(Z|(\\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))?$'.
+%
+% TODO: gMonthDay, gDay, gMonth
 %
 validate_xsd_simpleType('boolean', V) :-
 	validate_xsd_simpleType('anyAtomicType', V),

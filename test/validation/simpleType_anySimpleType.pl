@@ -1,14 +1,14 @@
-'Simple xs:anySimpleType':
+'Arbitrary xs:anySimpleType':
 {|xml||
-	<any>Test String</any>
+	<anySimpleType>ß汉98af é▓fioe</anySimpleType>
 |}.
 
 'Empty xs:anySimpleType':
 {|xml||
-	<any />
+	<anySimpleType />
 |}.
 
-'Complex content is no xs:anySimpleType'(fail):
+'xs:anySimpleType may not contain a complex type'(fail):
 {|xml||
-	<any><complex /></any>
+	<anySimpleType><complex /></anySimpleType>
 |}.
