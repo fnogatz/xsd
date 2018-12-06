@@ -100,10 +100,14 @@ validate_xsd_simpleType('anyURI', V) :-
 %
 % TODO: QName, NOTATION
 %
-
-
-% durations
-% TODO: duration, yearMonthDuration, dayTimeDuration
+validate_xsd_simpleType('duration', V) :-
+	validate_xsd_simpleType('anyAtomicType', V),
+	V =~ '^-?P([0-9]+Y)?([0-9]+M)?([0-9]+D)?(T([0-9]+H)?([0-9]+M)?([0-9]+(\\.[0-9]+)?S)?)?$', % general regexp
+	V =~ '^.*[YMDHS].*$', % at least one of the properties (year, month, day, hour, minute or second) must be specified
+	V =~ '^.*[^T]$'. % if there is a 'T' (separator between day and time properties), it must be followed by a time property (hour, minute or second)
+%
+% TODO: yearMonthDuration, dayTimeDuration
+%
 
 % decimals
 validate_xsd_simpleType('decimal', V) :-
