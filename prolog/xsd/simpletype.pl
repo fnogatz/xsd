@@ -71,34 +71,28 @@ validate_xsd_simpleType('double', V) :-
 	validate_xsd_simpleType('float', V).
 validate_xsd_simpleType('gYearMonth', V) :-
 	validate_xsd_simpleType('anyAtomicType', V),
-	V =~ '-?([1-9][0-9]{3,}|0[0-9]{3})-(0[1-9]|1[0-2])(Z|(\\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))?'.
+	V =~ '^-?([1-9][0-9]{3,}|0[0-9]{3})-(0[1-9]|1[0-2])(Z|(\\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))?$'.
 validate_xsd_simpleType('gYear', V) :-
 	validate_xsd_simpleType('anyAtomicType', V),
 	V =~ '^-?([1-9][0-9]{3,}|0[0-9]{3})(Z|(\\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))?$'.
 validate_xsd_simpleType('gMonthDay', V) :-
 	validate_xsd_simpleType('anyAtomicType', V),
-	V =~ '--((0[1-9]|1[0-2])-([01][1-9]|10|2[0-8]))|((0[13-9]|1[0-2])-(29|30))|((0[13578]|1[0-2])/31)(Z|(\\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))?'.
+	V =~ '^--((0[1-9]|1[0-2])-([01][1-9]|10|2[0-8]))|((0[13-9]|1[0-2])-(29|30))|((0[13578]|1[0-2])/31)(Z|(\\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))?$'.
 validate_xsd_simpleType('gDay', V) :-
 	validate_xsd_simpleType('anyAtomicType', V),
-	V =~ '---(0[1-9]|[12][0-9]|3[01])(Z|(\\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))?'.
+	V =~ '^---(0[1-9]|[12][0-9]|3[01])(Z|(\\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))?$'.
 validate_xsd_simpleType('gMonth', V) :-
 	validate_xsd_simpleType('anyAtomicType', V),
-	V =~ '--(0[1-9]|1[0-2])(Z|(\\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))?'.
+	V =~ '^--(0[1-9]|1[0-2])(Z|(\\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))?$'.
 validate_xsd_simpleType('boolean', V) :-
 	validate_xsd_simpleType('anyAtomicType', V),
 	facet(enumeration, ['true', 'false', '1', '0'], V).
 validate_xsd_simpleType('base64Binary', V) :-
 	validate_xsd_simpleType('anyAtomicType', V),
-	% general regex from the specification
-	V =~ '((([A-Za-z0-9+/] ?){4})*(([A-Za-z0-9+/] ?){3}[A-Za-z0-9+/]|([A-Za-z0-9+/] ?){2}[AEIMQUYcgkosw048] ?=|[A-Za-z0-9+/] ?[AQgw] ?= ?=))?',
-	% constraint I: equal signs may only appear at the end
-	V =~ '^[^=]*[=]*$',
-	% constraint II: non-whitespace characters must be a multiple of four
-	non_whitespace_character_length(V, NonWhitespaceCharLength),
-	0 is mod(NonWhitespaceCharLength, 4).
-%
-% TODO: hexBinary
-%
+	V =~ '^((([A-Za-z0-9+/] ?){4})*(([A-Za-z0-9+/] ?){3}[A-Za-z0-9+/]|([A-Za-z0-9+/] ?){2}[AEIMQUYcgkosw048] ?=|[A-Za-z0-9+/] ?[AQgw] ?= ?=))?$'.
+validate_xsd_simpleType('hexBinary', V) :-
+	validate_xsd_simpleType('anyAtomicType', V),
+	V =~ '^([0-9a-fA-F]{2})*$'.
 validate_xsd_simpleType('anyURI', V) :-
 	validate_xsd_simpleType('anyAtomicType', V),
 	% whoever has to debug the following regex is a poor sod
@@ -332,12 +326,6 @@ number(In, In) :-
 	!.
 number(In, Out) :-
 	atom_number(In, Out).
-
-% returns the amount of non whitespace characters in a string
-non_whitespace_character_length(String, NonWhitespaceLength) :-
-	atomic_list_concat(Tmp, ' ', String),
-	atomic_list_concat(Tmp, '', SanitizedString),
-	string_length(SanitizedString, NonWhitespaceLength).
 
 % returns the length of significant integer digits
 digit_length_integer_part(IntegerDigitString, IntegerDigitLength) :-
