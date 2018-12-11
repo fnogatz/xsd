@@ -105,9 +105,12 @@ validate_xsd_simpleType('duration', V) :-
 	V =~ '^-?P([0-9]+Y)?([0-9]+M)?([0-9]+D)?(T([0-9]+H)?([0-9]+M)?([0-9]+(\\.[0-9]+)?S)?)?$', % general regexp
 	V =~ '^.*[YMDHS].*$', % at least one of the properties (year, month, day, hour, minute or second) must be specified
 	V =~ '^.*[^T]$'. % if there is a 'T' (separator between day and time properties), it must be followed by a time property (hour, minute or second)
-%
-% TODO: yearMonthDuration, dayTimeDuration
-%
+validate_xsd_simpleType('yearMonthDuration', V) :-
+	validate_xsd_simpleType('duration', V),
+	V =~ '^[^DT]*$'. % only durations with year and/or month properties are allowed
+validate_xsd_simpleType('dayTimeDuration', V) :-
+	validate_xsd_simpleType('duration', V),
+	V =~ '^[^YM]*[DT].*$'. % only durations with day, hour, minute and/or second properties are allowed
 
 % decimals
 validate_xsd_simpleType('decimal', V) :-
@@ -167,17 +170,21 @@ validate_xsd_simpleType('positiveInteger', V) :-
 	facet(minInclusive, 1, V).
 
 % strings
-% TODO: TEST
 validate_xsd_simpleType('string', V) :-
-	validate_xsd_simpleType('anyAtomicType', V).
-% TODO: TEST
+	validate_xsd_simpleType('anyAtomicType', V),
+	string_codes(V, CL),
+	forall(
+		member(C, CL), 
+		validate_xsd_character(C)
+	).
 validate_xsd_simpleType('normalizedString', V) :-
-	% TODO: add normalization constraints
-	validate_xsd_simpleType('string', V).
-% TODO: TEST
+	validate_xsd_simpleType('string', V),
+	V \~ '[\f|\r|\t]'.
 validate_xsd_simpleType('token', V) :-
-	% TODO: add token constraints
-	validate_xsd_simpleType('normalizedString', V).
+	validate_xsd_simpleType('normalizedString', V),
+	V \~ '^[ ]',
+	V \~ '[ ]$',
+	V \~ '[ ]{2,}'.
 % TODO: TEST
 validate_xsd_simpleType('language', V) :-
 	% TODO: add language constraints
@@ -358,3 +365,21 @@ remove_leading_zeroes([H|T], [H|T]) :-
 	H =\= 48. % 48 ='0'
 remove_leading_zeroes([48|T], T2) :-
 	remove_leading_zeroes(T, T2).
+
+% validates whether a given character is a valid xml character
+validate_xsd_character(C) :-
+	% see xml spec for 'char'
+	%  - unicode values have been translated to prolog character code values)
+	%  - character values > 65535 are not supported in prolog
+	(0 =< C, /*C < 34);
+	(34 < C, C < 39);
+	(39 < C, C < 60);
+	(60 < C, C < 62);
+	(62 < C, */C < 9249);
+	(9249 < C, C < 57345);
+	(57352 < C, C < 57355);
+	(57356 < C, C < 57358);
+	(57375 < C, C < 57472);
+	(57476 < C, C < 57478);
+	(57503 < C, C < 64976);
+	(64991 < C, C =< 65535).
