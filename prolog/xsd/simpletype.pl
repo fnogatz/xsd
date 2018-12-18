@@ -2,16 +2,16 @@
 	This module is responsible for the validation of xml schema types.
 	@see https://www.w3.org/TR/xmlschema11-2/ for more information.
 */
-:- module(simpletype, 
+:- module(simpletype,
 	[
-		validate_xsd_simpleType/2, 
+		validate_xsd_simpleType/2,
 		facet/3
 	]).
 
 :- use_module(library(xsd/xsd_messages)).
 
 % https://github.com/mndrix/regex
-:- use_module(library(regex)). 
+:- use_module(library(regex)).
 
 
 /*
@@ -28,24 +28,21 @@ validate_xsd_simpleType('untyped', V) :-
 	validate_xsd_simpleType('anyType', V).
 
 % non atomic types
-% TODO: TEST
 validate_xsd_simpleType('IDREFS', V) :-
 	split_string(V, " ", "", List),
 	length(List, Length),
 	Length > 0,
 	validate_xsd_simpleType_list('IDREF', List).
-% TODO: TEST
 validate_xsd_simpleType('NMTOKENS', V) :-
 	split_string(V, " ", "", List),
 	length(List, Length),
 	Length > 0,
 	validate_xsd_simpleType_list('NMTOKEN', List).
-% TODO: TEST
 validate_xsd_simpleType('ENTITIES', V) :-
 	split_string(V, " ", "", List),
 	length(List, Length),
 	Length > 0,
-	validate_xsd_simpleType_list('NMTOKEN', List).
+	validate_xsd_simpleType_list('ENTITY', List).
 
 % atomic types
 validate_xsd_simpleType('anyAtomicType', V) :-
@@ -185,33 +182,47 @@ validate_xsd_simpleType('token', V) :-
 	V \~ '^[ ]',
 	V \~ '[ ]$',
 	V \~ '[ ]{2,}'.
-% TODO: TEST
 validate_xsd_simpleType('language', V) :-
-	% TODO: add language constraints
-	validate_xsd_simpleType('token', V).
-% TODO: TEST
+	validate_xsd_simpleType('token', V),
+	V =~ '^[a-zA-Z]{1,8}(-[a-zA-Z0-9]{1,8})*$'.
 validate_xsd_simpleType('NMTOKEN', V) :-
 	validate_xsd_simpleType('token', V),
-	V =~ '^[a-zA-Z0-9_-]+$'.
-% TODO: TEST
+	string_codes(V, CL),
+	length(CL, CLL),
+	CLL >= 1,
+	forall(
+		member(C, CL), 
+		validate_xsd_name_character(C)
+	).
 validate_xsd_simpleType('Name', V) :-
-	% TODO: add name constraints
-	validate_xsd_simpleType('token', V).
-% TODO: TEST
+	validate_xsd_simpleType('token', V),
+	string_codes(V, CL),
+	CL = [H|T],
+	validate_xsd_name_start_character(H),
+	forall(
+		member(C, T),
+		validate_xsd_name_character(C)	
+	).
 validate_xsd_simpleType('NCName', V) :-
-	% TODO: add ncname constraints
-	validate_xsd_simpleType('Name', V).
-% TODO: TEST
+	validate_xsd_simpleType('Name', V),
+	string_codes(V, CL),
+	forall(
+		member(C, CL),
+		C =\= 58 % [ : ], as NCName is a not colonized Name
+	).
 validate_xsd_simpleType('ID', V) :-
-	% TODO: add id constraints
+	% same value space as NCName plus the following restrictions, which are not validated here:
+	%	- IDs must be unique within an XML instance
+	%	- a complex type may not have more than one attribute with a from ID derived type
+	%	- ID attributes cannot have a default or fixed value
 	validate_xsd_simpleType('NCName', V).
-% TODO: TEST
 validate_xsd_simpleType('IDREF', V) :-
-	% TODO: add idref constraints
+	% same value space as NCName plus the following restriction, which is not validated here:
+	%	- each IDREF must have a corresponding ID in the same XML instance
 	validate_xsd_simpleType('NCName', V).
-% TODO: TEST
 validate_xsd_simpleType('ENTITY', V) :-
-	% TODO: add entity constraints
+	% same value space as NCName plus the following restriction, which is not validated here:
+	%	- each ENTITY must match the name of an unparsed entity in a document type definition for the instance
 	validate_xsd_simpleType('NCName', V).
 
 validate_xsd_simpleType(T, _) :-
@@ -371,15 +382,39 @@ validate_xsd_character(C) :-
 	% see xml spec for 'char'
 	%  - unicode values have been translated to prolog character code values)
 	%  - character values > 65535 are not supported in prolog
-	(0 =< C, /*C < 34);
-	(34 < C, C < 39);
-	(39 < C, C < 60);
-	(60 < C, C < 62);
-	(62 < C, */C < 9249);
-	(9249 < C, C < 57345);
-	(57352 < C, C < 57355);
-	(57356 < C, C < 57358);
-	(57375 < C, C < 57472);
-	(57476 < C, C < 57478);
-	(57503 < C, C < 64976);
-	(64991 < C, C =< 65535).
+	(0 =< C, C < 9249); % [ #x0 to #x2420 ]
+	(9249 < C, C < 57347); % [ #x2422 to #x20 ]
+	(57352 < C, C < 57355); % [ #x9 to #xA ]
+	(57356 < C, C < 57358); % [ #xD ]
+	(57476 < C, C < 57478); % [ #x85 ]
+	(57503 < C, C < 64976); % [ #xE09F to #xFDCF ]
+	(64991 < C, C =< 65535). % [ #FDE0 to Prologs Limit ]
+
+% validates whether a given character is a valid xml name start character
+validate_xsd_name_start_character(C) :-
+	% see xml spec for 'NameStartChar'
+	(57 < C, C < 59); % [ : ]
+	(64 < C, C < 91); % [ A to Z ]
+	(94 < C, C < 96); % [ _ ]
+	(96 < C, C < 123); % [ a to z ]
+	(192 < C, C < 215); % [ #xC0 to #xD6 ]
+	(215 < C, C < 247); % [ #xD8 to #xF6 ]
+	(247 < C, C < 768); % [ #xF8 to #x2FF ]
+	(879 < C, C < 894); % [ #x370 to #x37D ]
+	(894 < C, C < 8192); % [ #x37F to #x1FFF ]
+	(8203 < C, C < 8206); % [ #x200C to #x200D ]
+	(8303 < C, C < 8592); % [ #x2070 to #x218F ]
+	(11263 < C, C < 12272); % [ #x2C00 to #x2FEF ]
+	(12288 < C, C < 55296); % [ #x3001 to #xD7FF ]
+	(63743 < C, C < 64976); % [ #xF900 to #xFDCF ]
+	(65007 < C, C < 65534). % [ #xFDF0 to #xFFFD ]
+
+% validates whether a given character is a valid xml name character
+validate_xsd_name_character(C) :-
+	% see xml spec for 'NameChar'
+	validate_xsd_name_start_character(C);
+	(44 < C, C < 47); % [ - to . ]
+	(47 < C, C < 58); % [ 0 to 9 ]
+	(182 < C, C < 184); % [ #xB7 ]
+	(767 < C, C < 880); % [ #x0300 to #x036F ]
+	(8254 < C, C < 8257). % [ #x203F to #x2040 ]

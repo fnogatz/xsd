@@ -1,29 +1,29 @@
-'NMTOKEN #1':
+'xs:NMTOKEN with letters':
 {|xml||
-	<simple>a</simple>
+	<NMTOKEN>ABCD</NMTOKEN>
 |}.
 
-'NMTOKEN #2':
+'xs:NMTOKEN with numbers':
 {|xml||
-	<simple>0-9</simple>
+	<NMTOKEN>123_456</NMTOKEN>
 |}.
 
-'NMTOKEN #3':
+'xs:NMTOKEN with leading spaces that get removed while parsing':
 {|xml||
-	<simple>1950-10-04</simple>
+	<NMTOKEN>  starts_with_spaces</NMTOKEN>
 |}.
 
-'NMTOKEN #4':
+'xs:NMTOKEN with trailing spaces that get removed while parsing':
 {|xml||
-	<simple>US</simple>
+	<NMTOKEN>ends_with_spaces  </NMTOKEN>
 |}.
 
-'NMTOKEN must not be empty'(fail):
+'xs:NMTOKEN with spaces in-between'(fail):
 {|xml||
-	<simple></simple>
+	
 |}.
 
-'NMTOKEN must not contain dot'(fail):
+'xs:NMTOKEN with empty value'(fail):
 {|xml||
-	<simple>a.2</simple>
+	<NMTOKEN></NMTOKEN>
 |}.
