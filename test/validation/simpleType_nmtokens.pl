@@ -1,24 +1,19 @@
-'NMTOKENS #1':
+'xs:NMTOKENS with one NMTOKEN':
 {|xml||
-	<simple>a</simple>
+	<NMTOKENS>ABCD</NMTOKENS>
 |}.
 
-'NMTOKENS #2':
+'xs:NMTOKENS with two NMTOKENs':
 {|xml||
-	<simple>0-9</simple>
+	<NMTOKENS>ABCD 123_456</NMTOKENS>
 |}.
 
-'NMTOKENS #3':
+'xs:NMTOKENS with two NMTOKENs and multiple spaces in-between':
 {|xml||
-	<simple>1950-10-04</simple>
+	<NMTOKENS>ABCD  starts_with_spaces</NMTOKENS>
 |}.
 
-'NMTOKENS #4':
+'xs:NMTOKENS with no NMTOKEN'(fail):
 {|xml||
-	<simple>a 1 b</simple>
-|}.
-
-'NMTOKENS must not be empty'(fail):
-{|xml||
-	<simple></simple>
+	<NMTOKENS></NMTOKENS>
 |}.
