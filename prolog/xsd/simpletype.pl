@@ -21,7 +21,8 @@
 */
 
 % top of hierarchy (semantically equivalent in our case, but required by specification)
-validate_xsd_simpleType('anyType', _).
+validate_xsd_simpleType('anyType', V) :-
+	nonvar(V).
 validate_xsd_simpleType('anySimpleType', V) :-
 	validate_xsd_simpleType('anyType', V).
 validate_xsd_simpleType('untyped', V) :-

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<!-- string -->
+	<xs:element name="string_single_quotes">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="string('NaN')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="string_without_quotes">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="string(NaN)"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<!-- boolean -->
+	<xs:element name="boolean_1">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="boolean(1)"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="boolean_true">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="boolean(true)"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="boolean_0">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="boolean(0)"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="boolean_false">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="boolean(false)"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="boolean_arbitrary">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="boolean(arbitrary)"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+</xs:schema>
+
+
+
+
