@@ -92,98 +92,22 @@
 	<xs:element name="duration_minutes_seconds_only">
 		<xs:simpleType>
 			<xs:restriction base="xs:string">
-				<xs:assertion test="duration('-PT1M30.5S')"/>
+				<xs:assertion test="duration('-PT01M30.5S')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="duration_neutral">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="duration('-P0Y')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="duration_unnormalized">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="duration('P2Y13M40DT30H65M92S')"/>
 			</xs:restriction>
 		</xs:simpleType>
 	</xs:element>
 </xs:schema>
-
-
-
-
-'xs:duration with day and hour properties':
-{|xml||
-	<duration>P1DT2H</duration>
-|}.
-
-'xs:duration with redundant zero properties':
-{|xml||
-	<duration>P0Y20M0D</duration>
-|}.
-
-'xs:duration with month property':
-{|xml||
-	<duration>P20M</duration>
-|}.
-
-'xs:duration with minute property':
-{|xml||
-	<duration>PT20M</duration>
-|}.
-
-'xs:duration with effectively no duration':
-{|xml||
-	<duration>+P0Y</duration>
-|}.
-
-'xs:duration with negative duration':
-{|xml||
-	<duration>-P60D</duration>
-|}.
-
-'xs:duration with milliseconds':
-{|xml||
-	<duration>PT1M30.5S</duration>
-|}.
-
-'xs:duration with invalid minus sign position'(fail):
-{|xml||
-	<duration>P-20M</duration>
-|}.
-
-'xs:duration with T, but without any time property'(fail):
-{|xml||
-	<duration>P20MT</duration>
-|}.
-
-'xs:duration with M, but without month property'(fail):
-{|xml||
-	<duration>P1YM5D</duration>
-|}.
-
-'xs:duration with fractional year property'(fail):
-{|xml||
-	<duration>P15.5Y</duration>
-|}.
-
-'xs:duration without T between day and time properties'(fail):
-{|xml||
-	<duration>P1D2H</duration>
-|}.
-
-'xs:duration without P'(fail):
-{|xml||
-	<duration>1Y2M</duration>
-|}.
-
-'xs:duration with invalid property order'(fail):
-{|xml||
-	<duration>P2M1Y</duration>
-|}.
-
-'xs:duration without any property'(fail):
-{|xml||
-	<duration>P</duration>
-|}.
-
-'xs:duration without digit after the decimal point of seconds property'(fail):
-{|xml||
-	<duration>PT15.S</duration>
-|}.
-
-'xs:duration with empty value'(fail):
-{|xml||
-	<duration></duration>
-|}.
-
-

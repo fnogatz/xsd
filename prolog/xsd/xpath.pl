@@ -135,20 +135,52 @@ xpath_expr(duration(Value), Result) :-
 		SSplit = [_], Seconds = 0;
 		SSplit = [SecondsTMP, _], number_string(Seconds, SecondsTMP)
 	),
-	warning('~wP~wY~wM~wDT~wH~wM~wS', [Sign, Years, Months, Days, Hours, Minutes, Seconds]),
 	UnnormalizedDuration = data('duration', [Sign, Years, Months, Days, Hours, Minutes, Seconds]),
 	normalize_duration(UnnormalizedDuration, NormalizedDuration),
 	Result = NormalizedDuration.
 
 
-
-normalize_duration(Duration, Duration).
-normalize_duration(UnnormalizedDuration, NormalizedDuration) :-
-	normalize_duration_algo(UnnormalizedDuration, NormalizedDuration).
-
-normalize_duration_algo(
+normalize_duration(
 	data('duration', [USign, UYears, UMonths, UDays, UHours, UMinutes, USeconds]),
 	data('duration', [NSign, NYears, NMonths, NDays, NHours, NMinutes, NSeconds])) :-
 	% 0 =< Seconds =< 60
-	NMinutesDiv is USeconds div 60, NSeconds is USeconds mod 60.
-	% TODO
+	% seconds are (in constrast to the other values) given as float
+	number_string(USeconds, SUSeconds),
+	split_string(SUSeconds, '.', '', LUSeconds),
+	(
+		LUSeconds = [SIntegerSeconds], number_string(IntegerSeconds, SIntegerSeconds), NSeconds is IntegerSeconds mod 60;
+		LUSeconds = [SIntegerSeconds,SFractionalSeconds], number_string(IntegerSeconds, SIntegerSeconds),
+			TSeconds is IntegerSeconds mod 60, number_string(TSeconds, STSeconds),
+			atomic_list_concat([STSeconds,SFractionalSeconds], '.', ANSeconds), atom_string(ANSeconds, SNSeconds), number_string(NSeconds, SNSeconds)
+	),
+	MinutesDiv is IntegerSeconds div 60,
+	% 0 =< Minutes =< 60
+	MinutesTMP is UMinutes + MinutesDiv,
+	HoursDiv is MinutesTMP div 60, NMinutes is MinutesTMP mod 60,
+	% 0 =< Hours =< 24
+	HoursTMP is UHours + HoursDiv,
+	DaysDiv is HoursTMP div 24, NHours is HoursTMP mod 24,
+	% 0 =< Days =< 31
+	DaysTMP is UDays + DaysDiv,
+	MonthsDiv is DaysTMP div 31, NDays is DaysTMP mod 31,
+	% 0 =< Months =< 12
+	MonthsTMP is UMonths + MonthsDiv,
+	YearsDiv is MonthsTMP div 12, NMonths is MonthsTMP mod 12,
+	% Years have no restrictions
+	YearsTMP is UYears + YearsDiv,
+	(
+		% negative year values lead to a flipping of the sign
+		YearsTMP < 0 ->
+			(
+				USign = '+' ->
+					NSign = '-';
+					NSign = '+'	
+			);
+			(
+				% durations of 0 are always positive
+				UYears = 0, UMonths = 0, UDays = 0, UHours = 0, UMinutes = 0, USeconds = 0 ->
+					NSign = '+';
+					NSign = USign
+			)
+	),
+	NYears is abs(YearsTMP).

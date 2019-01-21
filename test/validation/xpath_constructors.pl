@@ -47,19 +47,23 @@
 /* float, double */
 
 /* duration */
-/*
 'duration (signless, full)':
 {|xml||
 	<duration_full></duration_full>
 |}.
-*/
 'duration (positive, months only)':
 {|xml||
 	<duration_months_only></duration_months_only>
 |}.
-/*
 'duration (negative, minutes and seconds only)':
 {|xml||
 	<duration_minutes_seconds_only></duration_minutes_seconds_only>
 |}.
-*/
+'duration (neutral)':
+{|xml||
+	<duration_neutral></duration_neutral>
+|}.
+'duration (unnormalized)':
+{|xml||
+	<duration_unnormalized></duration_unnormalized>
+|}.
