@@ -29,3 +29,37 @@
 {|xml||
 	<boolean_false></boolean_false>
 |}.
+
+/* decimal */
+'decimal (positive with long notation)':
+{|xml||
+	<decimal_long_positive></decimal_long_positive>
+|}.
+'decimal (negative with short notation)':
+{|xml||
+	<decimal_short_negative></decimal_short_negative>
+|}.
+'decimal (invalid)'(fail):
+{|xml||
+	<decimal_invalid></decimal_invalid>
+|}.
+
+/* float, double */
+
+/* duration */
+/*
+'duration (signless, full)':
+{|xml||
+	<duration_full></duration_full>
+|}.
+*/
+'duration (positive, months only)':
+{|xml||
+	<duration_months_only></duration_months_only>
+|}.
+/*
+'duration (negative, minutes and seconds only)':
+{|xml||
+	<duration_minutes_seconds_only></duration_minutes_seconds_only>
+|}.
+*/

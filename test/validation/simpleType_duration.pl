@@ -25,7 +25,7 @@
 
 'xs:duration with effectively no duration':
 {|xml||
-	<duration>P0Y</duration>
+	<duration>+P0Y</duration>
 |}.
 
 'xs:duration with negative duration':
