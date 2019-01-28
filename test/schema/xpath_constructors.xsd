@@ -266,6 +266,41 @@
 			</xs:restriction>
 		</xs:simpleType>
 	</xs:element>
+	<xs:element name="dateTime_merge_no_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="dateTime('2004-04-12', '13:20:00')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="dateTime_merge_same_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="dateTime('2004-04-12+01:30', '13:20:00+01:30')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="dateTime_merge_date_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="dateTime('2004-04-12+01:30', '13:20:00')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="dateTime_merge_time_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="dateTime('2004-04-12', '13:20:00+01:30')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="dateTime_merge_different_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="dateTime('2004-04-12-01:30', '13:20:00+01:30')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
 	<!-- time -->
 	<xs:element name="time_no_TC">
 		<xs:simpleType>

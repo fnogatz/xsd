@@ -5,6 +5,7 @@
 	]).
 
 :- use_module(library(regex)).
+:- use_module(library(xsd/date_time)).
 :- use_module(library(xsd/simpletype)).
 :- use_module(library(xsd/xsd_messages)).
 
@@ -144,21 +145,34 @@ xpath_expr(duration(Value), Result) :-
 		Result
 	).
 /* --- dateTime --- */
-xpath_expr(dateTime(Value), Result) :-
+xpath_expr(dateTime(Value), data('dateTime', [Sign, Year, Month, Day, Hour, Minute, Second, TimeZoneSign, TimeZoneHour, TimeZoneMinute])) :-
 	validate_xsd_simpleType('dateTime', Value),
 	split_string(Value, 'T', '', TSplit),
 	TSplit = [Date, Time],
 	xpath_expr(date(Date), data('date', [Sign, Year, Month, Day, _, _, _])),
-	xpath_expr(time(Time), data('time', [Hour, Minute, Second, TimeZoneSign, TimeZoneHour, TimeZoneMinute])),
-	Result = data('dateTime', [Sign, Year, Month, Day, Hour, Minute, Second, TimeZoneSign, TimeZoneHour, TimeZoneMinute]).
-	/*
-	normalize_dateTime(
-		data('dateTime', [Sign, Year, Month, Day, Hour, Minute, Second, TimeZoneSign, TimeZoneHour, TimeZoneMinute]),
-		Result
-	).
-*/
+	xpath_expr(time(Time), data('time', [Hour, Minute, Second, TimeZoneSign, TimeZoneHour, TimeZoneMinute])).
+xpath_expr(dateTime(Date,Time), data('dateTime', [Sign, Year, Month, Day, Hour, Minute, Second, TimeZoneSign, TimeZoneHour, TimeZoneMinute])) :-
+	validate_xsd_simpleType('date', Date),
+	validate_xsd_simpleType('time', Time),
+	xpath_expr(date(Date), data('date', [Sign, Year, Month, Day, TimeZoneSignDate, TimeZoneHourDate, TimeZoneMinuteDate])),
+	xpath_expr(time(Time), data('time', [Hour, Minute, Second, TimeZoneSignTime, TimeZoneHourTime, TimeZoneMinuteTime])),
+	(
+		% both date and time have the same or no TC
+		TimeZoneSignDate = TimeZoneSignTime, TimeZoneSign = TimeZoneSignDate,
+		TimeZoneHourDate = TimeZoneHourTime, TimeZoneHour = TimeZoneHourDate,
+		TimeZoneMinuteDate = TimeZoneMinuteTime, TimeZoneMinute = TimeZoneMinuteDate;
+		% only date has TC
+		TimeZoneSign = TimeZoneSignDate,
+		TimeZoneHourDate \= 0, TimeZoneHourTime = 0, TimeZoneHour = TimeZoneHourDate,
+		TimeZoneMinuteDate \= 0, TimeZoneMinuteTime = 0, TimeZoneMinute = TimeZoneMinuteDate;
+		% only time has TC
+		TimeZoneSign = TimeZoneSignTime,
+		TimeZoneHourDate = 0, TimeZoneHourTime \= 0, TimeZoneHour = TimeZoneHourTime,
+		TimeZoneMinuteDate = 0, TimeZoneMinuteTime \= 0, TimeZoneMinute = TimeZoneMinuteTime
+	),
+	warning('~w', [data('dateTime', [Sign, Year, Month, Day, Hour, Minute, Second, TimeZoneSign, TimeZoneHour, TimeZoneMinute])]).
 /* --- time --- */
-xpath_expr(time(Value), Result) :-
+xpath_expr(time(Value), data('time', [Hour, Minute, Second, TimeZoneSign, TimeZoneHour, TimeZoneMinute])) :-
 	validate_xsd_simpleType('time', Value),
 	(
 		% negative TC
@@ -191,16 +205,9 @@ xpath_expr(time(Value), Result) :-
 	number_string(Minute, MinuteTMP),
 	number_string(Second, SecondTMP),
 	number_string(TimeZoneHour, TimeZoneHourTMP),
-	number_string(TimeZoneMinute, TimeZoneMinuteTMP),
-	Result = data('time', [Hour, Minute, Second, TimeZoneSign, TimeZoneHour, TimeZoneMinute]).
-	/*
-	normalize_time(
-		data('time', [Hour, Minute, Second, TimeZoneSign, TimeZoneHour, TimeZoneMinute]),
-		Result	
-	).
-*/
+	number_string(TimeZoneMinute, TimeZoneMinuteTMP).
 /* --- date --- */
-xpath_expr(date(Value), Result) :-
+xpath_expr(date(Value), data('date', [Sign, Year, Month, Day, TimeZoneSign, TimeZoneHour, TimeZoneMinute])) :-
 	validate_xsd_simpleType('date', Value),
 	split_string(Value, '-', '', MinusSplit),
 	(
@@ -237,16 +244,11 @@ xpath_expr(date(Value), Result) :-
 	number_string(Month, MonthTMP),
 	number_string(Day, DayTMP),
 	number_string(TimeZoneHour, TimeZoneHourTMP),
-	number_string(TimeZoneMinute, TimeZoneMinuteTMP),
-	Result = data('date', [Sign, Year, Month, Day, TimeZoneSign, TimeZoneHour, TimeZoneMinute]).
-	/*
-	normalize_date(
-		data('date', [Sign, Year, Month, Day, TimeZoneSign, TimeZoneHour, TimeZoneMinute]),
-		Result
-	).*/
+	number_string(TimeZoneMinute, TimeZoneMinuteTMP).
 
 
 /* ~~~ Parsing ~~~ */
+
 parse_float(Value, ResultValue) :-
 	Value =~ '^\\+?NaN$', ResultValue = nan;
 	Value =~ '^-NaN$', ResultValue = -nan;
@@ -256,10 +258,11 @@ parse_float(Value, ResultValue) :-
 
 
 /* ~~~ Normalization ~~~ */
+
 normalize_duration(
 	data('duration', [USign, UYears, UMonths, UDays, UHours, UMinutes, USeconds]),
 	data('duration', [NSign, NYears, NMonths, NDays, NHours, NMinutes, NSeconds])) :-
-	% 0 =< Seconds =< 60
+	% 0 =< Seconds < 60
 	% seconds are (in constrast to the other values) given as float
 	number_string(USeconds, SUSeconds),
 	split_string(SUSeconds, '.', '', LUSeconds),
@@ -270,16 +273,16 @@ normalize_duration(
 			atomic_list_concat([STSeconds,SFractionalSeconds], '.', ANSeconds), atom_string(ANSeconds, SNSeconds), number_string(NSeconds, SNSeconds)
 	),
 	MinutesDiv is IntegerSeconds div 60,
-	% 0 =< Minutes =< 60
+	% 0 =< Minutes < 60
 	MinutesTMP is UMinutes + MinutesDiv,
 	HoursDiv is MinutesTMP div 60, NMinutes is MinutesTMP mod 60,
-	% 0 =< Hours =< 24
+	% 0 =< Hours < 24
 	HoursTMP is UHours + HoursDiv,
 	DaysDiv is HoursTMP div 24, NHours is HoursTMP mod 24,
-	% 0 =< Days =< 31
+	% 0 =< Days < 31
 	DaysTMP is UDays + DaysDiv,
 	MonthsDiv is DaysTMP div 31, NDays is DaysTMP mod 31,
-	% 0 =< Months =< 12
+	% 0 =< Months < 12
 	MonthsTMP is UMonths + MonthsDiv,
 	YearsDiv is MonthsTMP div 12, NMonths is MonthsTMP mod 12,
 	% Years have no restrictions

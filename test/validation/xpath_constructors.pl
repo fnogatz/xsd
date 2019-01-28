@@ -159,6 +159,26 @@
 {|xml||
 	<dateTime_AD_positive_TC></dateTime_AD_positive_TC>
 |}.
+'dateTime (merge, no TC)':
+{|xml||
+	<dateTime_merge_no_TC></dateTime_merge_no_TC>
+|}.
+'dateTime (merge, same TC)':
+{|xml||
+	<dateTime_merge_same_TC></dateTime_merge_same_TC>
+|}.
+'dateTime (merge, only date has TC)':
+{|xml||
+	<dateTime_merge_date_TC></dateTime_merge_date_TC>
+|}.
+'dateTime (merge, only time has TC)':
+{|xml||
+	<dateTime_merge_time_TC></dateTime_merge_time_TC>
+|}.
+'dateTime (merge, different TC)'(fail):
+{|xml||
+	<dateTime_merge_different_TC></dateTime_merge_different_TC>
+|}.
 
 /* time */
 'time (no TC)':
