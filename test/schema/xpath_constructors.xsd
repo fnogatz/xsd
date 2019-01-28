@@ -73,7 +73,106 @@
 			</xs:restriction>
 		</xs:simpleType>
 	</xs:element>
-	<!-- float, double -->
+	<!-- float -->
+	<xs:element name="float_common">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="float('-3.1415')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="float_negative_zero">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="float('-0')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="float_scientific_short">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="float('-3E2')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="float_scientific_long">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="float('4268.22752E11')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="float_infinity">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="float('-INF')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="float_NaN">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="float('NaN')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="float_invalid">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="float('NAN')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<!-- double -->
+	<xs:element name="double_common">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="double('-3.1415')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="double_negative_zero">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="double('-0')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="double_scientific_short">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="double('-3E2')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="double_scientific_long">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="double('4268.22752E11')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="double_infinity">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="double('-INF')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="double_NaN">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="double('NaN')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="double_invalid">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="double('NAN')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
 	<!-- duration -->
 	<xs:element name="duration_full">
 		<xs:simpleType>
@@ -107,6 +206,149 @@
 		<xs:simpleType>
 			<xs:restriction base="xs:string">
 				<xs:assertion test="duration('P2Y13M40DT30H65M92S')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<!-- dateTime -->
+	<xs:element name="dateTime_BC_no_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="dateTime('-0032-04-12T13:20:00')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="dateTime_BC_UTC_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="dateTime('-0032-04-12T13:20:00Z')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="dateTime_BC_negative_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="dateTime('-12345-04-12T13:20:00-14:00')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="dateTime_BC_positive_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="dateTime('-1234-04-12T13:20:00+14:00')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="dateTime_AD_no_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="dateTime('0000-01-01T00:00:00')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="dateTime_AD_UTC_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="dateTime('2004-04-12T13:20:00Z')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="dateTime_AD_negative_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="dateTime('2004-04-12T13:20:00-05:00')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="dateTime_AD_positive_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="dateTime('2004-04-12T13:20:00+11:59')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<!-- time -->
+	<xs:element name="time_no_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="time('13:20:30.5555')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="time_UTC_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="time('07:39:00Z')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="time_negative_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="time('13:20:00-05:20')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="time_positive_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="time('13:20:00+10:45')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<!-- date -->
+	<xs:element name="date_BC_no_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="date('-0032-01-01')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="date_BC_UTC_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="date('-0032-04-12Z')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="date_BC_negative_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="date('-0032-04-12-12:11')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="date_BC_positive_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="date('-0032-04-12+06:39')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="date_AD_no_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="date('12004-04-12')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="date_AD_UTC_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="date('2004-04-12Z')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="date_AD_negative_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="date('2004-04-12-13:59')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="date_AD_positive_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="date('2004-04-12+13:59')"/>
 			</xs:restriction>
 		</xs:simpleType>
 	</xs:element>

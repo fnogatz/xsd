@@ -50,14 +50,14 @@ xpath_expr($value, Result) :-
 /* ### Operators ### */
 
 /* --- eq --- */
-xpath_expr(Value1 eq Value2, Result) :-
+xpath_expr(Value1 eq Value2, data('boolean', [ResultValue])) :-
 	xpath_expr(Value1, Result1),
 	xpath_expr(Value2, Result2),
 	
 	% just a simple numeric comparison for now (needs to be replaced)
 	Result1 =:= Result2 ->
-		Result = data('boolean', [true]);
-		Result = data('boolean', [false]).
+		ResultValue = true;
+		ResultValue = false.
 
 
 /* ### Functions ### */
@@ -65,19 +65,17 @@ xpath_expr(Value1 eq Value2, Result) :-
 /* ~~~ Constructors ~~~ */
 
 /* --- string --- */
-xpath_expr(string(Value), Result) :-
+xpath_expr(string(Value), data('string', [ResultValue])) :-
 	validate_xsd_simpleType('string', Value),
-	term_string(Value, ValueString),
-	Result = data('string', [ValueString]).
+	term_string(Value, ResultValue).
 /* --- boolean --- */
-xpath_expr(boolean(Value), Result) :-
+xpath_expr(boolean(Value), data('boolean', [ResultValue])) :-
 	member(Value, ['false', '0']) ->
-		Result = data('boolean', [false]);
-		Result = data('boolean', [true]).
+		ResultValue = false;
+		ResultValue = true.
 /* --- decimal --- */
-xpath_expr(decimal(Value), Result) :-
+xpath_expr(decimal(Value), data('decimal', [ResultValue])) :-
 	validate_xsd_simpleType('decimal', Value),
-
 	( % add leading 0 in front of decimal point, as prolog cannot handle decimals like ".32"
 		Value =~ '^(\\+|-)?\\..*$' ->
 		(
@@ -86,10 +84,16 @@ xpath_expr(decimal(Value), Result) :-
 		);
 		ProcValue = Value
 	),
-
-	term_string(DataValue, ProcValue),
-	Result = data('decimal', [DataValue]).
-/* float and double */
+	term_string(ResultValue, ProcValue).
+/* --- float --- */
+xpath_expr(float(Value), data('float', [ResultValue])) :-
+	validate_xsd_simpleType('float', Value),
+	parse_float(Value, ResultValue).
+/* --- double --- */
+xpath_expr(double(Value), data('double', [ResultValue])) :-
+	validate_xsd_simpleType('double', Value),
+	% double values are internally handled as float values
+	parse_float(Value, ResultValue).
 /* --- duration --- */
 xpath_expr(duration(Value), Result) :-
 	validate_xsd_simpleType('duration', Value),
@@ -135,11 +139,123 @@ xpath_expr(duration(Value), Result) :-
 		SSplit = [_], Seconds = 0;
 		SSplit = [SecondsTMP, _], number_string(Seconds, SecondsTMP)
 	),
-	UnnormalizedDuration = data('duration', [Sign, Years, Months, Days, Hours, Minutes, Seconds]),
-	normalize_duration(UnnormalizedDuration, NormalizedDuration),
-	Result = NormalizedDuration.
+	normalize_duration(
+		data('duration', [Sign, Years, Months, Days, Hours, Minutes, Seconds]),
+		Result
+	).
+/* --- dateTime --- */
+xpath_expr(dateTime(Value), Result) :-
+	validate_xsd_simpleType('dateTime', Value),
+	split_string(Value, 'T', '', TSplit),
+	TSplit = [Date, Time],
+	xpath_expr(date(Date), data('date', [Sign, Year, Month, Day, _, _, _])),
+	xpath_expr(time(Time), data('time', [Hour, Minute, Second, TimeZoneSign, TimeZoneHour, TimeZoneMinute])),
+	Result = data('dateTime', [Sign, Year, Month, Day, Hour, Minute, Second, TimeZoneSign, TimeZoneHour, TimeZoneMinute]).
+	/*
+	normalize_dateTime(
+		data('dateTime', [Sign, Year, Month, Day, Hour, Minute, Second, TimeZoneSign, TimeZoneHour, TimeZoneMinute]),
+		Result
+	).
+*/
+/* --- time --- */
+xpath_expr(time(Value), Result) :-
+	validate_xsd_simpleType('time', Value),
+	(
+		% negative TC
+		split_string(Value, '-', '', MinusSplit),
+		MinusSplit = [TimeTMP, TimeZoneTMP],
+		TimeZoneSign = '-'
+		;
+		% positive TC
+		split_string(Value, '+', '', PlusSplit),
+		PlusSplit = [TimeTMP, TimeZoneTMP],
+		TimeZoneSign = '+'
+		;
+		% UTC TC
+		split_string(Value, 'Z', '', ZSplit),
+		ZSplit = [TimeTMP, _],
+		TimeZoneSign = '+',
+		TimeZoneTMP = '00:00'
+		;
+		% no TC
+		split_string(Value, 'Z+-', '', AllSplit),
+		AllSplit = [TimeTMP],
+		TimeZoneSign = '+',
+		TimeZoneTMP = '00:00'
+	),
+	split_string(TimeTMP, ':', '', TimeSplit),
+	TimeSplit = [HourTMP, MinuteTMP, SecondTMP],
+	split_string(TimeZoneTMP, ':', '', TimeZoneSplit),
+	TimeZoneSplit = [TimeZoneHourTMP, TimeZoneMinuteTMP],
+	number_string(Hour, HourTMP),
+	number_string(Minute, MinuteTMP),
+	number_string(Second, SecondTMP),
+	number_string(TimeZoneHour, TimeZoneHourTMP),
+	number_string(TimeZoneMinute, TimeZoneMinuteTMP),
+	Result = data('time', [Hour, Minute, Second, TimeZoneSign, TimeZoneHour, TimeZoneMinute]).
+	/*
+	normalize_time(
+		data('time', [Hour, Minute, Second, TimeZoneSign, TimeZoneHour, TimeZoneMinute]),
+		Result	
+	).
+*/
+/* --- date --- */
+xpath_expr(date(Value), Result) :-
+	validate_xsd_simpleType('date', Value),
+	split_string(Value, '-', '', MinusSplit),
+	(
+		% BC, negative TZ
+		MinusSplit = [_, YearTMP, MonthTMP, DayTMP, TimeZoneTMP], Sign = '-', TimeZoneSign = '-';
+		% BC, ...
+		MinusSplit = [_, YearTMP, MonthTMP, DayTimeZoneTMP], Sign = '-', TimeZoneSign = '+',
+		(
+			% ... UTC TC
+			split_string(DayTimeZoneTMP, 'Z', '', ZSplit), ZSplit = [DayTMP, _], TimeZoneTMP = '00:00';
+			% ... positive TC
+			split_string(DayTimeZoneTMP, '+', '', PlusSplit), PlusSplit = [DayTMP, TimeZoneTMP];
+			% ... no TZ
+			\+sub_string(DayTimeZoneTMP, _, _, _, 'Z'), \+sub_string(DayTimeZoneTMP, _, _, _, '+'), 
+			DayTMP = DayTimeZoneTMP, TimeZoneTMP = '00:00'
+		);
+		% AD, negative TZ
+		MinusSplit = [YearTMP, MonthTMP, DayTMP, TimeZoneTMP], Sign = '+', TimeZoneSign = '-';
+		% AD, ...
+		MinusSplit = [YearTMP, MonthTMP, DayTimeZoneTMP], Sign = '+', TimeZoneSign = '+',
+		(
+			% ... UTC TC
+			split_string(DayTimeZoneTMP, 'Z', '', ZSplit), ZSplit = [DayTMP, _], TimeZoneTMP = '00:00';
+			% ... positive TC
+			split_string(DayTimeZoneTMP, '+', '', PlusSplit), PlusSplit = [DayTMP, TimeZoneTMP];
+			% ... no TZ
+			\+sub_string(DayTimeZoneTMP, _, _, _, 'Z'), \+sub_string(DayTimeZoneTMP, _, _, _, '+'), 
+			DayTMP = DayTimeZoneTMP, TimeZoneTMP = '00:00'
+		)
+	),
+	split_string(TimeZoneTMP, ':', '', ColonSplit),
+	ColonSplit = [TimeZoneHourTMP, TimeZoneMinuteTMP],
+	number_string(Year, YearTMP),
+	number_string(Month, MonthTMP),
+	number_string(Day, DayTMP),
+	number_string(TimeZoneHour, TimeZoneHourTMP),
+	number_string(TimeZoneMinute, TimeZoneMinuteTMP),
+	Result = data('date', [Sign, Year, Month, Day, TimeZoneSign, TimeZoneHour, TimeZoneMinute]).
+	/*
+	normalize_date(
+		data('date', [Sign, Year, Month, Day, TimeZoneSign, TimeZoneHour, TimeZoneMinute]),
+		Result
+	).*/
 
 
+/* ~~~ Parsing ~~~ */
+parse_float(Value, ResultValue) :-
+	Value =~ '^\\+?NaN$', ResultValue = nan;
+	Value =~ '^-NaN$', ResultValue = -nan;
+	Value =~ '^\\+?INF$', ResultValue = inf;
+	Value =~ '^-INF$', ResultValue = -inf;
+	term_string(ValueTerm, Value), ResultValue is float(ValueTerm).
+
+
+/* ~~~ Normalization ~~~ */
 normalize_duration(
 	data('duration', [USign, UYears, UMonths, UDays, UHours, UMinutes, USeconds]),
 	data('duration', [NSign, NYears, NMonths, NDays, NHours, NMinutes, NSeconds])) :-

@@ -50,7 +50,7 @@ validate_xsd_simpleType('anyAtomicType', V) :-
 	validate_xsd_simpleType('anySimpleType', V).
 validate_xsd_simpleType('untypedAtomic', V) :-
 	validate_xsd_simpleType('anyAtomicType', V).
-validate_xsd_simpleType('datetime', V) :-
+validate_xsd_simpleType('dateTime', V) :-
 	validate_xsd_simpleType('anyAtomicType', V),
 	V =~ '^-?([1-9][0-9]*)?[0-9]{4}-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])T(([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\\.[0-9]+)?|24:00:00(\\.0+)?)((\\+|-)(14:00|1[0-3]:[0-5][0-9]|0[0-9]:[0-5][0-9])|Z)?$'.
 validate_xsd_simpleType('date', V) :-
