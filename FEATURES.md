@@ -30,8 +30,6 @@ name = NCName >
 </ complexType >
 ```
 
-Complex type inheritance is not supported yet.
-
 ## Model Group Definition
 
 ```
@@ -93,44 +91,11 @@ memberTypes = List of QName >
 
 ## Constraining Facets
 
-Almost all facets of the XML 1.1 specification are supported.
-
-However, 'Assert's and 'Assertion's are currently being worked on.
-The 'whiteSpace'-facet cannot be used due to the parser eliminating all redundant whitespaces automatically.
-The 'explicitTimezone'-facet is not implemented yet.
-
-All other facets are supported:
-
 ```
 < enumeration
 value = anySimpleType >
     Content: ( annotation ?)
 </ enumeration >
-
-< fractionDigits
-value = anySimpleType >
-    Content: ( annotation ?)
-</ fractionDigits >
-
-< length
-value = anySimpleType >
-    Content: ( annotation ?)
-</ length >
-
-< maxExclusive
-value = anySimpleType >
-    Content: ( annotation ?)
-</ maxExclusive >
-
-< maxInclusive
-value = anySimpleType >
-    Content: ( annotation ?)
-</ maxInclusive >
-
-< maxLength
-value = anySimpleType >
-    Content: ( annotation ?)
-</ maxLength >
 
 < minExclusive
 value = anySimpleType >
@@ -142,20 +107,15 @@ value = anySimpleType >
     Content: ( annotation ?)
 </ minInclusive >
 
-< minLength
+< maxExclusive
 value = anySimpleType >
     Content: ( annotation ?)
-</ minLength >
+</ maxExclusive >
 
-< pattern
+< maxInclusive
 value = anySimpleType >
     Content: ( annotation ?)
-</ pattern >
-
-< totalDigits
-value = anySimpleType >
-    Content: ( annotation ?)
-</ totalDigits >
+</ maxInclusive >
 ```
 
 ## Annotations
@@ -178,58 +138,30 @@ source = anyURI >
 
 ## Primitive Datatypes
 
-All data types of the XML 1.1 specification are supported:
-
 ```
 anyAtomicType
 anySimpleType
-anyType
-anyURI
-base64Binary
 boolean
 byte
 date
-dateTime
-dayTimeDuration
+datetime
 decimal
 double
-duration
-ENTITY
-ENTITIES
 float
-gDay
-gMonth
-gMonthDay
-gYear
-gYearMonth
-hexBinary
-ID
-IDREF
-IDREFS
 int
 integer
-language
 long
-Name
-NCName
 negativeInteger
-NMTOKEN
-NMTOKENS
 nonNegativeInteger
 nonPositiveInteger
-normalizedString
-NOTATION
 positiveInteger
-QName
 short
 string
 time
-token
 unsignedByte
 unsignedInt
 unsignedLong
 unsignedShort
-untyped
-untypedAtomic
-yearMonthDuration
+NMTOKEN
+NMTOKENS
 ```

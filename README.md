@@ -4,13 +4,9 @@ Validate an XML Document against an XML Schema in SWI-Prolog.
 
 ## Installation
 
-First of all, you need [SWI-Prolog](http://www.swi-prolog.org/).
-Take a look at the official website for installation instructions.
+All you need is [SWI-Prolog](http://www.swi-prolog.org/). See there for installation instructions.
 
-After that, you have to install the latest version of the [regex](http://www.swi-prolog.org/pack/list?p=regex) library.
-Installation instructions for this library can be found with the provided link.
-
-If you are a developer of this project, you must also install the [tap](http://www.swi-prolog.org/pack/list?p=tap) library in order to successfully execute our tests.
+Only for development purposes the [`library(tap)`](https://github.com/mndrix/tap) is needed.
 
 ### Pre-Compilation
 
@@ -82,7 +78,7 @@ Once an XML file is loaded using `xml_flatten/2`, it will be represented by the 
 
 ## Supported Features
 
-Please see [`FEATURES.md`](FEATURES.md) for the full list of currently supported components of the XML Schema Definition Language.
+Please see [`FEATURES.md`](https://github.com/jonakalkus/swipl-xsd/blob/master/FEATURES.md) for full list of currently supported components of the XML Schema Definition Language.
 
 ## Environment
 
