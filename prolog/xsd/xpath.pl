@@ -249,11 +249,15 @@ xpath_expr(date(Value), data('date', [Sign, Year, Month, Day, TimeZoneSign, Time
 
 /* ~~~ Parsing ~~~ */
 
+parse_float(Value, nan) :-
+	Value =~ '^\\+?NaN$'.
+parse_float(Value, -nan) :-
+	Value =~ '^-NaN$'.
+parse_float(Value, inf) :-
+	Value =~ '^\\+?INF$'.
+parse_float(Value, -inf) :-
+	Value =~ '^-INF$'.
 parse_float(Value, ResultValue) :-
-	Value =~ '^\\+?NaN$', ResultValue = nan;
-	Value =~ '^-NaN$', ResultValue = -nan;
-	Value =~ '^\\+?INF$', ResultValue = inf;
-	Value =~ '^-INF$', ResultValue = -inf;
 	term_string(ValueTerm, Value), ResultValue is float(ValueTerm).
 
 
