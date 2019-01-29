@@ -169,8 +169,7 @@ xpath_expr(dateTime(Date,Time), data('dateTime', [Sign, Year, Month, Day, Hour, 
 		TimeZoneSign = TimeZoneSignTime,
 		TimeZoneHourDate = 0, TimeZoneHourTime \= 0, TimeZoneHour = TimeZoneHourTime,
 		TimeZoneMinuteDate = 0, TimeZoneMinuteTime \= 0, TimeZoneMinute = TimeZoneMinuteTime
-	),
-	warning('~w', [data('dateTime', [Sign, Year, Month, Day, Hour, Minute, Second, TimeZoneSign, TimeZoneHour, TimeZoneMinute])]).
+	).
 /* --- time --- */
 xpath_expr(time(Value), data('time', [Hour, Minute, Second, TimeZoneSign, TimeZoneHour, TimeZoneMinute])) :-
 	validate_xsd_simpleType('time', Value),
