@@ -231,3 +231,153 @@
 {|xml||
 	<date_AD_positive_TC></date_AD_positive_TC>
 |}.
+
+/* gYearMonth */
+'gYearMonth (BC, no TC)':
+{|xml||
+	<gYearMonth_BC_no_TC></gYearMonth_BC_no_TC>
+|}.
+'gYearMonth (BC, UTC TC)':
+{|xml||
+	<gYearMonth_BC_UTC_TC></gYearMonth_BC_UTC_TC>
+|}.
+'gYearMonth (BC, negative TC)':
+{|xml||
+	<gYearMonth_BC_negative_TC></gYearMonth_BC_negative_TC>
+|}.
+'gYearMonth (BC, positive TC)':
+{|xml||
+	<gYearMonth_BC_positive_TC></gYearMonth_BC_positive_TC>
+|}.
+'gYearMonth (AD, no TC)':
+{|xml||
+	<gYearMonth_AD_no_TC></gYearMonth_AD_no_TC>
+|}.
+'gYearMonth (AD, UTC TC)':
+{|xml||
+	<gYearMonth_AD_UTC_TC></gYearMonth_AD_UTC_TC>
+|}.
+'gYearMonth (AD, negative TC)':
+{|xml||
+	<gYearMonth_AD_negative_TC></gYearMonth_AD_negative_TC>
+|}.
+'gYearMonth (AD, positive TC)':
+{|xml||
+	<gYearMonth_AD_positive_TC></gYearMonth_AD_positive_TC>
+|}.
+
+/* gYear */
+'gYear (BC, no TC)':
+{|xml||
+	<gYear_BC_no_TC></gYear_BC_no_TC>
+|}.
+'gYear (BC, UTC TC)':
+{|xml||
+	<gYear_BC_UTC_TC></gYear_BC_UTC_TC>
+|}.
+'gYear (BC, negative TC)':
+{|xml||
+	<gYear_BC_negative_TC></gYear_BC_negative_TC>
+|}.
+'gYear (BC, positive TC)':
+{|xml||
+	<gYear_BC_positive_TC></gYear_BC_positive_TC>
+|}.
+'gYear (AD, no TC)':
+{|xml||
+	<gYear_AD_no_TC></gYear_AD_no_TC>
+|}.
+'gYear (AD, UTC TC)':
+{|xml||
+	<gYear_AD_UTC_TC></gYear_AD_UTC_TC>
+|}.
+'gYear (AD, negative TC)':
+{|xml||
+	<gYear_AD_negative_TC></gYear_AD_negative_TC>
+|}.
+'gYear (AD, positive TC)':
+{|xml||
+	<gYear_AD_positive_TC></gYear_AD_positive_TC>
+|}.
+
+/* gMonthDay */
+'gMonthDay (no TC)':
+{|xml||
+	<gMonthDay_no_TC></gMonthDay_no_TC>
+|}.
+'gMonthDay (UTC TC)':
+{|xml||
+	<gMonthDay_UTC_TC></gMonthDay_UTC_TC>
+|}.
+'gMonthDay (negative TC)':
+{|xml||
+	<gMonthDay_negative_TC></gMonthDay_negative_TC>
+|}.
+'gMonthDay (positive TC)':
+{|xml||
+	<gMonthDay_positive_TC></gMonthDay_positive_TC>
+|}.
+
+/* gDay */
+'gDay (no TC)':
+{|xml||
+	<gDay_no_TC></gDay_no_TC>
+|}.
+'gDay (UTC TC)':
+{|xml||
+	<gDay_UTC_TC></gDay_UTC_TC>
+|}.
+'gDay (negative TC)':
+{|xml||
+	<gDay_negative_TC></gDay_negative_TC>
+|}.
+'gDay (positive TC)':
+{|xml||
+	<gDay_positive_TC></gDay_positive_TC>
+|}.
+
+/* gMonth */
+'gMonth (no TC)':
+{|xml||
+	<gMonth_no_TC></gMonth_no_TC>
+|}.
+'gMonth (UTC TC)':
+{|xml||
+	<gMonth_UTC_TC></gMonth_UTC_TC>
+|}.
+'gMonth (negative TC)':
+{|xml||
+	<gMonth_negative_TC></gMonth_negative_TC>
+|}.
+'gMonth (positive TC)':
+{|xml||
+	<gMonth_positive_TC></gMonth_positive_TC>
+|}.
+
+/* hexBinary */
+'hexBinary (uppercase)':
+{|xml||
+	<hexBinary_uc></hexBinary_uc>
+|}.
+'hexBinary (lowercase)':
+{|xml||
+	<hexBinary_lc></hexBinary_lc>
+|}.
+'hexBinary (empty)':
+{|xml||
+	<hexBinary_empty></hexBinary_empty>
+|}.
+
+/* base64Binary */
+'base64Binary (uppercase and whitespaces)':
+{|xml||
+	<base64Binary_uc_ws></base64Binary_uc_ws>
+|}.
+'base64Binary (lowercase and padding)':
+{|xml||
+	<base64Binary_lc_pad></base64Binary_lc_pad>
+|}.
+'base64Binary (empty)':
+{|xml||
+	<base64Binary_empty></base64Binary_empty>
+|}.

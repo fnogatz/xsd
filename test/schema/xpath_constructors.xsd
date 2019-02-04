@@ -387,4 +387,249 @@
 			</xs:restriction>
 		</xs:simpleType>
 	</xs:element>
+	<!-- gYearMonth -->
+	<xs:element name="gYearMonth_BC_no_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="gYearMonth('-0032-01')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="gYearMonth_BC_UTC_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="gYearMonth('-0032-04Z')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="gYearMonth_BC_negative_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="gYearMonth('-0032-04-12:11')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="gYearMonth_BC_positive_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="gYearMonth('-0032-04+06:39')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="gYearMonth_AD_no_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="gYearMonth('12004-04')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="gYearMonth_AD_UTC_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="gYearMonth('2004-04Z')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="gYearMonth_AD_negative_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="gYearMonth('2004-04-13:59')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="gYearMonth_AD_positive_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="gYearMonth('2004-04+13:59')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<!-- gYear -->
+	<xs:element name="gYear_BC_no_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="gYear('-0032')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="gYear_BC_UTC_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="gYear('-0032Z')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="gYear_BC_negative_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="gYear('-0032-12:11')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="gYear_BC_positive_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="gYear('-0032+06:39')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="gYear_AD_no_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="gYear('12004')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="gYear_AD_UTC_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="gYear('2004Z')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="gYear_AD_negative_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="gYear('2004-13:59')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="gYear_AD_positive_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="gYear('2004+13:59')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<!-- gMonthDay -->
+	<xs:element name="gMonthDay_no_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="gMonthDay('--01-01')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="gMonthDay_UTC_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="gMonthDay('--04-12Z')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="gMonthDay_negative_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="gMonthDay('--04-12-12:11')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="gMonthDay_positive_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="gMonthDay('--04-12+06:39')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<!-- gDay -->
+	<xs:element name="gDay_no_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="gDay('---01')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="gDay_UTC_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="gDay('---12Z')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="gDay_negative_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="gDay('---12-12:11')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="gDay_positive_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="gDay('---12+06:39')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<!-- gMonth -->
+	<xs:element name="gMonth_no_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="gMonth('--01')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="gMonth_UTC_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="gMonth('--04Z')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="gMonth_negative_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="gMonth('--04-12:11')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="gMonth_positive_TC">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="gMonth('--04+06:39')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<!-- hexBinary -->
+	<xs:element name="hexBinary_uc">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="hexBinary('0FB8')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="hexBinary_lc">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="hexBinary('0fb8')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="hexBinary_empty">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="hexBinary('')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<!-- base64Binary -->
+	<xs:element name="base64Binary_uc_ws">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="base64Binary('0 FB8 0F+9')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="base64Binary_lc_pad">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="base64Binary('0F+40A==')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="base64Binary_empty">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="base64Binary('')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
 </xs:schema>

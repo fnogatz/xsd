@@ -5,7 +5,6 @@
 	]).
 
 :- use_module(library(regex)).
-:- use_module(library(xsd/date_time)).
 :- use_module(library(xsd/simpletype)).
 :- use_module(library(xsd/xsd_messages)).
 
@@ -145,33 +144,27 @@ xpath_expr(duration(Value), Result) :-
 		Result
 	).
 /* --- dateTime --- */
-xpath_expr(dateTime(Value), data('dateTime', [Sign, Year, Month, Day, Hour, Minute, Second, TimeZoneSign, TimeZoneHour, TimeZoneMinute])) :-
+xpath_expr(dateTime(Value), data('dateTime', [Year, Month, Day, Hour, Minute, Second, TimeZoneOffset])) :-
 	validate_xsd_simpleType('dateTime', Value),
 	split_string(Value, 'T', '', TSplit),
 	TSplit = [Date, Time],
-	xpath_expr(date(Date), data('date', [Sign, Year, Month, Day, _, _, _])),
-	xpath_expr(time(Time), data('time', [Hour, Minute, Second, TimeZoneSign, TimeZoneHour, TimeZoneMinute])).
-xpath_expr(dateTime(Date,Time), data('dateTime', [Sign, Year, Month, Day, Hour, Minute, Second, TimeZoneSign, TimeZoneHour, TimeZoneMinute])) :-
+	xpath_expr(date(Date), data('date', [Year, Month, Day, _, _, _, _])),
+	xpath_expr(time(Time), data('time', [_, _, _, Hour, Minute, Second, TimeZoneOffset])).
+xpath_expr(dateTime(Date,Time), data('dateTime', [Year, Month, Day, Hour, Minute, Second, TimeZoneOffset])) :-
 	validate_xsd_simpleType('date', Date),
 	validate_xsd_simpleType('time', Time),
-	xpath_expr(date(Date), data('date', [Sign, Year, Month, Day, TimeZoneSignDate, TimeZoneHourDate, TimeZoneMinuteDate])),
-	xpath_expr(time(Time), data('time', [Hour, Minute, Second, TimeZoneSignTime, TimeZoneHourTime, TimeZoneMinuteTime])),
+	xpath_expr(date(Date), data('date', [Year, Month, Day, _, _, _, TimeZoneOffsetDate])),
+	xpath_expr(time(Time), data('time', [_, _, _, Hour, Minute, Second, TimeZoneOffsetTime])),
 	(
 		% both date and time have the same or no TC
-		TimeZoneSignDate = TimeZoneSignTime, TimeZoneSign = TimeZoneSignDate,
-		TimeZoneHourDate = TimeZoneHourTime, TimeZoneHour = TimeZoneHourDate,
-		TimeZoneMinuteDate = TimeZoneMinuteTime, TimeZoneMinute = TimeZoneMinuteDate;
+		TimeZoneOffsetDate = TimeZoneOffsetTime, TimeZoneOffset = TimeZoneOffsetDate;
 		% only date has TC
-		TimeZoneSign = TimeZoneSignDate,
-		TimeZoneHourDate \= 0, TimeZoneHourTime = 0, TimeZoneHour = TimeZoneHourDate,
-		TimeZoneMinuteDate \= 0, TimeZoneMinuteTime = 0, TimeZoneMinute = TimeZoneMinuteDate;
+		TimeZoneOffsetDate \= 0, TimeZoneOffsetTime = 0, TimeZoneOffset = TimeZoneOffsetDate;
 		% only time has TC
-		TimeZoneSign = TimeZoneSignTime,
-		TimeZoneHourDate = 0, TimeZoneHourTime \= 0, TimeZoneHour = TimeZoneHourTime,
-		TimeZoneMinuteDate = 0, TimeZoneMinuteTime \= 0, TimeZoneMinute = TimeZoneMinuteTime
+		TimeZoneOffsetDate = 0, TimeZoneOffsetTime \= 0, TimeZoneOffset = TimeZoneOffsetTime
 	).
 /* --- time --- */
-xpath_expr(time(Value), data('time', [Hour, Minute, Second, TimeZoneSign, TimeZoneHour, TimeZoneMinute])) :-
+xpath_expr(time(Value), data('time', [0, 0, 0, Hour, Minute, Second, TimeZoneOffset])) :-
 	validate_xsd_simpleType('time', Value),
 	(
 		% negative TC
@@ -204,38 +197,23 @@ xpath_expr(time(Value), data('time', [Hour, Minute, Second, TimeZoneSign, TimeZo
 	number_string(Minute, MinuteTMP),
 	number_string(Second, SecondTMP),
 	number_string(TimeZoneHour, TimeZoneHourTMP),
-	number_string(TimeZoneMinute, TimeZoneMinuteTMP).
+	number_string(TimeZoneMinute, TimeZoneMinuteTMP),
+	timezone_offset(TimeZoneSign, TimeZoneHour, TimeZoneMinute, TimeZoneOffset).
 /* --- date --- */
-xpath_expr(date(Value), data('date', [Sign, Year, Month, Day, TimeZoneSign, TimeZoneHour, TimeZoneMinute])) :-
+xpath_expr(date(Value), data('date', [Year, Month, Day, 0, 0, 0, TimeZoneOffset])) :-
 	validate_xsd_simpleType('date', Value),
 	split_string(Value, '-', '', MinusSplit),
 	(
 		% BC, negative TZ
-		MinusSplit = [_, YearTMP, MonthTMP, DayTMP, TimeZoneTMP], Sign = '-', TimeZoneSign = '-';
-		% BC, ...
-		MinusSplit = [_, YearTMP, MonthTMP, DayTimeZoneTMP], Sign = '-', TimeZoneSign = '+',
-		(
-			% ... UTC TC
-			split_string(DayTimeZoneTMP, 'Z', '', ZSplit), ZSplit = [DayTMP, _], TimeZoneTMP = '00:00';
-			% ... positive TC
-			split_string(DayTimeZoneTMP, '+', '', PlusSplit), PlusSplit = [DayTMP, TimeZoneTMP];
-			% ... no TZ
-			\+sub_string(DayTimeZoneTMP, _, _, _, 'Z'), \+sub_string(DayTimeZoneTMP, _, _, _, '+'), 
-			DayTMP = DayTimeZoneTMP, TimeZoneTMP = '00:00'
-		);
+		MinusSplit = [_, YearString, MonthTMP, DayTMP, TimeZoneTMP], string_concat('-', YearString, YearTMP), TimeZoneSign = '-';
+		% BC, UTC, positive, no TZ
+		MinusSplit = [_, YearString, MonthTMP, DayTimeZoneTMP], string_concat('-', YearString, YearTMP), TimeZoneSign = '+',
+		timezone_split(DayTMP, TimeZoneTMP, DayTimeZoneTMP);
 		% AD, negative TZ
-		MinusSplit = [YearTMP, MonthTMP, DayTMP, TimeZoneTMP], Sign = '+', TimeZoneSign = '-';
-		% AD, ...
-		MinusSplit = [YearTMP, MonthTMP, DayTimeZoneTMP], Sign = '+', TimeZoneSign = '+',
-		(
-			% ... UTC TC
-			split_string(DayTimeZoneTMP, 'Z', '', ZSplit), ZSplit = [DayTMP, _], TimeZoneTMP = '00:00';
-			% ... positive TC
-			split_string(DayTimeZoneTMP, '+', '', PlusSplit), PlusSplit = [DayTMP, TimeZoneTMP];
-			% ... no TZ
-			\+sub_string(DayTimeZoneTMP, _, _, _, 'Z'), \+sub_string(DayTimeZoneTMP, _, _, _, '+'), 
-			DayTMP = DayTimeZoneTMP, TimeZoneTMP = '00:00'
-		)
+		MinusSplit = [YearTMP, MonthTMP, DayTMP, TimeZoneTMP], TimeZoneSign = '-';
+		% AD, UTC, positive, no TZ
+		MinusSplit = [YearTMP, MonthTMP, DayTimeZoneTMP], TimeZoneSign = '+',
+		timezone_split(DayTMP, TimeZoneTMP, DayTimeZoneTMP)
 	),
 	split_string(TimeZoneTMP, ':', '', ColonSplit),
 	ColonSplit = [TimeZoneHourTMP, TimeZoneMinuteTMP],
@@ -243,7 +221,115 @@ xpath_expr(date(Value), data('date', [Sign, Year, Month, Day, TimeZoneSign, Time
 	number_string(Month, MonthTMP),
 	number_string(Day, DayTMP),
 	number_string(TimeZoneHour, TimeZoneHourTMP),
-	number_string(TimeZoneMinute, TimeZoneMinuteTMP).
+	number_string(TimeZoneMinute, TimeZoneMinuteTMP),
+	timezone_offset(TimeZoneSign, TimeZoneHour, TimeZoneMinute, TimeZoneOffset).
+/* --- gYearMonth --- */
+xpath_expr(gYearMonth(Value), data('gYearMonth', [Year, Month, 0, 0, 0, 0, TimeZoneOffset])) :-
+	validate_xsd_simpleType('gYearMonth', Value),
+	split_string(Value, '-', '', MinusSplit),
+	(
+		% BC, negative TZ
+		MinusSplit = [_, YearString, MonthTMP, TimeZoneTMP], string_concat('-', YearString, YearTMP), TimeZoneSign = '-';
+		% BC, UTC, positive, no TZ
+		MinusSplit = [_, YearString, MonthTimeZoneTMP], string_concat('-', YearString, YearTMP), TimeZoneSign = '+',
+		timezone_split(MonthTMP, TimeZoneTMP, MonthTimeZoneTMP);
+		% AD, negative TZ
+		MinusSplit = [YearTMP, MonthTMP, TimeZoneTMP], TimeZoneSign = '-';
+		% AD, UTC, positive, no TZ
+		MinusSplit = [YearTMP, MonthTimeZoneTMP], TimeZoneSign = '+',
+		timezone_split(MonthTMP, TimeZoneTMP, MonthTimeZoneTMP)
+	),
+	split_string(TimeZoneTMP, ':', '', ColonSplit),
+	ColonSplit = [TimeZoneHourTMP, TimeZoneMinuteTMP],
+	number_string(Year, YearTMP),
+	number_string(Month, MonthTMP),
+	number_string(TimeZoneHour, TimeZoneHourTMP),
+	number_string(TimeZoneMinute, TimeZoneMinuteTMP),
+	timezone_offset(TimeZoneSign, TimeZoneHour, TimeZoneMinute, TimeZoneOffset).
+/* --- gYear --- */
+xpath_expr(gYear(Value), data('gYear', [Year, 0, 0, 0, 0, 0, TimeZoneOffset])) :-
+	validate_xsd_simpleType('gYear', Value),
+	split_string(Value, '-', '', MinusSplit),
+	(
+		% BC, negative TZ
+		MinusSplit = [_, YearString, TimeZoneTMP], string_concat('-', YearString, YearTMP), TimeZoneSign = '-';
+		% BC, UTC, positive, no TZ
+		MinusSplit = [_, YearTimeZoneTMP], TimeZoneSign = '+',
+		timezone_split(YearString, TimeZoneTMP, YearTimeZoneTMP), string_concat('-', YearString, YearTMP);
+		% AD, negative TZ
+		MinusSplit = [YearTMP, TimeZoneTMP], TimeZoneSign = '-';
+		% AD, UTC, positive, no TZ
+		MinusSplit = [YearTimeZoneTMP], TimeZoneSign = '+',
+		timezone_split(YearTMP, TimeZoneTMP, YearTimeZoneTMP)
+	),
+	split_string(TimeZoneTMP, ':', '', ColonSplit),
+	ColonSplit = [TimeZoneHourTMP, TimeZoneMinuteTMP],
+	number_string(Year, YearTMP),
+	number_string(TimeZoneHour, TimeZoneHourTMP),
+	number_string(TimeZoneMinute, TimeZoneMinuteTMP),
+	timezone_offset(TimeZoneSign, TimeZoneHour, TimeZoneMinute, TimeZoneOffset).
+/* --- gMonthDay --- */
+xpath_expr(gMonthDay(Value), data('gMonthDay', [0, Month, Day, 0, 0, 0, TimeZoneOffset])) :-
+	validate_xsd_simpleType('gMonthDay', Value),
+	split_string(Value, '-', '', MinusSplit),
+	(
+		% negative TZ
+		MinusSplit = [_, _, MonthTMP, DayTMP, TimeZoneTMP], TimeZoneSign = '-';
+		% UTC, positive, no TZ
+		MinusSplit = [_, _, MonthTMP, DayTimeZoneTMP], TimeZoneSign = '+',
+		timezone_split(DayTMP, TimeZoneTMP, DayTimeZoneTMP)
+	),
+	split_string(TimeZoneTMP, ':', '', ColonSplit),
+	ColonSplit = [TimeZoneHourTMP, TimeZoneMinuteTMP],
+	number_string(Month, MonthTMP),
+	number_string(Day, DayTMP),
+	number_string(TimeZoneHour, TimeZoneHourTMP),
+	number_string(TimeZoneMinute, TimeZoneMinuteTMP),
+	timezone_offset(TimeZoneSign, TimeZoneHour, TimeZoneMinute, TimeZoneOffset).
+/* --- gDay --- */
+xpath_expr(gDay(Value), data('gDay', [0, 0, Day, 0, 0, 0, TimeZoneOffset])) :-
+	validate_xsd_simpleType('gDay', Value),
+	split_string(Value, '-', '', MinusSplit),
+	(
+		% negative TZ
+		MinusSplit = [_, _, _, DayTMP, TimeZoneTMP], TimeZoneSign = '-';
+		% UTC, positive, no TZ
+		MinusSplit = [_, _, _, DayTimeZoneTMP], TimeZoneSign = '+',
+		timezone_split(DayTMP, TimeZoneTMP, DayTimeZoneTMP)
+	),
+	split_string(TimeZoneTMP, ':', '', ColonSplit),
+	ColonSplit = [TimeZoneHourTMP, TimeZoneMinuteTMP],
+	number_string(Day, DayTMP),
+	number_string(TimeZoneHour, TimeZoneHourTMP),
+	number_string(TimeZoneMinute, TimeZoneMinuteTMP),
+	timezone_offset(TimeZoneSign, TimeZoneHour, TimeZoneMinute, TimeZoneOffset).
+/* --- gMonth --- */
+xpath_expr(gMonth(Value), data('gMonth', [0, Month, 0, 0, 0, 0, TimeZoneOffset])) :-
+	validate_xsd_simpleType('gMonth', Value),
+	split_string(Value, '-', '', MinusSplit),
+	(
+		% negative TZ
+		MinusSplit = [_, _, MonthTMP, TimeZoneTMP], TimeZoneSign = '-';
+		% UTC, positive, no TZ
+		MinusSplit = [_, _, MonthTimeZoneTMP], TimeZoneSign = '+',
+		timezone_split(MonthTMP, TimeZoneTMP, MonthTimeZoneTMP)
+	),
+	split_string(TimeZoneTMP, ':', '', ColonSplit),
+	ColonSplit = [TimeZoneHourTMP, TimeZoneMinuteTMP],
+	number_string(Month, MonthTMP),
+	number_string(TimeZoneHour, TimeZoneHourTMP),
+	number_string(TimeZoneMinute, TimeZoneMinuteTMP),
+	timezone_offset(TimeZoneSign, TimeZoneHour, TimeZoneMinute, TimeZoneOffset).
+/* --- hexBinary --- */
+xpath_expr(hexBinary(Value), data('hexBinary', [LowerCaseValue])) :-
+	validate_xsd_simpleType('hexBinary', Value),
+	string_upper(Value, LowerCaseValue).
+/* --- base64Binary --- */
+xpath_expr(base64Binary(Value), data('base64Binary', [SanitizedValue])) :-
+	validate_xsd_simpleType('base64Binary', Value),
+	string_upper(Value, LowerCaseValue),
+	atomic_list_concat(TMP, ' ', LowerCaseValue),
+	atomic_list_concat(TMP, '', SanitizedValue).
 
 
 /* ~~~ Parsing ~~~ */
@@ -306,3 +392,22 @@ normalize_duration(
 			)
 	),
 	NYears is abs(YearsTMP).
+
+
+/* ~~~ Helping Functions ~~~ */
+/* --- convert time zone parts to compact time zone offset --- */
+timezone_offset('-', TimeZoneHour, TimeZoneMinute, TimeZoneOffset) :-
+	TimeZoneOffset is (-1 * (60 * TimeZoneHour + TimeZoneMinute)).
+timezone_offset('+', TimeZoneHour, TimeZoneMinute, TimeZoneOffset) :-
+	TimeZoneOffset is (60 * TimeZoneHour + TimeZoneMinute).
+/* --- splits RestTimeZoneTMP into RestTMP (e.g. MonthTMP - '02') and TimeZoneTMP (e.g. '-13:30') --- */
+timezone_split(RestTMP, TimeZoneTMP, RestTimeZoneTMP) :-
+	% UTC TC
+	split_string(RestTimeZoneTMP, 'Z', '', ZSplit), ZSplit = [RestTMP, _], TimeZoneTMP = '00:00'.
+timezone_split(RestTMP, TimeZoneTMP, RestTimeZoneTMP) :-
+	% positive TC
+	split_string(RestTimeZoneTMP, '+', '', PlusSplit), PlusSplit = [RestTMP, TimeZoneTMP].
+timezone_split(RestTMP, TimeZoneTMP, RestTimeZoneTMP) :- 
+	% no TZ
+	\+sub_string(RestTimeZoneTMP, _, _, _, 'Z'), \+sub_string(RestTimeZoneTMP, _, _, _, '+'), 
+	RestTMP = RestTimeZoneTMP, TimeZoneTMP = '00:00'.
