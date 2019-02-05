@@ -381,3 +381,128 @@
 {|xml||
 	<base64Binary_empty></base64Binary_empty>
 |}.
+
+/* anyURI */
+'anyURI':
+{|xml||
+	<anyURI></anyURI>
+|}.
+
+/* QName */
+
+/* normalizedString */
+'normalizedString (multiple spaces)':
+{|xml||
+	<normalizedString_spaces></normalizedString_spaces>
+|}.
+'normalizedString (line break)':
+{|xml||
+	<normalizedString_linebreak></normalizedString_linebreak>
+|}.
+
+/* token */
+'token':
+{|xml||
+	<token></token>
+|}.
+
+/* language */
+'language':
+{|xml||
+	<language></language>
+|}.
+
+/* integer */
+'integer (leading zeroes)':
+{|xml||
+	<integer_leading_zeroes></integer_leading_zeroes>
+|}.
+'integer (positive sign)':
+{|xml||
+	<integer_positive></integer_positive>
+|}.
+'integer (negative sign)':
+{|xml||
+	<integer_negative></integer_negative>
+|}.
+
+/* nonPositiveInteger */
+'nonPositiveInteger':
+{|xml||
+	<nonPositiveInteger></nonPositiveInteger>
+|}.
+
+/* negativeInteger */
+'negativeInteger':
+{|xml||
+	<negativeInteger></negativeInteger>
+|}.
+
+/* long */
+'long':
+{|xml||
+	<long></long>
+|}.
+
+/* int */
+'int':
+{|xml||
+	<int></int>
+|}.
+
+/* short */
+'short':
+{|xml||
+	<short></short>
+|}.
+
+/* byte */
+'byte':
+{|xml||
+	<byte></byte>
+|}.
+
+/* nonNegativeInteger */
+'nonNegativeInteger':
+{|xml||
+	<nonNegativeInteger></nonNegativeInteger>
+|}.
+
+/* unsignedLong */
+'unsignedLong':
+{|xml||
+	<unsignedLong></unsignedLong>
+|}.
+
+/* unsignedInt */
+'unsignedInt':
+{|xml||
+	<unsignedInt></unsignedInt>
+|}.
+
+/* unsignedShort */
+'unsignedShort':
+{|xml||
+	<unsignedShort></unsignedShort>
+|}.
+
+/* unsignedByte */
+'unsignedByte':
+{|xml||
+	<unsignedByte></unsignedByte>
+|}.
+
+/* positiveInteger */
+'positiveInteger':
+{|xml||
+	<positiveInteger></positiveInteger>
+|}.
+
+/* positiveInteger */
+/* positiveInteger */
+
+/* untypedAtomic */
+'untypedAtomic':
+{|xml||
+	<untypedAtomic></untypedAtomic>
+|}.

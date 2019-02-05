@@ -632,4 +632,173 @@
 			</xs:restriction>
 		</xs:simpleType>
 	</xs:element>
+	<!-- anyURI -->
+	<xs:element name="anyURI">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="anyURI('https://john.doe@www.example.com:123/forum/questions/?tag=networking#top')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<!-- QName -->
+	<!-- normalizedString -->
+	<xs:element name="normalizedString_spaces">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="normalizedString('   Separated by 3 spaces.')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="normalizedString_linebreak">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="normalizedString('This
+	is on two lines.')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<!-- token -->
+	<xs:element name="token">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="token('This is a string!')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<!-- language -->
+	<xs:element name="language">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="language('en-US')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<!-- integer -->
+	<xs:element name="integer_leading_zeroes">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="integer('0123')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="integer_positive">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="integer('+123')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="integer_negative">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="integer('-123')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<!-- nonPositiveInteger -->
+	<xs:element name="nonPositiveInteger">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="nonPositiveInteger('-01234')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<!-- negativeInteger -->
+	<xs:element name="negativeInteger">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="negativeInteger('-1234')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<!-- long -->
+	<xs:element name="long">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="long('-21474836480')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<!-- int -->
+	<xs:element name="int">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="int('-123')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<!-- short -->
+	<xs:element name="short">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="short('-1234')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<!-- byte -->
+	<xs:element name="byte">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="byte('-128')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<!-- nonNegativeInteger -->
+	<xs:element name="nonNegativeInteger">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="nonNegativeInteger('1234')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<!-- unsignedLong -->
+	<xs:element name="unsignedLong">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="unsignedLong('18446744073709551615')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<!-- unsignedInt -->
+	<xs:element name="unsignedInt">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="unsignedInt('1234')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<!-- unsignedShort -->
+	<xs:element name="unsignedShort">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="unsignedShort('65432')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<!-- unsignedByte -->
+	<xs:element name="unsignedByte">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="unsignedByte('255')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<!-- positiveInteger -->
+	<xs:element name="positiveInteger">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="positiveInteger('1234')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<!-- yearMonthDuration -->
+	<!-- dayTimeDuration -->
+	<!-- untypedAtomic -->
+	<xs:element name="untypedAtomic">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="untypedAtomic('ß汉98af é▓fioe')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
 </xs:schema>

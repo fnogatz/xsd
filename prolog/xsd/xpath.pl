@@ -323,13 +323,115 @@ xpath_expr(gMonth(Value), data('gMonth', [0, Month, 0, 0, 0, 0, TimeZoneOffset])
 /* --- hexBinary --- */
 xpath_expr(hexBinary(Value), data('hexBinary', [LowerCaseValue])) :-
 	validate_xsd_simpleType('hexBinary', Value),
-	string_upper(Value, LowerCaseValue).
+	atom_string(Value, ValueString),
+	string_upper(ValueString, LowerCaseValue).
 /* --- base64Binary --- */
-xpath_expr(base64Binary(Value), data('base64Binary', [SanitizedValue])) :-
+xpath_expr(base64Binary(Value), data('base64Binary', [ValueString])) :-
 	validate_xsd_simpleType('base64Binary', Value),
 	string_upper(Value, LowerCaseValue),
 	atomic_list_concat(TMP, ' ', LowerCaseValue),
-	atomic_list_concat(TMP, '', SanitizedValue).
+	atomic_list_concat(TMP, '', SanitizedValue),
+	atom_string(SanitizedValue, ValueString).
+/* --- anyURI --- */
+xpath_expr(anyURI(Value), data('anyURI', [ValueString])) :-
+	validate_xsd_simpleType('anyURI', Value),
+	atom_string(Value, ValueString).
+/* --- QName --- */
+/*
+xpath_expr(QName(Value), Result) :-
+	validate_xsd_simpleType('QName', Value),
+	Result = data('QName', [Value]),
+	warning('~w', Result).
+*/
+/* --- normalizedString --- */
+xpath_expr(normalizedString(Value), data('normalizedString', [ValueString])) :-
+	validate_xsd_simpleType('normalizedString', Value),
+	atom_string(Value, ValueString).
+/* --- token --- */
+xpath_expr(token(Value), data('token', [ValueString])) :-
+	validate_xsd_simpleType('token', Value),
+	atom_string(Value, ValueString).
+/* --- language --- */
+xpath_expr(language(Value), data('language', [ValueString])) :-
+	validate_xsd_simpleType('language', Value),
+	atom_string(Value, ValueString).
+/* --- NMTOKEN --- */
+/* --- Name --- */
+/* --- NCName --- */
+/* --- ID --- */
+/* --- IDREF --- */
+/* --- ENTITY --- */
+/* --- integer --- */
+xpath_expr(integer(Value), data('integer', [NumberValue])) :-
+	validate_xsd_simpleType('integer', Value),
+	atom_string(Value, ValueString),
+	number_string(NumberValue, ValueString).
+/* --- nonPositiveInteger --- */
+xpath_expr(nonPositiveInteger(Value), data('nonPositiveInteger', [NumberValue])) :-
+	validate_xsd_simpleType('nonPositiveInteger', Value),
+	atom_string(Value, ValueString),
+	number_string(NumberValue, ValueString).
+/* --- negativeInteger --- */
+xpath_expr(negativeInteger(Value), data('negativeInteger', [NumberValue])) :-
+	validate_xsd_simpleType('negativeInteger', Value),
+	atom_string(Value, ValueString),
+	number_string(NumberValue, ValueString).
+/* --- long --- */
+xpath_expr(long(Value), data('long', [NumberValue])) :-
+	validate_xsd_simpleType('long', Value),
+	atom_string(Value, ValueString),
+	number_string(NumberValue, ValueString).
+/* --- int --- */
+xpath_expr(int(Value), data('int', [NumberValue])) :-
+	validate_xsd_simpleType('int', Value),
+	atom_string(Value, ValueString),
+	number_string(NumberValue, ValueString).
+/* --- short --- */
+xpath_expr(short(Value), data('short', [NumberValue])) :-
+	validate_xsd_simpleType('short', Value),
+	atom_string(Value, ValueString),
+	number_string(NumberValue, ValueString).
+/* --- byte --- */
+xpath_expr(byte(Value), data('byte', [NumberValue])) :-
+	validate_xsd_simpleType('byte', Value),
+	atom_string(Value, ValueString),
+	number_string(NumberValue, ValueString).
+/* --- nonNegativeInteger --- */
+xpath_expr(nonNegativeInteger(Value), data('nonNegativeInteger', [NumberValue])) :-
+	validate_xsd_simpleType('nonNegativeInteger', Value),
+	atom_string(Value, ValueString),
+	number_string(NumberValue, ValueString).
+/* --- unsignedLong --- */
+xpath_expr(unsignedLong(Value), data('unsignedLong', [NumberValue])) :-
+	validate_xsd_simpleType('unsignedLong', Value),
+	atom_string(Value, ValueString),
+	number_string(NumberValue, ValueString).
+/* --- unsignedInt --- */
+xpath_expr(unsignedInt(Value), data('unsignedInt', [NumberValue])) :-
+	validate_xsd_simpleType('unsignedInt', Value),
+	atom_string(Value, ValueString),
+	number_string(NumberValue, ValueString).
+/* --- unsignedShort --- */
+xpath_expr(unsignedShort(Value), data('unsignedShort', [NumberValue])) :-
+	validate_xsd_simpleType('unsignedShort', Value),
+	atom_string(Value, ValueString),
+	number_string(NumberValue, ValueString).
+/* --- unsignedByte --- */
+xpath_expr(unsignedByte(Value), data('unsignedByte', [NumberValue])) :-
+	validate_xsd_simpleType('unsignedByte', Value),
+	atom_string(Value, ValueString),
+	number_string(NumberValue, ValueString).
+/* --- positiveInteger --- */
+xpath_expr(positiveInteger(Value), data('positiveInteger', [NumberValue])) :-
+	validate_xsd_simpleType('positiveInteger', Value),
+	atom_string(Value, ValueString),
+	number_string(NumberValue, ValueString).
+/* --- yearMonthDuration --- */
+/* --- dayTimeDuration --- */
+/* --- untypedAtomic --- */
+xpath_expr(untypedAtomic(Value), data('untypedAtomic', [ValueString])) :-
+	validate_xsd_simpleType('untypedAtomic', Value),
+	atom_string(Value, ValueString).
 
 
 /* ~~~ Parsing ~~~ */
