@@ -389,6 +389,10 @@
 |}.
 
 /* QName */
+'QName':
+{|xml||
+	<QName></QName>
+|}.
 
 /* normalizedString */
 'normalizedString (multiple spaces)':
@@ -410,6 +414,46 @@
 'language':
 {|xml||
 	<language></language>
+|}.
+
+/* NMTOKEN */
+'NMTOKEN (already normalized)':
+{|xml||
+	<NMTOKEN_normalized></NMTOKEN_normalized>
+|}.
+'NMTOKEN (unnormalized)':
+{|xml||
+	<NMTOKEN_unnormalized></NMTOKEN_unnormalized>
+|}.
+
+/* NCName */
+'NCName':
+{|xml||
+	<NCName></NCName>
+|}.
+
+/* Name */
+'Name':
+{|xml||
+	<Name></Name>
+|}.
+
+/* ID */
+'ID':
+{|xml||
+	<ID></ID>
+|}.
+
+/* IDREF */
+'IDREF':
+{|xml||
+	<IDREF></IDREF>
+|}.
+
+/* ENTITY */
+'ENTITY':
+{|xml||
+	<ENTITY></ENTITY>
 |}.
 
 /* integer */

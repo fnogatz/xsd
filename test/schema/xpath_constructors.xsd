@@ -641,6 +641,13 @@
 		</xs:simpleType>
 	</xs:element>
 	<!-- QName -->
+	<xs:element name="QName">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="QName('pre:myElement')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
 	<!-- normalizedString -->
 	<xs:element name="normalizedString_spaces">
 		<xs:simpleType>
@@ -670,6 +677,61 @@
 		<xs:simpleType>
 			<xs:restriction base="xs:string">
 				<xs:assertion test="language('en-US')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<!-- NMTOKEN -->
+	<xs:element name="NMTOKEN_normalized">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="NMTOKEN('123_456')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="NMTOKEN_unnormalized">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="NMTOKEN('   additional_spaces_around   ')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<!-- NCName -->
+	<xs:element name="NCName">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="NCName('_my-element')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<!-- Name -->
+	<xs:element name="Name">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="Name('_my:element')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<!-- ID -->
+	<xs:element name="ID">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="ID('_my-element')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<!-- IDREF -->
+	<xs:element name="IDREF">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="IDREF('_my-element')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<!-- ENTITY -->
+	<xs:element name="ENTITY">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="ENTITY('_my-element')"/>
 			</xs:restriction>
 		</xs:simpleType>
 	</xs:element>

@@ -11,6 +11,8 @@
 :- op(1, fx, user:($)).
 :- op(700, xfx, user:(eq)).
 
+:- set_prolog_flag(allow_variable_name_as_functor, true).
+
 assert(D_File, D_ID, XPathExpr) :-
 	warning('Testing for ~w with File ~w and ID ~w!', [XPathExpr, D_File, D_ID]).
 assertion(D_File, D_ID, D_Text, XPathString) :-
@@ -337,12 +339,9 @@ xpath_expr(anyURI(Value), data('anyURI', [ValueString])) :-
 	validate_xsd_simpleType('anyURI', Value),
 	atom_string(Value, ValueString).
 /* --- QName --- */
-/*
-xpath_expr(QName(Value), Result) :-
+xpath_expr(QName(Value), data('QName', [ValueString])) :-
 	validate_xsd_simpleType('QName', Value),
-	Result = data('QName', [Value]),
-	warning('~w', Result).
-*/
+	atom_string(Value, ValueString).
 /* --- normalizedString --- */
 xpath_expr(normalizedString(Value), data('normalizedString', [ValueString])) :-
 	validate_xsd_simpleType('normalizedString', Value),
@@ -356,11 +355,31 @@ xpath_expr(language(Value), data('language', [ValueString])) :-
 	validate_xsd_simpleType('language', Value),
 	atom_string(Value, ValueString).
 /* --- NMTOKEN --- */
-/* --- Name --- */
+xpath_expr(NMTOKEN(Value), data('NMTOKEN', [NormalizedValueString])) :-
+	atom_string(Value, ValueString),
+	normalize_space(atom(NormalizedValue), ValueString),
+	atom_string(NormalizedValue, NormalizedValueString),
+	validate_xsd_simpleType('NMTOKEN', NormalizedValueString).
 /* --- NCName --- */
+xpath_expr(NCName(Value), data('NCName', [ValueString])) :-
+	validate_xsd_simpleType('NCName', Value),
+	atom_string(Value, ValueString).
+/* --- Name --- */
+xpath_expr(Name(Value), data('Name', [ValueString])) :-
+	validate_xsd_simpleType('Name', Value),
+	atom_string(Value, ValueString).
 /* --- ID --- */
+xpath_expr(ID(Value), data('ID', [ValueString])) :-
+	validate_xsd_simpleType('ID', Value),
+	atom_string(Value, ValueString).
 /* --- IDREF --- */
+xpath_expr(IDREF(Value), data('IDREF', [ValueString])) :-
+	validate_xsd_simpleType('IDREF', Value),
+	atom_string(Value, ValueString).
 /* --- ENTITY --- */
+xpath_expr(ENTITY(Value), data('ENTITY', [ValueString])) :-
+	validate_xsd_simpleType('ENTITY', Value),
+	atom_string(Value, ValueString).
 /* --- integer --- */
 xpath_expr(integer(Value), data('integer', [NumberValue])) :-
 	validate_xsd_simpleType('integer', Value),

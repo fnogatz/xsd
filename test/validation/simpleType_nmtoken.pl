@@ -20,7 +20,7 @@
 
 'xs:NMTOKEN with spaces in-between'(fail):
 {|xml||
-	
+	<NMTOKEN>     </NMTOKEN>
 |}.
 
 'xs:NMTOKEN with empty value'(fail):
