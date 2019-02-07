@@ -99,52 +99,7 @@ xpath_expr(double(Value), data('double', [ResultValue])) :-
 /* --- duration --- */
 xpath_expr(duration(Value), Result) :-
 	validate_xsd_simpleType('duration', Value),
-	split_string(Value, 'P', '', PSplit),
-	(
-		PSplit = [Sign, PSplitR], Sign = '-';
-		PSplit = [_, PSplitR], Sign = '+'
-	),
-	split_string(PSplitR, 'Y', '', YSplit),
-	(
-		YSplit = [YSplitR], Years = 0;
-		YSplit = [YearsTMP, YSplitR], number_string(Years, YearsTMP)
-	),
-	split_string(YSplitR, 'M', '', MoSplit),
-	(
-		MoSplit = [MoSplitR], Months = 0;
-		MoSplit = [MonthsTMP, MoSplitR], \+sub_string(MonthsTMP, _, _, _, 'T'), number_string(Months, MonthsTMP);
-		MoSplit = [MoSplitR0, MoSplitR1], sub_string(MoSplitR0, _, _, _, 'T'), string_concat(MoSplitR0, 'M', TMP), string_concat(TMP, MoSplitR1, MoSplitR), Months = 0;
-		MoSplit = [MonthsTMP, MoSplitR0, MoSplitR1], string_concat(MoSplitR0, 'M', TMP), string_concat(TMP, MoSplitR1, MoSplitR), number_string(Months, MonthsTMP)
-	),
-	split_string(MoSplitR, 'D', '', DSplit),
-	(
-		DSplit = [DSplitR], Days = 0;
-		DSplit = [DaysTMP, DSplitR], number_string(Days, DaysTMP)
-	),
-	split_string(DSplitR, 'T', '', TSplit),
-	(
-		TSplit = [TSplitR];
-		TSplit = [_, TSplitR]	
-	),
-	split_string(TSplitR, 'H', '', HSplit),
-	(
-		HSplit = [HSplitR], Hours = 0;
-		HSplit = [HoursTMP, HSplitR], number_string(Hours, HoursTMP)	
-	),
-	split_string(HSplitR, 'M', '', MiSplit),
-	(
-		MiSplit = [MiSplitR], Minutes = 0;
-		MiSplit = [MinutesTMP, MiSplitR], number_string(Minutes, MinutesTMP)
-	),
-	split_string(MiSplitR, 'S', '', SSplit),
-	(
-		SSplit = [_], Seconds = 0;
-		SSplit = [SecondsTMP, _], number_string(Seconds, SecondsTMP)
-	),
-	normalize_duration(
-		data('duration', [Sign, Years, Months, Days, Hours, Minutes, Seconds]),
-		Result
-	).
+	parse_duration(Value, Result).
 /* --- dateTime --- */
 xpath_expr(dateTime(Value), data('dateTime', [Year, Month, Day, Hour, Minute, Second, TimeZoneOffset])) :-
 	validate_xsd_simpleType('dateTime', Value),
@@ -446,7 +401,14 @@ xpath_expr(positiveInteger(Value), data('positiveInteger', [NumberValue])) :-
 	atom_string(Value, ValueString),
 	number_string(NumberValue, ValueString).
 /* --- yearMonthDuration --- */
+xpath_expr(yearMonthDuration(Value), Result) :-
+	validate_xsd_simpleType('yearMonthDuration', Value),
+	parse_duration(Value, Result),
+	warning('~w', Result).
 /* --- dayTimeDuration --- */
+xpath_expr(dayTimeDuration(Value), Result) :-
+	validate_xsd_simpleType('dayTimeDuration', Value),
+	parse_duration(Value, Result).
 /* --- untypedAtomic --- */
 xpath_expr(untypedAtomic(Value), data('untypedAtomic', [ValueString])) :-
 	validate_xsd_simpleType('untypedAtomic', Value),
@@ -454,6 +416,54 @@ xpath_expr(untypedAtomic(Value), data('untypedAtomic', [ValueString])) :-
 
 
 /* ~~~ Parsing ~~~ */
+
+parse_duration(Value, Result) :-
+	split_string(Value, 'P', '', PSplit),
+	(
+		PSplit = [Sign, PSplitR], Sign = '-';
+		PSplit = [_, PSplitR], Sign = '+'
+	),
+	split_string(PSplitR, 'Y', '', YSplit),
+	(
+		YSplit = [YSplitR], Years = 0;
+		YSplit = [YearsTMP, YSplitR], number_string(Years, YearsTMP)
+	),
+	split_string(YSplitR, 'M', '', MoSplit),
+	(
+		MoSplit = [MoSplitR], Months = 0;
+		MoSplit = [MonthsTMP, MoSplitR], \+sub_string(MonthsTMP, _, _, _, 'T'), number_string(Months, MonthsTMP);
+		MoSplit = [MoSplitR0, MoSplitR1], sub_string(MoSplitR0, _, _, _, 'T'), string_concat(MoSplitR0, 'M', TMP), string_concat(TMP, MoSplitR1, MoSplitR), Months = 0;
+		MoSplit = [MonthsTMP, MoSplitR0, MoSplitR1], string_concat(MoSplitR0, 'M', TMP), string_concat(TMP, MoSplitR1, MoSplitR), number_string(Months, MonthsTMP)
+	),
+	split_string(MoSplitR, 'D', '', DSplit),
+	(
+		DSplit = [DSplitR], Days = 0;
+		DSplit = [DaysTMP, DSplitR], number_string(Days, DaysTMP)
+	),
+	split_string(DSplitR, 'T', '', TSplit),
+	(
+		TSplit = [TSplitR];
+		TSplit = [_, TSplitR]	
+	),
+	split_string(TSplitR, 'H', '', HSplit),
+	(
+		HSplit = [HSplitR], Hours = 0;
+		HSplit = [HoursTMP, HSplitR], number_string(Hours, HoursTMP)	
+	),
+	split_string(HSplitR, 'M', '', MiSplit),
+	(
+		MiSplit = [MiSplitR], Minutes = 0;
+		MiSplit = [MinutesTMP, MiSplitR], number_string(Minutes, MinutesTMP)
+	),
+	split_string(MiSplitR, 'S', '', SSplit),
+	(
+		SSplit = [_], Seconds = 0;
+		SSplit = [SecondsTMP, _], number_string(Seconds, SecondsTMP)
+	),
+	normalize_duration(
+		data('duration', [Sign, Years, Months, Days, Hours, Minutes, Seconds]),
+		Result
+	).
 
 parse_float(Value, nan) :-
 	Value =~ '^\\+?NaN$'.

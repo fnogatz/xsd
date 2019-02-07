@@ -542,8 +542,29 @@
 	<positiveInteger></positiveInteger>
 |}.
 
-/* positiveInteger */
-/* positiveInteger */
+/* yearMonthDuration */
+'yearMonthDuration (full)':
+{|xml||
+	<yearMonthDuration_full></yearMonthDuration_full>
+|}.
+'yearMonthDuration (minutes only)':
+{|xml||
+	<yearMonthDuration_months_only></yearMonthDuration_months_only>
+|}.
+
+/* dayTimeDuration */
+'dayTimeDuration (full)':
+{|xml||
+	<dayTimeDuration_full></dayTimeDuration_full>
+|}.
+'dayTimeDuration (minutes only)':
+{|xml||
+	<dayTimeDuration_minutes_only></dayTimeDuration_minutes_only>
+|}.
+'dayTimeDuration (seconds only)':
+{|xml||
+	<dayTimeDuration_seconds_only></dayTimeDuration_seconds_only>
+|}.
 
 /* untypedAtomic */
 'untypedAtomic':

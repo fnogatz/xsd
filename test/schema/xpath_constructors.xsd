@@ -854,7 +854,42 @@
 		</xs:simpleType>
 	</xs:element>
 	<!-- yearMonthDuration -->
+	<xs:element name="yearMonthDuration_full">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="yearMonthDuration('P2Y6M')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="yearMonthDuration_months_only">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="yearMonthDuration('P20M')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
 	<!-- dayTimeDuration -->
+	<xs:element name="dayTimeDuration_full">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="dayTimeDuration('P5DT12H35M30S')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="dayTimeDuration_minutes_only">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="dayTimeDuration('PT120M')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="dayTimeDuration_seconds_only">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="dayTimeDuration('PT65.5S')"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
 	<!-- untypedAtomic -->
 	<xs:element name="untypedAtomic">
 		<xs:simpleType>
