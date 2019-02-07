@@ -19,7 +19,7 @@
 	<xs:element name="boolean_1">
 		<xs:simpleType>
 			<xs:restriction base="xs:string">
-				<xs:assertion test="boolean('1')"/>
+				<xs:assertion test="boolean('1') eq data('boolean', [true])"/>
 			</xs:restriction>
 		</xs:simpleType>
 	</xs:element>

@@ -35,10 +35,17 @@ assertion(D_File, D_ID, D_Text, XPathString) :-
 
 /* ### Special Cases ### */
 
-/* --- atomic values are valid xpath expressions --- */
-xpath_expr(Result, Result) :-
-	% simple check for now - needs to be replaced by constructors later on
-	\+compound(Result).
+/* --- atomic values --- */
+% atomic values are converted to our internal data structure with a suitable constructor
+xpath_expr(Value, Result) :-
+	\+compound(Value),
+	(
+		% todo
+		number(Value), xpath_expr(int(Value), Result);
+		number(Value), xpath_expr(string(Value), Result);
+		\+number(Value), xpath_expr(boolean(Value), Result)
+	),
+	warning('~w', Result).
 
 
 /* ### Special Functions ### */
@@ -55,9 +62,11 @@ xpath_expr($value, Result) :-
 xpath_expr(Value1 eq Value2, data('boolean', [ResultValue])) :-
 	xpath_expr(Value1, Result1),
 	xpath_expr(Value2, Result2),
-	
-	% just a simple numeric comparison for now (needs to be replaced)
-	Result1 =:= Result2 ->
+
+	Result1 = data(Type1, ValueList1),
+	Result2 = data(Type2, ValueList2),
+
+	Type1 = Type2, ValueList1 = ValueList2 ->
 		ResultValue = true;
 		ResultValue = false.
 
@@ -65,7 +74,7 @@ xpath_expr(Value1 eq Value2, data('boolean', [ResultValue])) :-
 /* ### Functions ### */
 
 /* ~~~ Constructors ~~~ */
-
+xpath_expr(data(T, VL), data(T, VL)).
 /* --- string --- */
 xpath_expr(string(Value), data('string', [ResultValue])) :-
 	validate_xsd_simpleType('string', Value),
