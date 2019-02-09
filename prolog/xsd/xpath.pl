@@ -30,7 +30,6 @@ assertion(D_File, D_ID, D_Text, XPathString) :-
 			\=(Value, [false])
 		)
 	).
-	% warning('Result: ~w', [Result]).
 
 
 /* ### Special Cases ### */
@@ -40,12 +39,53 @@ assertion(D_File, D_ID, D_Text, XPathString) :-
 xpath_expr(Value, Result) :-
 	\+compound(Value),
 	(
-		% todo
-		number(Value), xpath_expr(int(Value), Result);
-		number(Value), xpath_expr(string(Value), Result);
-		\+number(Value), xpath_expr(boolean(Value), Result)
-	),
-	warning('~w', Result).
+		member(Value, ['false', 'true']) ->
+			xpath_expr(boolean(Value), Result);
+			(
+				xpath_expr(string(Value), Result);
+				xpath_expr(decimal(Value), Result);
+				xpath_expr(float(Value), Result);
+				xpath_expr(double(Value), Result);
+				xpath_expr(duration(Value), Result);
+				xpath_expr(dateTime(Value), Result);
+				xpath_expr(time(Value), Result);
+				xpath_expr(date(Value), Result);
+				xpath_expr(gYearMonth(Value), Result);
+				xpath_expr(gYear(Value), Result);
+				xpath_expr(gMonthDay(Value), Result);
+				xpath_expr(gDay(Value), Result);
+				xpath_expr(gMonth(Value), Result);
+				xpath_expr(hexBinary(Value), Result);
+				xpath_expr(base64Binary(Value), Result);
+				xpath_expr(anyURI(Value), Result);
+				xpath_expr(QName(Value), Result);
+				xpath_expr(normalizedString(Value), Result);
+				xpath_expr(token(Value), Result);
+				xpath_expr(language(Value), Result);
+				xpath_expr(NMTOKEN(Value), Result);
+				xpath_expr(NCName(Value), Result);
+				xpath_expr(Name(Value), Result);
+				xpath_expr(ID(Value), Result);
+				xpath_expr(IDREF(Value), Result);
+				xpath_expr(ENTITY(Value), Result);
+				xpath_expr(integer(Value), Result);
+				xpath_expr(nonPositiveInteger(Value), Result);
+				xpath_expr(negativeInteger(Value), Result);
+				xpath_expr(long(Value), Result);
+				xpath_expr(int(Value), Result);
+				xpath_expr(short(Value), Result);
+				xpath_expr(byte(Value), Result);
+				xpath_expr(nonNegativeInteger(Value), Result);
+				xpath_expr(unsignedLong(Value), Result);
+				xpath_expr(unsignedInt(Value), Result);
+				xpath_expr(unsignedShort(Value), Result);
+				xpath_expr(unsignedByte(Value), Result);
+				xpath_expr(positiveInteger(Value), Result);
+				xpath_expr(yearMonthDuration(Value), Result);
+				xpath_expr(dayTimeDuration(Value), Result);
+				xpath_expr(untypedAtomic(Value), Result)
+			)
+	).
 
 
 /* ### Special Functions ### */
@@ -53,7 +93,7 @@ xpath_expr(Value, Result) :-
 /* --- $value --- */
 xpath_expr($value, Result) :-
 	nb_current(context_value, Value),
-	term_string(Result, Value).
+	xpath_expr(Value, Result).
 
 
 /* ### Operators ### */
@@ -76,9 +116,8 @@ xpath_expr(Value1 eq Value2, data('boolean', [ResultValue])) :-
 /* ~~~ Constructors ~~~ */
 xpath_expr(data(T, VL), data(T, VL)).
 /* --- string --- */
-xpath_expr(string(Value), data('string', [ResultValue])) :-
-	validate_xsd_simpleType('string', Value),
-	term_string(Value, ResultValue).
+xpath_expr(string(Value), data('string', [Value])) :-
+	validate_xsd_simpleType('string', Value).
 /* --- boolean --- */
 xpath_expr(boolean(Value), data('boolean', [ResultValue])) :-
 	member(Value, ['false', '0']) ->
@@ -88,14 +127,14 @@ xpath_expr(boolean(Value), data('boolean', [ResultValue])) :-
 xpath_expr(decimal(Value), data('decimal', [ResultValue])) :-
 	validate_xsd_simpleType('decimal', Value),
 	( % add leading 0 in front of decimal point, as prolog cannot handle decimals like ".32"
-		Value =~ '^(\\+|-)?\\..*$' ->
+	Value =~ '^(\\+|-)?\\..*$' ->
 		(
 			atomic_list_concat(TMP, '.', Value),
 			atomic_list_concat(TMP, '0.', ProcValue)	
 		);
 		ProcValue = Value
 	),
-	term_string(ResultValue, ProcValue).
+	atom_number(ProcValue, ResultValue).
 /* --- float --- */
 xpath_expr(float(Value), data('float', [ResultValue])) :-
 	validate_xsd_simpleType('float', Value),
@@ -112,8 +151,11 @@ xpath_expr(duration(Value), Result) :-
 /* --- dateTime --- */
 xpath_expr(dateTime(Value), data('dateTime', [Year, Month, Day, Hour, Minute, Second, TimeZoneOffset])) :-
 	validate_xsd_simpleType('dateTime', Value),
-	split_string(Value, 'T', '', TSplit),
-	TSplit = [Date, Time],
+	atom_string(Value, ValueString),
+	split_string(ValueString, 'T', '', TSplit),
+	TSplit = [DateString, TimeString],
+	atom_string(Date, DateString),
+	atom_string(Time, TimeString),
 	xpath_expr(date(Date), data('date', [Year, Month, Day, _, _, _, _])),
 	xpath_expr(time(Time), data('time', [_, _, _, Hour, Minute, Second, TimeZoneOffset])).
 xpath_expr(dateTime(Date,Time), data('dateTime', [Year, Month, Day, Hour, Minute, Second, TimeZoneOffset])) :-
@@ -132,25 +174,26 @@ xpath_expr(dateTime(Date,Time), data('dateTime', [Year, Month, Day, Hour, Minute
 /* --- time --- */
 xpath_expr(time(Value), data('time', [0, 0, 0, Hour, Minute, Second, TimeZoneOffset])) :-
 	validate_xsd_simpleType('time', Value),
+	atom_string(Value, ValueString),
 	(
 		% negative TC
-		split_string(Value, '-', '', MinusSplit),
+		split_string(ValueString, '-', '', MinusSplit),
 		MinusSplit = [TimeTMP, TimeZoneTMP],
 		TimeZoneSign = '-'
 		;
 		% positive TC
-		split_string(Value, '+', '', PlusSplit),
+		split_string(ValueString, '+', '', PlusSplit),
 		PlusSplit = [TimeTMP, TimeZoneTMP],
 		TimeZoneSign = '+'
 		;
 		% UTC TC
-		split_string(Value, 'Z', '', ZSplit),
+		split_string(ValueString, 'Z', '', ZSplit),
 		ZSplit = [TimeTMP, _],
 		TimeZoneSign = '+',
 		TimeZoneTMP = '00:00'
 		;
 		% no TC
-		split_string(Value, 'Z+-', '', AllSplit),
+		split_string(ValueString, 'Z+-', '', AllSplit),
 		AllSplit = [TimeTMP],
 		TimeZoneSign = '+',
 		TimeZoneTMP = '00:00'
@@ -168,7 +211,8 @@ xpath_expr(time(Value), data('time', [0, 0, 0, Hour, Minute, Second, TimeZoneOff
 /* --- date --- */
 xpath_expr(date(Value), data('date', [Year, Month, Day, 0, 0, 0, TimeZoneOffset])) :-
 	validate_xsd_simpleType('date', Value),
-	split_string(Value, '-', '', MinusSplit),
+	atom_string(Value, ValueString),
+	split_string(ValueString, '-', '', MinusSplit),
 	(
 		% BC, negative TZ
 		MinusSplit = [_, YearString, MonthTMP, DayTMP, TimeZoneTMP], string_concat('-', YearString, YearTMP), TimeZoneSign = '-';
@@ -192,7 +236,8 @@ xpath_expr(date(Value), data('date', [Year, Month, Day, 0, 0, 0, TimeZoneOffset]
 /* --- gYearMonth --- */
 xpath_expr(gYearMonth(Value), data('gYearMonth', [Year, Month, 0, 0, 0, 0, TimeZoneOffset])) :-
 	validate_xsd_simpleType('gYearMonth', Value),
-	split_string(Value, '-', '', MinusSplit),
+	atom_string(Value, ValueString),
+	split_string(ValueString, '-', '', MinusSplit),
 	(
 		% BC, negative TZ
 		MinusSplit = [_, YearString, MonthTMP, TimeZoneTMP], string_concat('-', YearString, YearTMP), TimeZoneSign = '-';
@@ -215,7 +260,8 @@ xpath_expr(gYearMonth(Value), data('gYearMonth', [Year, Month, 0, 0, 0, 0, TimeZ
 /* --- gYear --- */
 xpath_expr(gYear(Value), data('gYear', [Year, 0, 0, 0, 0, 0, TimeZoneOffset])) :-
 	validate_xsd_simpleType('gYear', Value),
-	split_string(Value, '-', '', MinusSplit),
+	atom_string(Value, ValueString),
+	split_string(ValueString, '-', '', MinusSplit),
 	(
 		% BC, negative TZ
 		MinusSplit = [_, YearString, TimeZoneTMP], string_concat('-', YearString, YearTMP), TimeZoneSign = '-';
@@ -237,7 +283,8 @@ xpath_expr(gYear(Value), data('gYear', [Year, 0, 0, 0, 0, 0, TimeZoneOffset])) :
 /* --- gMonthDay --- */
 xpath_expr(gMonthDay(Value), data('gMonthDay', [0, Month, Day, 0, 0, 0, TimeZoneOffset])) :-
 	validate_xsd_simpleType('gMonthDay', Value),
-	split_string(Value, '-', '', MinusSplit),
+	atom_string(Value, ValueString),
+	split_string(ValueString, '-', '', MinusSplit),
 	(
 		% negative TZ
 		MinusSplit = [_, _, MonthTMP, DayTMP, TimeZoneTMP], TimeZoneSign = '-';
@@ -255,7 +302,8 @@ xpath_expr(gMonthDay(Value), data('gMonthDay', [0, Month, Day, 0, 0, 0, TimeZone
 /* --- gDay --- */
 xpath_expr(gDay(Value), data('gDay', [0, 0, Day, 0, 0, 0, TimeZoneOffset])) :-
 	validate_xsd_simpleType('gDay', Value),
-	split_string(Value, '-', '', MinusSplit),
+	atom_string(Value, ValueString),
+	split_string(ValueString, '-', '', MinusSplit),
 	(
 		% negative TZ
 		MinusSplit = [_, _, _, DayTMP, TimeZoneTMP], TimeZoneSign = '-';
@@ -272,7 +320,8 @@ xpath_expr(gDay(Value), data('gDay', [0, 0, Day, 0, 0, 0, TimeZoneOffset])) :-
 /* --- gMonth --- */
 xpath_expr(gMonth(Value), data('gMonth', [0, Month, 0, 0, 0, 0, TimeZoneOffset])) :-
 	validate_xsd_simpleType('gMonth', Value),
-	split_string(Value, '-', '', MinusSplit),
+	atom_string(Value, ValueString),
+	split_string(ValueString, '-', '', MinusSplit),
 	(
 		% negative TZ
 		MinusSplit = [_, _, MonthTMP, TimeZoneTMP], TimeZoneSign = '-';
@@ -287,147 +336,122 @@ xpath_expr(gMonth(Value), data('gMonth', [0, Month, 0, 0, 0, 0, TimeZoneOffset])
 	number_string(TimeZoneMinute, TimeZoneMinuteTMP),
 	timezone_offset(TimeZoneSign, TimeZoneHour, TimeZoneMinute, TimeZoneOffset).
 /* --- hexBinary --- */
-xpath_expr(hexBinary(Value), data('hexBinary', [LowerCaseValue])) :-
+xpath_expr(hexBinary(Value), data('hexBinary', [ResultValue])) :-
 	validate_xsd_simpleType('hexBinary', Value),
 	atom_string(Value, ValueString),
-	string_upper(ValueString, LowerCaseValue).
+	string_upper(ValueString, UpperCaseValue),
+	atom_string(ResultValue, UpperCaseValue).
 /* --- base64Binary --- */
-xpath_expr(base64Binary(Value), data('base64Binary', [ValueString])) :-
+xpath_expr(base64Binary(Value), data('base64Binary', [ResultValue])) :-
 	validate_xsd_simpleType('base64Binary', Value),
-	string_upper(Value, LowerCaseValue),
-	atomic_list_concat(TMP, ' ', LowerCaseValue),
-	atomic_list_concat(TMP, '', SanitizedValue),
-	atom_string(SanitizedValue, ValueString).
-/* --- anyURI --- */
-xpath_expr(anyURI(Value), data('anyURI', [ValueString])) :-
-	validate_xsd_simpleType('anyURI', Value),
-	atom_string(Value, ValueString).
-/* --- QName --- */
-xpath_expr(QName(Value), data('QName', [ValueString])) :-
-	validate_xsd_simpleType('QName', Value),
-	atom_string(Value, ValueString).
-/* --- normalizedString --- */
-xpath_expr(normalizedString(Value), data('normalizedString', [ValueString])) :-
-	validate_xsd_simpleType('normalizedString', Value),
-	atom_string(Value, ValueString).
-/* --- token --- */
-xpath_expr(token(Value), data('token', [ValueString])) :-
-	validate_xsd_simpleType('token', Value),
-	atom_string(Value, ValueString).
-/* --- language --- */
-xpath_expr(language(Value), data('language', [ValueString])) :-
-	validate_xsd_simpleType('language', Value),
-	atom_string(Value, ValueString).
-/* --- NMTOKEN --- */
-xpath_expr(NMTOKEN(Value), data('NMTOKEN', [NormalizedValueString])) :-
 	atom_string(Value, ValueString),
-	normalize_space(atom(NormalizedValue), ValueString),
-	atom_string(NormalizedValue, NormalizedValueString),
-	validate_xsd_simpleType('NMTOKEN', NormalizedValueString).
+	string_upper(ValueString, UpperCaseValue),
+	atomic_list_concat(TMP, ' ', UpperCaseValue),
+	atomic_list_concat(TMP, '', ResultValue).
+/* --- anyURI --- */
+xpath_expr(anyURI(Value), data('anyURI', [Value])) :-
+	validate_xsd_simpleType('anyURI', Value).
+/* --- QName --- */
+xpath_expr(QName(Value), data('QName', [Value])) :-
+	validate_xsd_simpleType('QName', Value).
+/* --- normalizedString --- */
+xpath_expr(normalizedString(Value), data('normalizedString', [Value])) :-
+	validate_xsd_simpleType('normalizedString', Value).
+/* --- token --- */
+xpath_expr(token(Value), data('token', [Value])) :-
+	validate_xsd_simpleType('token', Value).
+/* --- language --- */
+xpath_expr(language(Value), data('language', [Value])) :-
+	validate_xsd_simpleType('language', Value).
+/* --- NMTOKEN --- */
+xpath_expr(NMTOKEN(Value), data('NMTOKEN', [ValueSanitized])) :-
+	normalize_space(atom(ValueSanitized), Value),
+	validate_xsd_simpleType('NMTOKEN', ValueSanitized).
 /* --- NCName --- */
-xpath_expr(NCName(Value), data('NCName', [ValueString])) :-
-	validate_xsd_simpleType('NCName', Value),
-	atom_string(Value, ValueString).
+xpath_expr(NCName(Value), data('NCName', [Value])) :-
+	validate_xsd_simpleType('NCName', Value).
 /* --- Name --- */
-xpath_expr(Name(Value), data('Name', [ValueString])) :-
-	validate_xsd_simpleType('Name', Value),
-	atom_string(Value, ValueString).
+xpath_expr(Name(Value), data('Name', [Value])) :-
+	validate_xsd_simpleType('Name', Value).
 /* --- ID --- */
-xpath_expr(ID(Value), data('ID', [ValueString])) :-
-	validate_xsd_simpleType('ID', Value),
-	atom_string(Value, ValueString).
+xpath_expr(ID(Value), data('ID', [Value])) :-
+	validate_xsd_simpleType('ID', Value).
 /* --- IDREF --- */
-xpath_expr(IDREF(Value), data('IDREF', [ValueString])) :-
-	validate_xsd_simpleType('IDREF', Value),
-	atom_string(Value, ValueString).
+xpath_expr(IDREF(Value), data('IDREF', [Value])) :-
+	validate_xsd_simpleType('IDREF', Value).
 /* --- ENTITY --- */
-xpath_expr(ENTITY(Value), data('ENTITY', [ValueString])) :-
-	validate_xsd_simpleType('ENTITY', Value),
-	atom_string(Value, ValueString).
+xpath_expr(ENTITY(Value), data('ENTITY', [Value])) :-
+	validate_xsd_simpleType('ENTITY', Value).
 /* --- integer --- */
 xpath_expr(integer(Value), data('integer', [NumberValue])) :-
 	validate_xsd_simpleType('integer', Value),
-	atom_string(Value, ValueString),
-	number_string(NumberValue, ValueString).
+	atom_number(Value, NumberValue).
 /* --- nonPositiveInteger --- */
 xpath_expr(nonPositiveInteger(Value), data('nonPositiveInteger', [NumberValue])) :-
 	validate_xsd_simpleType('nonPositiveInteger', Value),
-	atom_string(Value, ValueString),
-	number_string(NumberValue, ValueString).
+	atom_number(Value, NumberValue).
 /* --- negativeInteger --- */
 xpath_expr(negativeInteger(Value), data('negativeInteger', [NumberValue])) :-
 	validate_xsd_simpleType('negativeInteger', Value),
-	atom_string(Value, ValueString),
-	number_string(NumberValue, ValueString).
+	atom_number(Value, NumberValue).
 /* --- long --- */
 xpath_expr(long(Value), data('long', [NumberValue])) :-
 	validate_xsd_simpleType('long', Value),
-	atom_string(Value, ValueString),
-	number_string(NumberValue, ValueString).
+	atom_number(Value, NumberValue).
 /* --- int --- */
 xpath_expr(int(Value), data('int', [NumberValue])) :-
 	validate_xsd_simpleType('int', Value),
-	atom_string(Value, ValueString),
-	number_string(NumberValue, ValueString).
+	atom_number(Value, NumberValue).
 /* --- short --- */
 xpath_expr(short(Value), data('short', [NumberValue])) :-
 	validate_xsd_simpleType('short', Value),
-	atom_string(Value, ValueString),
-	number_string(NumberValue, ValueString).
+	atom_number(Value, NumberValue).
 /* --- byte --- */
 xpath_expr(byte(Value), data('byte', [NumberValue])) :-
 	validate_xsd_simpleType('byte', Value),
-	atom_string(Value, ValueString),
-	number_string(NumberValue, ValueString).
+	atom_number(Value, NumberValue).
 /* --- nonNegativeInteger --- */
 xpath_expr(nonNegativeInteger(Value), data('nonNegativeInteger', [NumberValue])) :-
 	validate_xsd_simpleType('nonNegativeInteger', Value),
-	atom_string(Value, ValueString),
-	number_string(NumberValue, ValueString).
+	atom_number(Value, NumberValue).
 /* --- unsignedLong --- */
 xpath_expr(unsignedLong(Value), data('unsignedLong', [NumberValue])) :-
 	validate_xsd_simpleType('unsignedLong', Value),
-	atom_string(Value, ValueString),
-	number_string(NumberValue, ValueString).
+	atom_number(Value, NumberValue).
 /* --- unsignedInt --- */
 xpath_expr(unsignedInt(Value), data('unsignedInt', [NumberValue])) :-
 	validate_xsd_simpleType('unsignedInt', Value),
-	atom_string(Value, ValueString),
-	number_string(NumberValue, ValueString).
+	atom_number(Value, NumberValue).
 /* --- unsignedShort --- */
 xpath_expr(unsignedShort(Value), data('unsignedShort', [NumberValue])) :-
 	validate_xsd_simpleType('unsignedShort', Value),
-	atom_string(Value, ValueString),
-	number_string(NumberValue, ValueString).
+	atom_number(Value, NumberValue).
 /* --- unsignedByte --- */
 xpath_expr(unsignedByte(Value), data('unsignedByte', [NumberValue])) :-
 	validate_xsd_simpleType('unsignedByte', Value),
-	atom_string(Value, ValueString),
-	number_string(NumberValue, ValueString).
+	atom_number(Value, NumberValue).
 /* --- positiveInteger --- */
 xpath_expr(positiveInteger(Value), data('positiveInteger', [NumberValue])) :-
 	validate_xsd_simpleType('positiveInteger', Value),
-	atom_string(Value, ValueString),
-	number_string(NumberValue, ValueString).
+	atom_number(Value, NumberValue).
 /* --- yearMonthDuration --- */
 xpath_expr(yearMonthDuration(Value), Result) :-
 	validate_xsd_simpleType('yearMonthDuration', Value),
-	parse_duration(Value, Result),
-	warning('~w', Result).
+	parse_duration(Value, Result).
 /* --- dayTimeDuration --- */
 xpath_expr(dayTimeDuration(Value), Result) :-
 	validate_xsd_simpleType('dayTimeDuration', Value),
 	parse_duration(Value, Result).
 /* --- untypedAtomic --- */
-xpath_expr(untypedAtomic(Value), data('untypedAtomic', [ValueString])) :-
-	validate_xsd_simpleType('untypedAtomic', Value),
-	atom_string(Value, ValueString).
+xpath_expr(untypedAtomic(Value), data('untypedAtomic', [Value])) :-
+	validate_xsd_simpleType('untypedAtomic', Value).
 
 
 /* ~~~ Parsing ~~~ */
 
 parse_duration(Value, Result) :-
-	split_string(Value, 'P', '', PSplit),
+	atom_string(Value, ValueString),
+	split_string(ValueString, 'P', '', PSplit),
 	(
 		PSplit = [Sign, PSplitR], Sign = '-';
 		PSplit = [_, PSplitR], Sign = '+'
@@ -483,7 +507,7 @@ parse_float(Value, inf) :-
 parse_float(Value, -inf) :-
 	Value =~ '^-INF$'.
 parse_float(Value, ResultValue) :-
-	term_string(ValueTerm, Value), ResultValue is float(ValueTerm).
+	atom_number(Value, ResultValue).
 
 
 /* ~~~ Normalization ~~~ */
