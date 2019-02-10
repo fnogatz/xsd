@@ -21,11 +21,11 @@
 {|xml||
 	<boolean_arbitrary></boolean_arbitrary>
 |}.
-'boolean (0)'(fail):
+'boolean (0)':
 {|xml||
 	<boolean_0></boolean_0>
 |}.
-'boolean (false)'(fail):
+'boolean (false)':
 {|xml||
 	<boolean_false></boolean_false>
 |}.

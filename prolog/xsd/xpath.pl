@@ -23,13 +23,13 @@ assertion(D_File, D_ID, D_Text, XPathString) :-
 	term_string(XPathExpr, XPathString),
 	!,
 	xpath_expr(XPathExpr, Result),
+	Result = data(T, R),
 	(
-		\+compound(Result);
-		(
-			=(Result, data(_, Value)),
-			\=(Value, [false])
-		)
+		T = 'boolean' ->
+			R = [true];
+			xpath_expr(boolean(R), data(boolean, [true]))
 	).
+	
 
 
 /* ### Special Cases ### */
@@ -145,9 +145,9 @@ xpath_expr(double(Value), data('double', [ResultValue])) :-
 	% double values are internally handled as float values
 	parse_float(Value, ResultValue).
 /* --- duration --- */
-xpath_expr(duration(Value), Result) :-
+xpath_expr(duration(Value), data('duration', DurationValue)) :-
 	validate_xsd_simpleType('duration', Value),
-	parse_duration(Value, Result).
+	parse_duration(Value, DurationValue).
 /* --- dateTime --- */
 xpath_expr(dateTime(Value), data('dateTime', [Year, Month, Day, Hour, Minute, Second, TimeZoneOffset])) :-
 	validate_xsd_simpleType('dateTime', Value),
@@ -435,13 +435,13 @@ xpath_expr(positiveInteger(Value), data('positiveInteger', [NumberValue])) :-
 	validate_xsd_simpleType('positiveInteger', Value),
 	atom_number(Value, NumberValue).
 /* --- yearMonthDuration --- */
-xpath_expr(yearMonthDuration(Value), Result) :-
+xpath_expr(yearMonthDuration(Value), data('yearMonthDuration', DurationValue)) :-
 	validate_xsd_simpleType('yearMonthDuration', Value),
-	parse_duration(Value, Result).
+	parse_duration(Value, DurationValue).
 /* --- dayTimeDuration --- */
-xpath_expr(dayTimeDuration(Value), Result) :-
+xpath_expr(dayTimeDuration(Value), data('dayTimeDuration', DurationValue)) :-
 	validate_xsd_simpleType('dayTimeDuration', Value),
-	parse_duration(Value, Result).
+	parse_duration(Value, DurationValue).
 /* --- untypedAtomic --- */
 xpath_expr(untypedAtomic(Value), data('untypedAtomic', [Value])) :-
 	validate_xsd_simpleType('untypedAtomic', Value).
@@ -495,7 +495,7 @@ parse_duration(Value, Result) :-
 	),
 	normalize_duration(
 		data('duration', [Sign, Years, Months, Days, Hours, Minutes, Seconds]),
-		Result
+		data('duration', Result)
 	).
 
 parse_float(Value, nan) :-
