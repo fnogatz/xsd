@@ -1,7 +1,7 @@
 :- module(xpath, 
 	[
 		assert/3,
-		assertion/4
+		assertion/5
 	]).
 
 :- use_module(library(regex)).
@@ -15,10 +15,11 @@
 
 assert(D_File, D_ID, XPathExpr) :-
 	warning('Testing for ~w with File ~w and ID ~w!', [XPathExpr, D_File, D_ID]).
-assertion(D_File, D_ID, D_Text, XPathString) :-
+assertion(D_File, D_ID, D_Text, XPathString, DocumentationText) :-
 	nb_setval(context_file, D_File),
 	nb_setval(context_id, D_ID),
 	nb_setval(context_value, D_Text),
+	nb_setval(context_docu, DocumentationText),
 
 	term_string(XPathExpr, XPathString),
 	!,
