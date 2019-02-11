@@ -4,9 +4,13 @@ Validate an XML Document against an XML Schema in SWI-Prolog.
 
 ## Installation
 
-All you need is [SWI-Prolog](http://www.swi-prolog.org/). See there for installation instructions.
+First of all, you need [SWI-Prolog](http://www.swi-prolog.org/).
+Take a look at the official website for installation instructions.
 
-Only for development purposes the [`library(tap)`](https://github.com/mndrix/tap) is needed.
+After that, you have to install the latest version of the [regex](http://www.swi-prolog.org/pack/list?p=regex) library.
+Installation instructions for this library can be found with the provided link.
+
+If you are a developer of this project, you must also install the [tap](http://www.swi-prolog.org/pack/list?p=tap) library in order to successfully execute our tests.
 
 ### Pre-Compilation
 
@@ -78,8 +82,18 @@ Once an XML file is loaded using `xml_flatten/2`, it will be represented by the 
 
 ## Supported Features
 
-Please see [`FEATURES.md`](https://github.com/jonakalkus/swipl-xsd/blob/master/FEATURES.md) for full list of currently supported components of the XML Schema Definition Language.
+Please see [`FEATURES.md`](FEATURES.md) for the full list of currently supported components of the XML Schema Definition Language.
 
 ## Environment
 
 Developed and tested in SWI-Prolog, version 7.4.1, 64 bit.
+
+## Background
+
+This tool has been developed as part of a practical course at the University of Würzburg, Germany. It contains contributions of:
+- Kevin Jonscher
+- [Jona Kalkus](https://github.com/jonakalkus)
+- Lucas Kinne
+- [Falco Nogatz](https://github.com/fnogatz)
+
+Please cite the work as: *Nogatz, F., Kalkus, J.: Declarative XML Schema Validation with SWI-Prolog. In: Seipel, D., Hanus, M., and Abreu, S. (eds.) Declarative Programming and Knowledge Management. pp. 187-197 (2018).* In this paper, we present the general idea of the validation process and give some examples.

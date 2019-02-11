@@ -80,9 +80,7 @@ define_tap_test(Test_Definition, Tap_Test) :-
       with_output_to(
          codes(_Output),
          Test_Run
-      ),
-      % remove all the tabled predicates
-      validate:cleanup
+      )
    ),
    Tap_Test = (Tap_Test_Name :- Test).
 
