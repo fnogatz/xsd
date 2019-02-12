@@ -1,7 +1,7 @@
 :- module(xpath, 
 	[
 		assert/3,
-		assertion/5
+		assertion/4
 	]).
 
 :- use_module(library(regex)).
@@ -9,28 +9,41 @@
 :- use_module(library(xsd/xsd_messages)).
 
 :- op(1, fx, user:($)).
+:- op(400, yfx, user:(mod)).
 :- op(700, xfx, user:(eq)).
 
 :- set_prolog_flag(allow_variable_name_as_functor, true).
 
-assert(D_File, D_ID, XPathExpr) :-
-	warning('Testing for ~w with File ~w and ID ~w!', [XPathExpr, D_File, D_ID]).
-assertion(D_File, D_ID, D_Text, XPathString, DocumentationText) :-
+
+% these are the exported predicates, which are used in validate.pl
+assert(D_File, D_ID, XPathString) :-
+	save_context(D_File, D_ID, false),
+	validate_xpath(XPathString).
+assertion(D_File, D_ID, D_Text, XPathString) :-
+	save_context(D_File, D_ID, D_Text),
+	validate_xpath(XPathString).
+
+% saves the context, in which the xpath expression is evaluated
+save_context(D_File, D_ID, D_Text) :-
 	nb_setval(context_file, D_File),
 	nb_setval(context_id, D_ID),
-	nb_setval(context_value, D_Text),
-	nb_setval(context_docu, DocumentationText),
+	(
+		D_Text = false
+		;
+		D_Text \= false, nb_setval(context_value, D_Text)	
+	).
 
+% evaluate the xpath expression and check the result
+validate_xpath(XPathString) :-
 	term_string(XPathExpr, XPathString),
 	!,
 	xpath_expr(XPathExpr, Result),
 	Result = data(T, R),
 	(
-		T = 'boolean' ->
-			R = [true];
-			xpath_expr(boolean(R), data(boolean, [true]))
+		T \= 'boolean'
+		;
+		R = [true]
 	).
-	
 
 
 /* ### Special Cases ### */
@@ -40,51 +53,57 @@ assertion(D_File, D_ID, D_Text, XPathString, DocumentationText) :-
 xpath_expr(Value, Result) :-
 	\+compound(Value),
 	(
-		member(Value, ['false', 'true']) ->
-			xpath_expr(boolean(Value), Result);
+		number(Value) ->
+			atom_number(ValueAtom, Value)
+			;
+			ValueAtom = Value
+	),
+	(
+		member(ValueAtom, ['false', 'true']) ->
+			xpath_expr(boolean(ValueAtom), Result);
 			(
-				xpath_expr(string(Value), Result);
-				xpath_expr(decimal(Value), Result);
-				xpath_expr(float(Value), Result);
-				xpath_expr(double(Value), Result);
-				xpath_expr(duration(Value), Result);
-				xpath_expr(dateTime(Value), Result);
-				xpath_expr(time(Value), Result);
-				xpath_expr(date(Value), Result);
-				xpath_expr(gYearMonth(Value), Result);
-				xpath_expr(gYear(Value), Result);
-				xpath_expr(gMonthDay(Value), Result);
-				xpath_expr(gDay(Value), Result);
-				xpath_expr(gMonth(Value), Result);
-				xpath_expr(hexBinary(Value), Result);
-				xpath_expr(base64Binary(Value), Result);
-				xpath_expr(anyURI(Value), Result);
-				xpath_expr(QName(Value), Result);
-				xpath_expr(normalizedString(Value), Result);
-				xpath_expr(token(Value), Result);
-				xpath_expr(language(Value), Result);
-				xpath_expr(NMTOKEN(Value), Result);
-				xpath_expr(NCName(Value), Result);
-				xpath_expr(Name(Value), Result);
-				xpath_expr(ID(Value), Result);
-				xpath_expr(IDREF(Value), Result);
-				xpath_expr(ENTITY(Value), Result);
-				xpath_expr(integer(Value), Result);
-				xpath_expr(nonPositiveInteger(Value), Result);
-				xpath_expr(negativeInteger(Value), Result);
-				xpath_expr(long(Value), Result);
-				xpath_expr(int(Value), Result);
-				xpath_expr(short(Value), Result);
-				xpath_expr(byte(Value), Result);
-				xpath_expr(nonNegativeInteger(Value), Result);
-				xpath_expr(unsignedLong(Value), Result);
-				xpath_expr(unsignedInt(Value), Result);
-				xpath_expr(unsignedShort(Value), Result);
-				xpath_expr(unsignedByte(Value), Result);
-				xpath_expr(positiveInteger(Value), Result);
-				xpath_expr(yearMonthDuration(Value), Result);
-				xpath_expr(dayTimeDuration(Value), Result);
-				xpath_expr(untypedAtomic(Value), Result)
+				xpath_expr(string(ValueAtom), Result);
+				xpath_expr(decimal(ValueAtom), Result);
+				xpath_expr(float(ValueAtom), Result);
+				xpath_expr(double(ValueAtom), Result);
+				xpath_expr(duration(ValueAtom), Result);
+				xpath_expr(dateTime(ValueAtom), Result);
+				xpath_expr(time(ValueAtom), Result);
+				xpath_expr(date(ValueAtom), Result);
+				xpath_expr(gYearMonth(ValueAtom), Result);
+				xpath_expr(gYear(ValueAtom), Result);
+				xpath_expr(gMonthDay(ValueAtom), Result);
+				xpath_expr(gDay(ValueAtom), Result);
+				xpath_expr(gMonth(ValueAtom), Result);
+				xpath_expr(hexBinary(ValueAtom), Result);
+				xpath_expr(base64Binary(ValueAtom), Result);
+				xpath_expr(anyURI(ValueAtom), Result);
+				xpath_expr(QName(ValueAtom), Result);
+				xpath_expr(normalizedString(ValueAtom), Result);
+				xpath_expr(token(ValueAtom), Result);
+				xpath_expr(language(ValueAtom), Result);
+				xpath_expr(NMTOKEN(ValueAtom), Result);
+				xpath_expr(NCName(ValueAtom), Result);
+				xpath_expr(Name(ValueAtom), Result);
+				xpath_expr(ID(ValueAtom), Result);
+				xpath_expr(IDREF(ValueAtom), Result);
+				xpath_expr(ENTITY(ValueAtom), Result);
+				xpath_expr(integer(ValueAtom), Result);
+				xpath_expr(nonPositiveInteger(ValueAtom), Result);
+				xpath_expr(negativeInteger(ValueAtom), Result);
+				xpath_expr(long(ValueAtom), Result);
+				xpath_expr(int(ValueAtom), Result);
+				xpath_expr(short(ValueAtom), Result);
+				xpath_expr(byte(ValueAtom), Result);
+				xpath_expr(nonNegativeInteger(ValueAtom), Result);
+				xpath_expr(unsignedLong(ValueAtom), Result);
+				xpath_expr(unsignedInt(ValueAtom), Result);
+				xpath_expr(unsignedShort(ValueAtom), Result);
+				xpath_expr(unsignedByte(ValueAtom), Result);
+				xpath_expr(positiveInteger(ValueAtom), Result);
+				xpath_expr(yearMonthDuration(ValueAtom), Result);
+				xpath_expr(dayTimeDuration(ValueAtom), Result);
+				xpath_expr(untypedAtomic(ValueAtom), Result)
 			)
 	).
 
@@ -110,6 +129,18 @@ xpath_expr(Value1 eq Value2, data('boolean', [ResultValue])) :-
 	Type1 = Type2, ValueList1 = ValueList2 ->
 		ResultValue = true;
 		ResultValue = false.
+/* --- mod --- */
+xpath_expr(Value1 mod Value2, data(T, [ModuloValue])) :-
+	xpath_expr(Value1, data(T, [EvaluatedValue1])),
+	xpath_expr(Value2, data(T, [EvaluatedValue2])),
+
+	member(T, [
+		'decimal', 'integer', 'nonPositiveInteger', 'negativeInteger',
+		'long', 'int', 'short', 'byte',
+		'nonNegativeInteger', 'unsignedLong', 'unsingedInt', 'unsignedShort', 'unsignedByte', 'positiveInteger'
+	]),
+	
+	ModuloValue is EvaluatedValue1 mod EvaluatedValue2.
 
 
 /* ### Functions ### */

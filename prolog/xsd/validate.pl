@@ -124,7 +124,13 @@ validate(D_File, D_ID, Validated_Nodes, S_File, S_ID) :-
 		% no children in document
 		count_children(D_File, D_ID, 0),
 		validate_all_attributes(D_File, D_ID, S_File, S_ID)
-		
+	),
+	% validate every assert on the complexType
+	forall((child(S_File, S_ID, As_ID), node(S_File, As_ID, ns(_, 'http://www.w3.org/2001/XMLSchema'), assert)),
+		(
+			attribute(S_File, As_ID, test, XPathExpr),
+			xpath:assert(D_File, D_ID, XPathExpr)
+		)
 	)
 	;
 	% simpleType as content of nodes (actual validation of content or attribute values handled by `validate_simpleType/5`)
@@ -195,7 +201,7 @@ validate_all_attributes(D_File, D_ID, S_File, S_ID) :-
 	findall(attribute(D_File, D_ID, Name, Value), 
 		attribute(D_File, D_ID, Name, Value), 
 		D_Attribute_List),
-	validate_attributes(D_File, D_ID, D_Attribute_List, S_File, S_Attribute_IDs).
+	validate_attributes(D_File, D_Attribute_List, S_File, S_Attribute_IDs).
 
 /* 
 	validate_element/4
@@ -351,18 +357,7 @@ validate_restriction(D_File, D_ID, D_Text, S_File, SIDs) :-
 		% assertion
 		node(S_File, S_ID, ns(_, 'http://www.w3.org/2001/XMLSchema'), assertion),
 		attribute(S_File, S_ID, test, XPathExpr),
-		(
-			child(S_File, S_ID, An_ID) ->
-				% documentation provided
-				node(S_File, An_ID, ns(_, 'http://www.w3.org/2001/XMLSchema'), annotation),
-				child(S_File, An_ID, Do_ID),
-				node(S_File, Do_ID, ns(_, 'http://www.w3.org/2001/XMLSchema'), documentation),
-				text_node(S_File, Do_ID, DocumentationText)
-				;
-				% no documentation provided
-				DocumentationText = ''
-		),
-		xpath:assertion(D_File, D_ID, D_Text, XPathExpr, DocumentationText),
+		xpath:assertion(D_File, D_ID, D_Text, XPathExpr),
 		validate_restriction(D_File, D_ID, D_Text, S_File, S_IDs)
 	)
 	.
@@ -480,13 +475,13 @@ validate_all(D_File, DIDs, S_File, S_IDs) :-
 	.
 
 /*
-	validate_attributes/5
-	validate_attributes(D_File, D_ID, D_Attribute_List, S_File, S_Attribute_IDs)
+	validate_attributes/4
+	validate_attributes(D_File, D_Attribute_List, S_File, S_Attribute_IDs)
 	
 	`D_Attribute_List`: List of `attribute/4` nodes.
 	`S_Attribute_IDs`: List of IDs correspoding to <xs:attribute .. /> nodes
 */
-validate_attributes(D_File, D_ID, DAttributes, S_File, S_Attribute_IDs) :-
+validate_attributes(D_File, DAttributes, S_File, S_Attribute_IDs) :-
 	DAttributes = [],
 	(
 		S_Attribute_IDs = []
@@ -502,21 +497,21 @@ validate_attributes(D_File, D_ID, DAttributes, S_File, S_Attribute_IDs) :-
 		% skip xmlns attributes
 		( Name = xmlns ; Name = xmlns:_ ),
 	
-		validate_attributes(D_File, D_ID, D_Attributes, S_File, S_Attribute_IDs)
+		validate_attributes(D_File, D_Attributes, S_File, S_Attribute_IDs)
 		;
 		member(S_ID, S_Attribute_IDs),
 		attribute(S_File, S_ID, name, Name),
 		\+attribute(S_File, S_ID, use, 'prohibited'),
 	
-		validate_attribute(D_File, D_ID, D_Attribute, S_File, S_ID),
+		validate_attribute(D_Attribute, S_File, S_ID),
 	
 		delete(S_Attribute_IDs, S_ID, S_Attribute_IDs0),
-		validate_attributes(D_File, D_ID, D_Attributes, S_File, S_Attribute_IDs0)
+		validate_attributes(D_File, D_Attributes, S_File, S_Attribute_IDs0)
 	)
 	. 
 
-validate_attribute(D_File, D_ID, D_Attribute, S_File, S_ID) :-
-	D_Attribute = attribute(_D_File, _D_ID, _Name, D_Value),
+validate_attribute(D_Attribute, S_File, S_ID) :-
+	D_Attribute = attribute(D_File, D_ID, _Name, D_Value),
 	% check fixed values
 	(attribute(S_File, S_ID, fixed, S_FixedVal) ->
 		S_FixedVal = D_Value
