@@ -28,7 +28,7 @@ test.cli:
 # You have to provide the location of Xerces2-J
 #   as JAXP_PATH classpath for Java. 
 test.xsd:
-	find test/schema -exec java -cp $(JAXP_PATH) jaxp.SourceValidator -xsd11 -a {} \;
+	find test/schema -type f -exec java -cp $(JAXP_PATH) jaxp.SourceValidator -xsd11 -a {} \;
 
 clean: clean.cli
 
