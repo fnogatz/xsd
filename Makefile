@@ -23,6 +23,13 @@ test.validate:
 test.cli:
 	@$(CLI) ./test/schema/simpleType_int.xsd ./test/cli/simpleType_int.xml
 
+# Run `make test.xsd` to check whether the files
+#   in test/schema are valid XSD 1.1 files.
+# You have to provide the location of Xerces2-J
+#   as JAXP_PATH classpath for Java. 
+test.xsd:
+	find test/schema -exec java -cp $(JAXP_PATH) jaxp.SourceValidator -xsd11 -a {} \;
+
 clean: clean.cli
 
 clean.cli:
