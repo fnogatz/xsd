@@ -37,3 +37,7 @@ Testname:
 Please note that the `Testname` must be given as atom and must be unique within a certain validation file.
 
 To define failing tests, i.e. to define XML documents which should be recognized as no valid instances of the given XML Schema, simply extend the `Testname` by `(fail)`, e.g. `'Not a valid integer'(fail)`.
+
+## Meta-validate Tested XSD Files
+
+As the used XSD files in the `test/schema` subfolder are created manually, it might be useful to check if they really satisfy the XML Schema 1.1 Meta-Schema, i.e., that they are valid XSD 1.1 documents. This test can be run via `make test.xsd`, which expects the [Apache Xerces2-J](http://xerces.apache.org/xerces2-j/samples-jaxp.html) Samples directory set as `JAXP_PATH` environment varaible.
