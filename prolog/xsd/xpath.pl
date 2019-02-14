@@ -1,7 +1,7 @@
 :- module(xpath, 
 	[
-		assert/3,
-		assertion/4
+		assert/4,
+		assertion/5
 	]).
 
 :- use_module(library(regex)).
@@ -16,22 +16,23 @@
 
 
 % these are the exported predicates, which are used in validate.pl
-assert(D_File, D_ID, XPathString) :-
-	save_context(D_File, D_ID, false),
+assert(D_File, D_ID, XPathString, Documentation) :-
+	save_context(D_File, D_ID, false, Documentation),
 	validate_xpath(XPathString).
-assertion(D_File, D_ID, D_Text, XPathString) :-
-	save_context(D_File, D_ID, D_Text),
+assertion(D_File, D_ID, D_Text, XPathString, Documentation) :-
+	save_context(D_File, D_ID, D_Text, Documentation),
 	validate_xpath(XPathString).
 
 % saves the context, in which the xpath expression is evaluated
-save_context(D_File, D_ID, D_Text) :-
+save_context(D_File, D_ID, D_Text, Documentation) :-
 	nb_setval(context_file, D_File),
 	nb_setval(context_id, D_ID),
 	(
 		D_Text = false
 		;
 		D_Text \= false, nb_setval(context_value, D_Text)	
-	).
+	),
+	nb_setval(context_documentation, Documentation).
 
 % evaluate the xpath expression and check the result
 validate_xpath(XPathString) :-
@@ -39,10 +40,19 @@ validate_xpath(XPathString) :-
 	!,
 	xpath_expr(XPathExpr, Result),
 	Result = data(T, R),
+	!,
 	(
-		T \= 'boolean'
-		;
-		R = [true]
+		T \= 'boolean'; R = [true] ->
+			true
+			;
+			nb_current(context_documentation, Documentation),
+			(
+				Documentation = null ->
+					warning('An assert is not fulfilled.')
+					;
+					warning('The following assert is not fulfilled: ~w', Documentation)
+			),
+			false
 	).
 
 

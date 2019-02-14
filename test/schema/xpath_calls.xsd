@@ -131,7 +131,11 @@
 	<xs:element name="assertion_restriction_single">
 		<xs:simpleType>
 			<xs:restriction base="xs:int">
-				<xs:assertion test="$value eq 2"/>
+				<xs:assertion test="$value eq 2">
+					<xs:annotation>
+						<xs:documentation>Value must equal 2.</xs:documentation>
+					</xs:annotation>
+				</xs:assertion>
 			</xs:restriction>
 		</xs:simpleType>
 	</xs:element>
