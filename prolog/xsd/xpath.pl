@@ -1,7 +1,6 @@
 :- module(xpath, 
 	[
-		assert/4,
-		assertion/5
+		assert/5
 	]).
 
 :- use_module(library(regex)).
@@ -15,11 +14,8 @@
 :- set_prolog_flag(allow_variable_name_as_functor, true).
 
 
-% these are the exported predicates, which are used in validate.pl
-assert(D_File, D_ID, XPathString, Documentation) :-
-	save_context(D_File, D_ID, false, Documentation),
-	validate_xpath(XPathString).
-assertion(D_File, D_ID, D_Text, XPathString, Documentation) :-
+% this is the exported predicate, which is used in validate.pl
+assert(D_File, D_ID, D_Text, XPathString, Documentation) :-
 	save_context(D_File, D_ID, D_Text, Documentation),
 	validate_xpath(XPathString).
 

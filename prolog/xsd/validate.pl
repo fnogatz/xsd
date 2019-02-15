@@ -143,7 +143,7 @@ validate(D_File, D_ID, Validated_Nodes, S_File, S_ID) :-
 					Documentation = null
 			),
 			!,
-			xpath:assert(D_File, D_ID, XPathExpr, Documentation)
+			xpath:assert(D_File, D_ID, false, XPathExpr, Documentation)
 		)
 	)
 	;
@@ -400,7 +400,7 @@ validate_restriction(D_File, D_ID, D_Text, S_File, SIDs) :-
 				;
 				Documentation = null
 		),
-		xpath:assertion(D_File, D_ID, D_Text, XPathExpr, Documentation),
+		xpath:assert(D_File, D_ID, D_Text, XPathExpr, Documentation),
 		validate_restriction(D_File, D_ID, D_Text, S_File, S_IDs)
 	)
 	. 
