@@ -5,7 +5,8 @@
 :- module(simpletype,
 	[
 		validate_xsd_simpleType/2,
-		facet/3
+		facet/3,
+		is_xsd_simpleType/1
 	]).
 
 :- use_module(library(xsd/xsd_messages)).
@@ -13,6 +14,8 @@
 % https://github.com/mndrix/regex
 :- use_module(library(regex)).
 
+is_xsd_simpleType(T) :-
+	validate_xsd_simpleType(T, _).
 
 /*
 	TYPE VALIDATION
