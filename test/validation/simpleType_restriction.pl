@@ -298,11 +298,6 @@
 	<s20>84551</s20>
 |}.
 
-'totalDigits=NaN':
-{|xml||
-	<s20>NaN</s20>
-|}.
-
 'totalDigits=4 with fraction digits and integer digits less than the maximum number':
 {|xml||
 	<s20>12.3</s20>

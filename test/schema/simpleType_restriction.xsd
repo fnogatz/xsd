@@ -161,7 +161,7 @@
 <!-- totalDigits -->
 	<xs:element name="s20">
 		<xs:simpleType>
-			<xs:restriction base="xs:float">
+			<xs:restriction base="xs:decimal">
 				<xs:totalDigits value="4" />
 			</xs:restriction>
 		</xs:simpleType>
