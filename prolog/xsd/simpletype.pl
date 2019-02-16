@@ -15,7 +15,7 @@
 :- use_module(library(regex)).
 
 is_xsd_simpleType(T) :-
-	validate_xsd_simpleType(T, _).
+	clause(validate_xsd_simpleType(T, _), _).
 
 /*
 	TYPE VALIDATION
