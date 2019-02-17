@@ -278,11 +278,6 @@
 	<s18>35.1</s18>
 |}.
 
-'fractionDigits=-1'(fail):
-{|xml||
-	<s19>0</s19>
-|}.
-
 'totalDigits=4 without fraction digits and less than the maximum integer digits #1':
 {|xml||
 	<s20>845</s20>
@@ -301,11 +296,6 @@
 'totalDigits=4 without fraction digits and too many integer digits'(fail):
 {|xml||
 	<s20>84551</s20>
-|}.
-
-'totalDigits=NaN':
-{|xml||
-	<s20>NaN</s20>
 |}.
 
 'totalDigits=4 with fraction digits and integer digits less than the maximum number':
@@ -341,9 +331,4 @@
 'totalDigits=4 with too many fraction digits and integer digits'(fail):
 {|xml||
 	<s20>0.1234</s20>
-|}.
-
-'totalDigits=0'(fail):
-{|xml||
-	<s21>0</s21>
 |}.
