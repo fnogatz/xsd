@@ -138,18 +138,6 @@ register_file_id(File_ID) :-
 */
 xml_flatten_nodes(_File_ID,_Base_ID,_Pos,[]).
 
-% ignore xsd-annotation nodes
-xml_flatten_nodes(File_ID,Base_ID,Pos,[Node|Nodes]) :-
-	Node = element(Node_Type,_Node_Attributes,_Child_Nodes),
-	namespace(Node_Type,Namespace,Node_Type_Without_NS),
-	% is annotation
-	Namespace = ns(_, 'http://www.w3.org/2001/XMLSchema'),
-	Node_Type_Without_NS = annotation, 
-	!,
-	% don't flatten this node, don't flatten child nodes
-	% flatten sibling nodes
-	xml_flatten_nodes(File_ID,Base_ID,Pos,Nodes).
-
 xml_flatten_nodes(File_ID,Base_ID,Pos,[Node|Nodes]) :-
 	Node = element(Node_Type,Node_Attributes,Child_Nodes),	%% is an XML node, no text
 	new_id(Base_ID,Pos,ID),

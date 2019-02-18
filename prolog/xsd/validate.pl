@@ -3,9 +3,10 @@
 		validate/3
 	]).
 
-:- use_module(library(xsd/xsd_helper)).
-:- use_module(library(xsd/simpletype)).
 :- use_module(library(xsd/flatten)).
+:- use_module(library(xsd/simpletype)).
+:- use_module(library(xsd/xpath)).
+:- use_module(library(xsd/xsd_helper)).
 
 :- use_module(library(statistics)).
 :- use_module(library(settings)).
@@ -55,6 +56,10 @@ set_default_option(_Option) :-
 	true.
 
 validate(D_File, D_ID, Validated_Nodes, S_File, S_ID) :-
+	% annotation stuff
+	node(S_File, S_ID, ns(_, 'http://www.w3.org/2001/XMLSchema'), S_Type),
+	member(S_Type, [annotation, appinfo, documentation])
+	;
 	% schema
 	Validated_Nodes = 1,
 	node(S_File, S_ID, ns(_, 'http://www.w3.org/2001/XMLSchema'), schema),
@@ -123,10 +128,26 @@ validate(D_File, D_ID, Validated_Nodes, S_File, S_ID) :-
 		% no children in document
 		count_children(D_File, D_ID, 0),
 		validate_all_attributes(D_File, D_ID, S_File, S_ID)
-		
+	),
+	!,
+	% validate every assert on the complexType
+	forall((child(S_File, S_ID, As_ID), node(S_File, As_ID, ns(_, 'http://www.w3.org/2001/XMLSchema'), assert)),
+		(
+			attribute(S_File, As_ID, test, XPathExpr),
+			(
+				child(S_File, As_ID, An_ID), node(S_File, An_ID, ns(_, 'http://www.w3.org/2001/XMLSchema'), annotation),
+				child(S_File, An_ID, Do_ID), node(S_File, Do_ID, ns(_, 'http://www.w3.org/2001/XMLSchema'), documentation),
+				child(S_File, Do_ID, Text_ID) ->
+					text_node(S_File, Text_ID, Documentation)
+					;
+					Documentation = null
+			),
+			!,
+			xpath:assert(D_File, D_ID, false, XPathExpr, Documentation)
+		)
 	)
 	;
-	% simpleType as content of nodes (actual validation of content or attribute values handled by `validate_simpleType/3`)
+	% simpleType as content of nodes (actual validation of content or attribute values handled by `validate_simpleType/5`)
 	Validated_Nodes = 1,
 	node(S_File, S_ID, ns(_, 'http://www.w3.org/2001/XMLSchema'), simpleType),
 	
@@ -140,7 +161,7 @@ validate(D_File, D_ID, Validated_Nodes, S_File, S_ID) :-
 		count_children(D_File, D_ID, 0),
 		D_Text = ''
 	),
-	validate_simpleType(D_Text, S_File, S_ID)
+	validate_simpleType(D_File, D_ID, D_Text, S_File, S_ID)
 	;
 	% sequence / choice
 	get_n_siblings(D_File, D_ID, Validated_Nodes, D_Nodes),
@@ -207,6 +228,11 @@ validate_all_attributes(D_File, D_ID, S_File, S_ID) :-
 */
 
 validate_element(D_File, D_ID, S_File, S_ID) :-
+	% annotation stuff
+	node(S_File, S_ID, ns(_, 'http://www.w3.org/2001/XMLSchema'), S_Type),
+	member(S_Type, [annotation, appinfo, documentation])
+	;
+	% otherwise
 	validate_element_name(D_File, D_ID, S_File, S_ID),
 	(
 		get_children(S_File, S_ID, []),
@@ -244,11 +270,16 @@ validate_element(D_File, D_ID, S_File, S_ID) :-
 			% global type: type definition anywhere in document
 			attribute(S_File, S_ID, type, S_User_Type), 
 			attribute(S_File, S_Type_ID, name, S_User_Type)
-		), 
-		% S_Type: [complexType, simpleType]
+		),
 		node(S_File, S_Type_ID, ns(_, 'http://www.w3.org/2001/XMLSchema'), S_Type),
-		member(S_Type, [complexType, simpleType]),
-		validate(D_File, D_ID, 1, S_File, S_Type_ID)
+		(
+			% annotation stuff
+			member(S_Type, [annotation, appinfo, documentation])
+			;
+			% [complexType, simpleType]
+			member(S_Type, [complexType, simpleType]),
+			validate(D_File, D_ID, 1, S_File, S_Type_ID)
+		)
 	)
 	.
 
@@ -268,57 +299,63 @@ validate_element_name(D_File, D_ID, S_File, S_ID) :-
 % find simpleType by name `S_Type` and validate (S_ID only for namespace handling)
 
 
-validate_simpleType(D_Text, S_File, S_ID, S_Type) :-
+validate_simpleType(D_File, D_ID, D_Text, S_File, S_ID, S_Type) :-
 	node(S_File, S_ID0, ns(_, 'http://www.w3.org/2001/XMLSchema'), simpleType),
 	attribute(S_File, S_ID0, name, S_Type),
-	validate_simpleType(D_Text, S_File, S_ID0)
+	validate_simpleType(D_File, D_ID, D_Text, S_File, S_ID0)
 	;
 	namespace(S_Type, NS_Prefix, S_Type_Name),
 	resolve_namespace(S_File, S_ID, NS_Prefix, 'http://www.w3.org/2001/XMLSchema'),
 	validate_xsd_simpleType(S_Type_Name, D_Text)
 	. 
 
-validate_simpleType(D_Text, S_File, S_ID) :-
+validate_simpleType(D_File, D_ID, D_Text, S_File, S_ID) :-
 	child(S_File, S_ID, S_Child),
 	(
+		% annotation stuff
+		node(S_File, S_Child, ns(_, 'http://www.w3.org/2001/XMLSchema'), S_Child_Type),
+		member(S_Child_Type, [annotation, appinfo, documentation])
+		;
 		% restriction
 		node(S_File, S_Child, ns(_, 'http://www.w3.org/2001/XMLSchema'), restriction),
 		
 		attribute(S_File, S_Child, base, S_Type),
-		validate_simpleType(D_Text, S_File, S_ID, S_Type),
+		validate_simpleType(D_File, D_ID, D_Text, S_File, S_ID, S_Type),
 		
 		get_children(S_File, S_Child, S_Facets), 
-		validate_restriction(D_Text, S_File, S_Facets)
+		validate_restriction(D_File, D_ID, D_Text, S_File, S_Facets)
 		;
+		% union
 		node(S_File, S_Child, ns(_, 'http://www.w3.org/2001/XMLSchema'), union),
 		(
 			% types as memberTypes-attribute
 			attribute(S_File, S_Child, memberTypes, S_Types), 
 			atomic_list_concat(Types_List, ' ', S_Types),
 			member(S_Type, Types_List),
-			validate_simpleType(D_Text, S_File, S_ID, S_Type)
+			validate_simpleType(D_File, D_ID, D_Text, S_File, S_ID, S_Type)
 			;
 			% types as children
 			get_children(S_File, S_Child, S_SimpleTypes), 
 			member(S_SimpleType, S_SimpleTypes),
 			node(S_File, S_SimpleType, ns(_, 'http://www.w3.org/2001/XMLSchema'), simpleType),
-			validate_simpleType(D_Text, S_File, S_SimpleType)
+			validate_simpleType(D_File, D_ID, D_Text, S_File, S_SimpleType)
 		)
 		;
+		% list
 		node(S_File, S_Child, ns(_, 'http://www.w3.org/2001/XMLSchema'), list),
 		(
 			% type as itemType-attribute
 			attribute(S_File, S_Child, itemType, S_Type),
 			atomic_list_concat(D_Items, ' ', D_Text),
 			subtract(D_Items, [''], D_Items0),
-			forall(member(D_Item, D_Items0), validate_simpleType(D_Item, S_File, S_ID, S_Type))
+			forall(member(D_Item, D_Items0), validate_simpleType(D_File, D_ID, D_Item, S_File, S_ID, S_Type))
 			;
 			% type as child
 			child(S_File, S_Child, S_SimpleType), 
 			node(S_File, S_SimpleType, ns(_, 'http://www.w3.org/2001/XMLSchema'), simpleType),
 			atomic_list_concat(D_Items, ' ', D_Text),
 			subtract(D_Items, [''], D_Items0),
-			forall(member(D_Item, D_Items0), validate_simpleType(D_Item, S_File, S_SimpleType))
+			forall(member(D_Item, D_Items0), validate_simpleType(D_File, D_ID, D_Item, S_File, S_SimpleType))
 		)
 	)
 	. 
@@ -326,16 +363,21 @@ validate_simpleType(D_Text, S_File, S_ID) :-
 /*
 	validate_restriction
 */
-validate_restriction(D_Text, S_File, SIDs) :-
+validate_restriction(D_File, D_ID, D_Text, S_File, SIDs) :-
 	SIDs = []
 	;
 	SIDs = [S_ID|S_IDs],
 	(
+		% annotation stuff
+		node(S_File, S_ID, ns(_, 'http://www.w3.org/2001/XMLSchema'), S_Type),
+		member(S_Type, [annotation, appinfo, documentation]),
+		validate_restriction(D_File, D_ID, D_Text, S_File, S_IDs)
+		;
 		% min/max facets
 		node(S_File, S_ID, ns(_, 'http://www.w3.org/2001/XMLSchema'), Facet), 
 		attribute(S_File, S_ID, value, Val),
 		facet(Facet, Val, D_Text),
-		validate_restriction(D_Text, S_File, S_IDs)
+		validate_restriction(D_File, D_ID, D_Text, S_File, S_IDs)
 		;
 		% enumeration
 		findall(S_ID0, 
@@ -345,10 +387,23 @@ validate_restriction(D_Text, S_File, SIDs) :-
 		attribute(S_File, Enum_ID, value, D_Text),
 		
 		subtract([S_ID|S_IDs], Enum_IDs, S_IDs0),
-		validate_restriction(D_Text, S_File, S_IDs0)
+		validate_restriction(D_File, D_ID, D_Text, S_File, S_IDs0)
+		;
+		% assertion
+		node(S_File, S_ID, ns(_, 'http://www.w3.org/2001/XMLSchema'), assertion),
+		attribute(S_File, S_ID, test, XPathExpr),
+		(
+			child(S_File, S_ID, An_ID), node(S_File, An_ID, ns(_, 'http://www.w3.org/2001/XMLSchema'), annotation),
+			child(S_File, An_ID, Do_ID), node(S_File, Do_ID, ns(_, 'http://www.w3.org/2001/XMLSchema'), documentation),
+			child(S_File, Do_ID, Text_ID) ->
+				text_node(S_File, Text_ID, Documentation)
+				;
+				Documentation = null
+		),
+		xpath:assert(D_File, D_ID, D_Text, XPathExpr, Documentation),
+		validate_restriction(D_File, D_ID, D_Text, S_File, S_IDs)
 	)
-	.
-
+	. 
 /*
 	validate_sequence/6
 	validate_sequence(D_File, D_Remaining_IDs, S_File, S_Remaining_IDs, S_IDs, MinOccurs, MaxOccurs)
@@ -378,25 +433,33 @@ validate_sequence(D_File, D_IDs, S_File, S_Remaining_IDs, S_IDs, Min, Max) :-
 	)
 	;
 	S_Remaining_IDs = [S_ID|S_Remaining_IDs0],
-	Max > 0, 
-	D_IDs = [D_ID|_],
-	node(S_File, S_ID, ns(_, 'http://www.w3.org/2001/XMLSchema'), S_Type),
-	member(S_Type, [element, sequence, choice]),
-	length(D_IDs, D_Remaining),
-	between(0, D_Remaining, Val_Nodes),
-	validate(D_File, D_ID, Val_Nodes, S_File, S_ID),
-	length(TempList, Val_Nodes),
-	append(TempList, D_IDs0, D_IDs),
 	(
-		S_Remaining_IDs0 = [],
-		% reset S_Remaining_IDs and validate next sequence
-		Min0 is Min - 1,
-		Max0 is Max - 1,
-		validate_sequence(D_File, D_IDs0, S_File, S_IDs, S_IDs, Min0, Max0)
+		% annotation stuff
+		node(S_File, S_ID, ns(_, 'http://www.w3.org/2001/XMLSchema'), S_Type),
+		member(S_Type, [annotation, appinfo, documentation]),
+		validate_sequence(D_File, D_IDs, S_File, S_Remaining_IDs0, S_IDs, Min, Max)
 		;
-		% Validate `Val_Nodes` many document nodes against next schema node
-		S_Remaining_IDs0 \= [],
-		validate_sequence(D_File, D_IDs0, S_File, S_Remaining_IDs0, S_IDs, Min, Max)
+		% otherwise
+		Max > 0, 
+		D_IDs = [D_ID|_],
+		node(S_File, S_ID, ns(_, 'http://www.w3.org/2001/XMLSchema'), S_Type),
+		member(S_Type, [element, sequence, choice]),
+		length(D_IDs, D_Remaining),
+		between(0, D_Remaining, Val_Nodes),
+		validate(D_File, D_ID, Val_Nodes, S_File, S_ID),
+		length(TempList, Val_Nodes),
+		append(TempList, D_IDs0, D_IDs),
+		(
+			S_Remaining_IDs0 = [],
+			% reset S_Remaining_IDs and validate next sequence
+			Min0 is Min - 1,
+			Max0 is Max - 1,
+			validate_sequence(D_File, D_IDs0, S_File, S_IDs, S_IDs, Min0, Max0)
+			;
+			% Validate `Val_Nodes` many document nodes against next schema node
+			S_Remaining_IDs0 \= [],
+			validate_sequence(D_File, D_IDs0, S_File, S_Remaining_IDs0, S_IDs, Min, Max)
+		)
 	)
 	.
 
@@ -448,9 +511,9 @@ validate_choice(D_File, D_IDs, S_File, S_IDs, Min, Max) :-
 validate_all(D_File, DIDs, S_File, S_IDs) :-
 	DIDs = [],
 	(
-	S_IDs = []
-	;
-	forall(member(S_ID, S_IDs), (node(S_File, S_ID, ns(_, 'http://www.w3.org/2001/XMLSchema'), _S_Type), validate(D_File, null, 0, S_File, S_ID)))
+		S_IDs = []
+		;
+		forall(member(S_ID, S_IDs), (node(S_File, S_ID, ns(_, 'http://www.w3.org/2001/XMLSchema'), _S_Type), validate(D_File, null, 0, S_File, S_ID)))
 	)
 	;
 	DIDs = [D_ID|D_IDs],
@@ -498,7 +561,7 @@ validate_attributes(D_File, DAttributes, S_File, S_Attribute_IDs) :-
 	. 
 
 validate_attribute(D_Attribute, S_File, S_ID) :-
-	D_Attribute = attribute(_D_File, _D_ID, _Name, D_Value),
+	D_Attribute = attribute(D_File, D_ID, _Name, D_Value),
 	% check fixed values
 	(attribute(S_File, S_ID, fixed, S_FixedVal) ->
 		S_FixedVal = D_Value
@@ -508,10 +571,10 @@ validate_attribute(D_Attribute, S_File, S_ID) :-
 	% validate simpleType (reference or nested)
 	(
 		attribute(S_File, S_ID, type, S_Type),
-		validate_simpleType(D_Value, S_File, S_ID, S_Type)
+		validate_simpleType(D_File, D_ID, D_Value, S_File, S_ID, S_Type)
 	;
 		child(S_File, S_ID, S_Child),
-		validate_simpleType(D_Value, S_File, S_Child)
+		validate_simpleType(D_File, D_ID, D_Value, S_File, S_Child)
 	).
 
 /*

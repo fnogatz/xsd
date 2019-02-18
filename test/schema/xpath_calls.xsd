@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<!-- assert on complexType -->
+	<xs:element name="assert_complexType_empty_none">
+		<xs:complexType>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="assert_complexType_empty_single_invalid">
+		<xs:complexType>
+			<xs:assert test="1 mod 2 eq 0"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="assert_complexType_empty_single_valid">
+		<xs:complexType>
+			<xs:assert test="2 mod 2 eq 0"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="assert_complexType_empty_attribute_single_invalid">
+		<xs:complexType>
+			<xs:attribute name="attr" type="xs:int" />
+			<xs:assert test="1 mod 2 eq 0"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="assert_complexType_empty_attribute_single_valid">
+		<xs:complexType>
+			<xs:attribute name="attr" type="xs:int" />
+			<xs:assert test="2 mod 2 eq 0"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="assert_complexType_empty_multiple_none_valid">
+		<xs:complexType>
+			<xs:assert test="1 mod 2 eq 0"/>
+			<xs:assert test="3 mod 2 eq 0"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="assert_complexType_empty_multiple_partially_valid">
+		<xs:complexType>
+			<xs:assert test="2 mod 2 eq 0"/>
+			<xs:assert test="3 mod 2 eq 0"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="assert_complexType_empty_multiple_all_valid">
+		<xs:complexType>
+			<xs:assert test="2 mod 2 eq 0"/>
+			<xs:assert test="4 mod 2 eq 0"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="assert_complexType_none">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="item" type="xs:integer" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="assert_complexType_single_invalid">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="item" type="xs:integer" />
+			</xs:sequence>
+			<xs:assert test="1 mod 2 eq 0"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="assert_complexType_single_valid">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="item" type="xs:integer" />
+			</xs:sequence>
+			<xs:assert test="2 mod 2 eq 0"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="assert_complexType_single_attribute_invalid">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="item" type="xs:integer" />
+			</xs:sequence>
+			<xs:attribute name="attr" type="xs:int" />
+			<xs:assert test="1 mod 2 eq 0"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="assert_complexType_single_attribute_valid">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="item" type="xs:integer" />
+			</xs:sequence>
+			<xs:attribute name="attr" type="xs:int" />
+			<xs:assert test="2 mod 2 eq 0"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="assert_complexType_multiple_non_valid">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="item" type="xs:integer" />
+			</xs:sequence>
+			<xs:assert test="1 mod 2 eq 0">
+				<xs:annotation>
+					<xs:documentation>1 modulo 2 may not be 0.</xs:documentation>
+				</xs:annotation>
+			</xs:assert>
+			<xs:assert test="3 mod 2 eq 0">
+				<xs:annotation>
+					<xs:documentation>3 modulo 2 may not be 0.</xs:documentation>
+				</xs:annotation>
+			</xs:assert>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="assert_complexType_multiple_partially_valid">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="item" type="xs:integer" />
+			</xs:sequence>
+			<xs:assert test="1 mod 2 eq 0"/>
+			<xs:assert test="4 mod 2 eq 0"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="assert_complexType_multiple_all_valid">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="item" type="xs:integer" />
+			</xs:sequence>
+			<xs:assert test="2 mod 2 eq 0"/>
+			<xs:assert test="4 mod 2 eq 0"/>
+		</xs:complexType>
+	</xs:element>
+	<!-- assertion on simpleType -->
+	<xs:element name="assertion_restriction_none">
+		<xs:simpleType>
+			<xs:restriction base="xs:int">
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="assertion_restriction_single">
+		<xs:simpleType>
+			<xs:restriction base="xs:int">
+				<xs:assertion test="$value eq 2">
+					<xs:annotation>
+						<xs:documentation>Value must equal 2.</xs:documentation>
+					</xs:annotation>
+				</xs:assertion>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="assertion_restriction_multiple">
+		<xs:simpleType>
+			<xs:restriction base="xs:int">
+				<xs:assertion test="$value mod 2 eq 0"/>
+				<xs:assertion test="$value mod 3 eq 0"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="assertion_simpleType_none">
+		<xs:simpleType>
+			<xs:restriction base="xs:int">
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+</xs:schema>
+
+
+
+

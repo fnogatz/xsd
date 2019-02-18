@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="eq_int_t">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="1 eq 1"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="eq_int_f">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:assertion test="1 eq 0"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+</xs:schema>
+
+
+
+

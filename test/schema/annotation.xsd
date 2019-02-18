@@ -10,11 +10,11 @@
 	</xsd:annotation>
 	<xsd:element name="kundenliste">
 		<xsd:complexType>
-				<xsd:annotation>
-					<xsd:documentation>
-						Some random documentation stuff.
-					</xsd:documentation>
-				</xsd:annotation>
+			<xsd:annotation>
+				<xsd:documentation>
+					Some random documentation stuff.
+				</xsd:documentation>
+			</xsd:annotation>
 			<xsd:sequence>
 				<xsd:annotation>
 					<xsd:documentation>

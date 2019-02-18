@@ -18,7 +18,7 @@
 	<gYearMonth>2004-04-05:00</gYearMonth>
 |}.
 
-'xs:gYearMonth with too many leading hyphens'(fail):
+'xs:gYearMonth with truncated negative century'(fail):
 {|xml||
 	<gYearMonth>-99-04</gYearMonth>
 |}.
