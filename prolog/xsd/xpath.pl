@@ -4,10 +4,13 @@
 	]).
 
 :- use_module(library(regex)).
+:- use_module(library(xsd/flatten)).
 :- use_module(library(xsd/simpletype)).
+:- use_module(library(xsd/xsd_helper)).
 :- use_module(library(xsd/xsd_messages)).
 
 :- op(1, fx, user:($)).
+:- op(200, fy, user:(@)).
 :- op(400, yfx, user:(mod)).
 :- op(700, xfx, user:(eq)).
 
@@ -34,11 +37,8 @@ save_context(D_File, D_ID, D_Text, Documentation) :-
 validate_xpath(XPathString) :-
 	term_string(XPathExpr, XPathString),
 	!,
-	xpath_expr(XPathExpr, Result),
-	Result = data(T, R),
-	!,
 	(
-		T \= 'boolean'; R = [true] ->
+		xpath_expr(XPathExpr, Result), Result = data(T, R), (T \= 'boolean'; R = [true]) ->
 			true
 			;
 			nb_current(context_documentation, Documentation),
@@ -113,14 +113,21 @@ xpath_expr(Value, Result) :-
 			)
 	).
 
-
-/* ### Special Functions ### */
-
 /* --- $value --- */
 xpath_expr($value, Result) :-
 	nb_current(context_value, Value),
 	xpath_expr(Value, Result).
 
+
+/* ### Location path expressions ### */
+
+/* --- attributes --- */
+xpath_expr(@Attribute, Result) :-
+	nb_current(context_file, D_File),
+	nb_current(context_id, D_ID),
+	descendant_or_self(D_File, D_ID, D_Desc_ID),
+	node_attribute(D_File, D_Desc_ID, Attribute, AttributeValue),
+	xpath_expr(AttributeValue, Result).
 
 /* ### Operators ### */
 

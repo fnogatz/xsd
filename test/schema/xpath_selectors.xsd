@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<!-- attributes -->
+	<xs:element name="attribute_presence">
+		<xs:complexType>
+			<xs:sequence/>
+			<xs:attribute name="lang" type="xs:language"/>
+			<xs:assert test="@lang"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="attribute_comparison">
+		<xs:complexType>
+			<xs:sequence/>
+			<xs:attribute name="lang" type="xs:language"/>
+			<xs:assert test="@lang eq 'en-US'"/>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>
