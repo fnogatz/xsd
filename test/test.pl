@@ -4,6 +4,9 @@
 :- use_module(library(xsd)).
 :- use_module(library(xsd/flatten)).
 :- use_module(library(xsd/validate)).
+:- use_module(library(xsd/xpath)).
+
+:- use_module('xpath/constructors.pl').
 
 % Support {|xsd|| ... |} quasi quotations
 :- quasi_quotation_syntax(xml).
@@ -24,7 +27,15 @@ term_expansion((Test : Test_File_ID), (test_definition(Testname, Test_File_ID, f
    Test =.. [Testname, fail], 
    atom(Testname).
 
-term_expansion(run_tests, Tests) :-
+term_expansion(run(xpath_constructors), Tests) :-
+   findall(
+      eq(A,B),
+      '==>'(A,B),
+      XPath_Eqs
+   ),
+   maplist(define_xpath_constructor_test, XPath_Eqs, Tests).
+
+term_expansion(run(xsd_validations), Tests) :-
    set_test_paths(_Path, Schema_Path, _Validation_Path),
    directory_files(Schema_Path, Schema_Filenames),
    findall(
@@ -71,6 +82,23 @@ define_sub_tests(Identifier, Sub_Tests) :-
       Sub_Tests
    ).
 
+define_xpath_constructor_test(eq(A,false), Test) :-
+   format(atom(Head), '[xpath/constructors] ~w !', [A]),
+   Test = (
+      Head :-
+         \+ xpath:xpath_expr(A, _),
+         !
+   ),
+   tap:register_test(Head).
+define_xpath_constructor_test(eq(A,B), Test) :-
+   format(atom(Head), '[xpath/constructors] ~w', [A]),
+   Test = (
+      Head :-
+         xpath:xpath_expr(A, B),
+         !
+   ),
+   tap:register_test(Head).
+
 define_tap_test(Test_Definition, Tap_Test) :-
    get_tap_test_name(Test_Definition, Tap_Test_Name),
    get_tap_test_run(Test_Definition, Test_Run),
@@ -103,5 +131,7 @@ get_tap_test_run(
 % define tests below
 :- use_module(library(tap)).
 
- % replaced via term expansion
-run_tests.
+% replaced via term expansion
+run(xsd_validations).
+
+run(xpath_constructors).
