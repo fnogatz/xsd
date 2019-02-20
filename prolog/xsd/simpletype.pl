@@ -371,14 +371,15 @@ validate_xsd_simpleType(T, V) :-
 		member(C, CL), 
 		validate_xsd_name_character(C)
 	).
-validate_xsd_simpleType('Name', V) :-
-	xsd_simpleType_direct_inheritance('Name', ST),
+validate_xsd_simpleType(T, V) :-
+	T = 'Name',
+	xsd_simpleType_direct_inheritance(T, ST),
 	validate_xsd_simpleType(ST, V),
 	string_codes(V, CL),
-	CL = [H|T],
+	CL = [H|R],
 	validate_xsd_name_start_character(H),
 	forall(
-		member(C, T),
+		member(C, R),
 		validate_xsd_name_character(C)	
 	).
 validate_xsd_simpleType(T, V) :-
