@@ -4,9 +4,10 @@
 */
 :- module(simpletype,
 	[
+		is_xsd_simpleType/1,
+		xsd_simpleType_inheritance/2,
 		validate_xsd_simpleType/2,
-		facet/3,
-		is_xsd_simpleType/1
+		facet/3
 	]).
 
 :- use_module(library(xsd/xsd_messages)).
@@ -18,6 +19,68 @@ is_xsd_simpleType(T) :-
 	clause(validate_xsd_simpleType(T, _), _).
 
 /*
+	TYPE HIERARCHY
+*/
+xsd_simpleType_direct_inheritance('anyType', 'anyType').
+xsd_simpleType_direct_inheritance('anySimpleType', 'anyType').
+xsd_simpleType_direct_inheritance('untyped', 'anyType').
+xsd_simpleType_direct_inheritance('anyAtomicType', 'anySimpleType').
+xsd_simpleType_direct_inheritance('IDREFS', 'anySimpleType').
+xsd_simpleType_direct_inheritance('NMTOKENS', 'anySimpleType').
+xsd_simpleType_direct_inheritance('ENTITIES', 'anySimpleType').
+xsd_simpleType_direct_inheritance('untypedAtomic', 'anyAtomicType').
+xsd_simpleType_direct_inheritance('dateTime', 'anyAtomicType').
+xsd_simpleType_direct_inheritance('date', 'anyAtomicType').
+xsd_simpleType_direct_inheritance('time', 'anyAtomicType').
+xsd_simpleType_direct_inheritance('duration', 'anyAtomicType').
+xsd_simpleType_direct_inheritance('float', 'anyAtomicType').
+xsd_simpleType_direct_inheritance('double', 'anyAtomicType').
+xsd_simpleType_direct_inheritance('decimal', 'anyAtomicType').
+xsd_simpleType_direct_inheritance('string', 'anyAtomicType').
+xsd_simpleType_direct_inheritance('gYearMonth', 'anyAtomicType').
+xsd_simpleType_direct_inheritance('gYear', 'anyAtomicType').
+xsd_simpleType_direct_inheritance('gMonthDay', 'anyAtomicType').
+xsd_simpleType_direct_inheritance('gDay', 'anyAtomicType').
+xsd_simpleType_direct_inheritance('gMonth', 'anyAtomicType').
+xsd_simpleType_direct_inheritance('boolean', 'anyAtomicType').
+xsd_simpleType_direct_inheritance('base64Binary', 'anyAtomicType').
+xsd_simpleType_direct_inheritance('hexBinary', 'anyAtomicType').
+xsd_simpleType_direct_inheritance('anyURI', 'anyAtomicType').
+xsd_simpleType_direct_inheritance('QName', 'anyAtomicType').
+xsd_simpleType_direct_inheritance('NOTATION', 'anyAtomicType').
+xsd_simpleType_direct_inheritance('yearMonthDuration', 'duration').
+xsd_simpleType_direct_inheritance('dayTimeDuration', 'duration').
+xsd_simpleType_direct_inheritance('integer', 'decimal').
+xsd_simpleType_direct_inheritance('nonPositiveInteger', 'integer').
+xsd_simpleType_direct_inheritance('long', 'integer').
+xsd_simpleType_direct_inheritance('nonNegativeInteger', 'integer').
+xsd_simpleType_direct_inheritance('negativeInteger', 'nonPositiveInteger').
+xsd_simpleType_direct_inheritance('int', 'long').
+xsd_simpleType_direct_inheritance('short', 'int').
+xsd_simpleType_direct_inheritance('byte', 'short').
+xsd_simpleType_direct_inheritance('unsignedLong', 'nonNegativeInteger').
+xsd_simpleType_direct_inheritance('positiveInteger', 'nonNegativeInteger').
+xsd_simpleType_direct_inheritance('unsignedInt', 'unsignedLong').
+xsd_simpleType_direct_inheritance('unsignedShort', 'unsignedInt').
+xsd_simpleType_direct_inheritance('unsignedByte', 'unsignedShort').
+xsd_simpleType_direct_inheritance('normalizedString', 'string').
+xsd_simpleType_direct_inheritance('token', 'normalizedString').
+xsd_simpleType_direct_inheritance('language', 'token').
+xsd_simpleType_direct_inheritance('NMTOKEN', 'token').
+xsd_simpleType_direct_inheritance('Name', 'token').
+xsd_simpleType_direct_inheritance('NCName', 'Name').
+xsd_simpleType_direct_inheritance('ID', 'NCName').
+xsd_simpleType_direct_inheritance('IDREF', 'NCName').
+xsd_simpleType_direct_inheritance('ENTITY', 'NCName').
+
+xsd_simpleType_inheritance(SubType, SuperType) :-
+	xsd_simpleType_direct_inheritance(SubType, SuperType).
+xsd_simpleType_inheritance(SubType, SuperType) :-
+	xsd_simpleType_direct_inheritance(SubType, InterType),
+	xsd_simpleType_inheritance(InterType, SuperType).
+
+
+/*
 	TYPE VALIDATION
 	validate_xsd_simpleType(Type, Value)
 	--> validates `Value` against (XML-Schema) type `Type`
@@ -26,10 +89,14 @@ is_xsd_simpleType(T) :-
 % top of hierarchy (semantically equivalent in our case, but required by specification)
 validate_xsd_simpleType('anyType', V) :-
 	nonvar(V).
-validate_xsd_simpleType('anySimpleType', V) :-
-	validate_xsd_simpleType('anyType', V).
-validate_xsd_simpleType('untyped', V) :-
-	validate_xsd_simpleType('anyType', V).
+validate_xsd_simpleType(T, V) :-
+	T = 'anySimpleType',
+	xsd_simpleType_direct_inheritance(T, ST),
+	validate_xsd_simpleType(ST, V).
+validate_xsd_simpleType(T, V) :-
+	T = 'untyped',
+	xsd_simpleType_direct_inheritance(T, ST),
+	validate_xsd_simpleType(ST, V).
 
 % non atomic types
 validate_xsd_simpleType('IDREFS', V) :-
@@ -49,57 +116,91 @@ validate_xsd_simpleType('ENTITIES', V) :-
 	validate_xsd_simpleType_list('ENTITY', List).
 
 % atomic types
-validate_xsd_simpleType('anyAtomicType', V) :-
-	validate_xsd_simpleType('anySimpleType', V).
-validate_xsd_simpleType('untypedAtomic', V) :-
-	validate_xsd_simpleType('anyAtomicType', V).
-validate_xsd_simpleType('dateTime', V) :-
-	validate_xsd_simpleType('anyAtomicType', V),
+validate_xsd_simpleType(T, V) :-
+	T = 'anyAtomicType',
+	xsd_simpleType_direct_inheritance(T, ST),
+	validate_xsd_simpleType(ST, V).
+validate_xsd_simpleType(T, V) :-
+	T = 'untypedAtomic',
+	xsd_simpleType_direct_inheritance(T, ST),
+	validate_xsd_simpleType(ST, V).
+validate_xsd_simpleType(T, V) :-
+	T = 'dateTime',
+	xsd_simpleType_direct_inheritance(T, ST),
+	validate_xsd_simpleType(ST, V),
 	V =~ '^-?([1-9][0-9]*)?[0-9]{4}-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])T(([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\\.[0-9]+)?|24:00:00(\\.0+)?)((\\+|-)(14:00|1[0-3]:[0-5][0-9]|0[0-9]:[0-5][0-9])|Z)?$'.
-validate_xsd_simpleType('date', V) :-
-	validate_xsd_simpleType('anyAtomicType', V),
+validate_xsd_simpleType(T, V) :-
+	T = 'date',
+	xsd_simpleType_direct_inheritance(T, ST),
+	validate_xsd_simpleType(ST, V),
 	V =~ '^-?([1-9][0-9]*)?[0-9]{4}-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])((\\+|-)(14:00|1[0-3]:[0-5][0-9]|0[0-9]:[0-5][0-9])|Z)?$'.
-validate_xsd_simpleType('time', V) :-
-	validate_xsd_simpleType('anyAtomicType', V),
+validate_xsd_simpleType(T, V) :-
+	T = 'time',
+	xsd_simpleType_direct_inheritance(T, ST),
+	validate_xsd_simpleType(ST, V),
 	V =~ '^(([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\\.[0-9]+)?|24:00:00(\\.0+)?)((\\+|-)(14:00|1[0-3]:[0-5][0-9]|0[0-9]:[0-5][0-9])|Z)?$'.
-validate_xsd_simpleType('float', V) :-
-	validate_xsd_simpleType('anyAtomicType', V),
+validate_xsd_simpleType(T, V) :-
+	T = 'float',
+	xsd_simpleType_direct_inheritance(T, ST),
+	validate_xsd_simpleType(ST, V),
 	% TODO: validate value range (32bit)
 	V =~ '^((\\+|-)?([0-9]+(\\.[0-9]*)?|\\.[0-9]+)([Ee](\\+|-)?[0-9]+)?|(\\+|-)?INF|NaN)$'.
-validate_xsd_simpleType('double', V) :-
-	validate_xsd_simpleType('anyAtomicType', V),
+validate_xsd_simpleType(T, V) :-
+	T = 'double',
+	xsd_simpleType_direct_inheritance(T, ST),
+	validate_xsd_simpleType(ST, V),
 	% TODO: validate value range (64bit)
 	validate_xsd_simpleType('float', V).
-validate_xsd_simpleType('gYearMonth', V) :-
-	validate_xsd_simpleType('anyAtomicType', V),
+validate_xsd_simpleType(T, V) :-
+	T = 'gYearMonth',
+	xsd_simpleType_direct_inheritance(T, ST),
+	validate_xsd_simpleType(ST, V),
 	V =~ '^-?([1-9][0-9]{3,}|0[0-9]{3})-(0[1-9]|1[0-2])(Z|(\\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))?$'.
-validate_xsd_simpleType('gYear', V) :-
-	validate_xsd_simpleType('anyAtomicType', V),
+validate_xsd_simpleType(T, V) :-
+	T = 'gYear',
+	xsd_simpleType_direct_inheritance(T, ST),
+	validate_xsd_simpleType(ST, V),
 	V =~ '^-?([1-9][0-9]{3,}|0[0-9]{3})(Z|(\\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))?$'.
-validate_xsd_simpleType('gMonthDay', V) :-
-	validate_xsd_simpleType('anyAtomicType', V),
+validate_xsd_simpleType(T, V) :-
+	T = 'gMonthDay',
+	xsd_simpleType_direct_inheritance(T, ST),
+	validate_xsd_simpleType(ST, V),
 	V =~ '^--((0[1-9]|1[0-2])-([01][1-9]|10|2[0-8]))|((0[13-9]|1[0-2])-(29|30))|((0[13578]|1[0-2])/31)(Z|(\\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))?$'.
-validate_xsd_simpleType('gDay', V) :-
-	validate_xsd_simpleType('anyAtomicType', V),
+validate_xsd_simpleType(T, V) :-
+	T = 'gDay',
+	xsd_simpleType_direct_inheritance(T, ST),
+	validate_xsd_simpleType(ST, V),
 	V =~ '^---(0[1-9]|[12][0-9]|3[01])(Z|(\\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))?$'.
-validate_xsd_simpleType('gMonth', V) :-
-	validate_xsd_simpleType('anyAtomicType', V),
+validate_xsd_simpleType(T, V) :-
+	T = 'gMonth',
+	xsd_simpleType_direct_inheritance(T, ST),
+	validate_xsd_simpleType(ST, V),
 	V =~ '^--(0[1-9]|1[0-2])(Z|(\\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))?$'.
-validate_xsd_simpleType('boolean', V) :-
-	validate_xsd_simpleType('anyAtomicType', V),
+validate_xsd_simpleType(T, V) :-
+	T = 'boolean',
+	xsd_simpleType_direct_inheritance(T, ST),
+	validate_xsd_simpleType(ST, V),
 	facet(enumeration, ['true', 'false', '1', '0'], V).
-validate_xsd_simpleType('base64Binary', V) :-
-	validate_xsd_simpleType('anyAtomicType', V),
+validate_xsd_simpleType(T, V) :-
+	T = 'base64Binary',
+	xsd_simpleType_direct_inheritance(T, ST),
+	validate_xsd_simpleType(ST, V),
 	V =~ '^((([A-Za-z0-9+/] ?){4})*(([A-Za-z0-9+/] ?){3}[A-Za-z0-9+/]|([A-Za-z0-9+/] ?){2}[AEIMQUYcgkosw048] ?=|[A-Za-z0-9+/] ?[AQgw] ?= ?=))?$'.
-validate_xsd_simpleType('hexBinary', V) :-
-	validate_xsd_simpleType('anyAtomicType', V),
+validate_xsd_simpleType(T, V) :-
+	T = 'hexBinary',
+	xsd_simpleType_direct_inheritance(T, ST),
+	validate_xsd_simpleType(ST, V),
 	V =~ '^([0-9a-fA-F]{2})*$'.
-validate_xsd_simpleType('anyURI', V) :-
-	validate_xsd_simpleType('anyAtomicType', V),
+validate_xsd_simpleType(T, V) :-
+	T = 'anyURI',
+	xsd_simpleType_direct_inheritance(T, ST),
+	validate_xsd_simpleType(ST, V),
 	% whoever has to debug the following regex is a poor sod
 	V =~ '^([a-zA-Z][a-zA-Z0-9+\\-.]*:(((//)?((([a-zA-Z0-9\\-._~!$&()*+,;=:]|(%[0-9a-fA-F][0-9a-fA-F]))*@)?((\\[(([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)|([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)?([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)?([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)?([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)?([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)?([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)?:|([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)?([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)?([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)?([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)?([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)?:([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)|([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)?([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)?([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)?([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)?(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)?|([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)?([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)?([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)?(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)?(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)?|([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)?([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)?(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)?(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)?(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)?|([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?:)?(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)?(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)?(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)?(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)?|([0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?):((:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)?(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)?(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)?(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)?(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)?)|:((:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)?(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)?(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)?(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)?(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)?(:[0-9a-fA-F][0-9a-fA-F]?[0-9a-fA-F]?[0-9a-fA-F]?)?|:))])|(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]).([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]).([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]).([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]))|([a-zA-Z0-9\\-._~!$&()*+,;=]|(%[0-9a-fA-F][0-9a-fA-F]))*)(:[0-9]*)?))((/([a-zA-Z0-9\\-._~!$&()*+,;=:@]|(%[0-9a-fA-F][0-9a-fA-F]))*)*|/(([a-zA-Z0-9\\-._~!$&()*+,;=:@]|(%[0-9a-fA-F][0-9a-fA-F]))(/([a-zA-Z0-9\\-._~!$&()*+,;=:@]|(%[0-9a-fA-F][0-9a-fA-F]))*)*)?|([a-zA-Z0-9\\-._~!$&()*+,;=:@]|(%[0-9a-fA-F][0-9a-fA-F]))(/([a-zA-Z0-9\\-._~!$&()*+,;=:@]|(%[0-9a-fA-F][0-9a-fA-F]))*)*))(\\?([a-zA-Z0-9\\-._~!$&()*+,;=:@/?]|(%[0-9a-fA-F][0-9a-fA-F]))*)?(#([a-zA-Z0-9\\-._~!$&()*+,;=:@/?]|(%[0-9a-fA-F][0-9a-fA-F]))*)?)$'.
-validate_xsd_simpleType('QName', V) :-
-	validate_xsd_simpleType('anyAtomicType', V),
+validate_xsd_simpleType(T, V) :-
+	T = 'QName',
+	xsd_simpleType_direct_inheritance(T, ST),
+	validate_xsd_simpleType(ST, V),
 	atom_string(V, VS),
 	split_string(VS, ":", "", VL), %[{"<Prefix>",} "<LocalPart>"]
 	length(VL, VLL),
@@ -121,102 +222,148 @@ validate_xsd_simpleType('QName', V) :-
 			validate_xsd_simpleType('NCName', LocalPart)
 		)
 	).
-validate_xsd_simpleType('NOTATION', V) :-
+validate_xsd_simpleType(T, V) :-
+	T = 'NOTATION',
+	xsd_simpleType_direct_inheritance(T, ST),
 	% NOTATIONs share the same lexical space as QNames
-	validate_xsd_simpleType('anyAtomicType', V),
+	validate_xsd_simpleType(ST, V),
 	validate_xsd_simpleType('QName', V).
 
 % durations
-validate_xsd_simpleType('duration', V) :-
-	validate_xsd_simpleType('anyAtomicType', V),
+validate_xsd_simpleType(T, V) :-
+	T = 'duration',
+	xsd_simpleType_direct_inheritance(T, ST),
+	validate_xsd_simpleType(ST, V),
 	V =~ '^-?P([0-9]+Y)?([0-9]+M)?([0-9]+D)?(T([0-9]+H)?([0-9]+M)?([0-9]+(\\.[0-9]+)?S)?)?$', % general regexp
 	V =~ '^.*[YMDHS].*$', % at least one of the properties (year, month, day, hour, minute or second) must be specified
 	V =~ '^.*[^T]$'. % if there is a 'T' (separator between day and time properties), it must be followed by a time property (hour, minute or second)
-validate_xsd_simpleType('yearMonthDuration', V) :-
-	validate_xsd_simpleType('duration', V),
+validate_xsd_simpleType(T, V) :-
+	T = 'yearMonthDuration',
+	xsd_simpleType_direct_inheritance(T, ST),
+	validate_xsd_simpleType(ST, V),
 	V =~ '^[^DT]*$'. % only durations with year and/or month properties are allowed
-validate_xsd_simpleType('dayTimeDuration', V) :-
-	validate_xsd_simpleType('duration', V),
+validate_xsd_simpleType(T, V) :-
+	T = 'dayTimeDuration',
+	xsd_simpleType_direct_inheritance(T, ST),
+	validate_xsd_simpleType(ST, V),
 	V =~ '^[^YM]*[DT].*$'. % only durations with day, hour, minute and/or second properties are allowed
 
 % decimals
-validate_xsd_simpleType('decimal', V) :-
-	validate_xsd_simpleType('anyAtomicType', V),
+validate_xsd_simpleType(T, V) :-
+	T = 'decimal',
+	xsd_simpleType_direct_inheritance(T, ST),
+	validate_xsd_simpleType(ST, V),
 	V =~ '^((\\+|-)?([0-9]+(\\.[0-9]*)?|\\.[0-9]+))$'.
-validate_xsd_simpleType('integer', V) :-
-	validate_xsd_simpleType('decimal', V),
+validate_xsd_simpleType(T, V) :-
+	T = 'integer',
+	xsd_simpleType_direct_inheritance(T, ST),
+	validate_xsd_simpleType(ST, V),
 	V =~ '^(\\+|-)?[0-9]+$'.
 % non positive integers
-validate_xsd_simpleType('nonPositiveInteger', V) :-
-	validate_xsd_simpleType('integer', V),
+validate_xsd_simpleType(T, V) :-
+	T = 'nonPositiveInteger',
+	xsd_simpleType_direct_inheritance(T, ST),
+	validate_xsd_simpleType(ST, V),
 	facet(maxInclusive, 0, V).
-validate_xsd_simpleType('negativeInteger', V) :-
-	validate_xsd_simpleType('integer', V),
+validate_xsd_simpleType(T, V) :-
+	T = 'negativeInteger',
+	xsd_simpleType_direct_inheritance(T, ST),
+	validate_xsd_simpleType(ST, V),
 	facet(maxInclusive, -1, V).
 % longs
-validate_xsd_simpleType('long', V) :-
-	validate_xsd_simpleType('integer', V),
+validate_xsd_simpleType(T, V) :-
+	T = 'long',
+	xsd_simpleType_direct_inheritance(T, ST),
+	validate_xsd_simpleType(ST, V),
 	facet(minInclusive, -9223372036854775808, V),
 	facet(maxInclusive,  9223372036854775807, V).
-validate_xsd_simpleType('int', V) :-
-	validate_xsd_simpleType('long', V),
+validate_xsd_simpleType(T, V) :-
+	T = 'int',
+	xsd_simpleType_direct_inheritance(T, ST),
+	validate_xsd_simpleType(ST, V),
 	facet(minInclusive, -2147483648, V),
 	facet(maxInclusive,  2147483647, V). 
-validate_xsd_simpleType('short', V) :-
-	validate_xsd_simpleType('int', V),
+validate_xsd_simpleType(T, V) :-
+	T = 'short',
+	xsd_simpleType_direct_inheritance(T, ST),
+	validate_xsd_simpleType(ST, V),
 	facet(minInclusive, -32768, V),
 	facet(maxInclusive,  32767, V).
-validate_xsd_simpleType('byte', V) :- 
-	validate_xsd_simpleType('short', V),
+validate_xsd_simpleType(T, V) :- 
+	T = 'byte',
+	xsd_simpleType_direct_inheritance(T, ST),
+	validate_xsd_simpleType(ST, V),
 	facet(minInclusive, -128, V),
 	facet(maxInclusive,  127, V).
 % non negative integers
-validate_xsd_simpleType('nonNegativeInteger', V) :-
-	validate_xsd_simpleType('integer', V),
+validate_xsd_simpleType(T, V) :-
+	T = 'nonNegativeInteger',
+	xsd_simpleType_direct_inheritance(T, ST),
+	validate_xsd_simpleType(ST, V),
 	facet(minInclusive, 0, V).
 % unsigned longs
-validate_xsd_simpleType('unsignedLong', V) :-
-	validate_xsd_simpleType('nonNegativeInteger', V),
+validate_xsd_simpleType(T, V) :-
+	T = 'unsignedLong',
+	xsd_simpleType_direct_inheritance(T, ST),
+	validate_xsd_simpleType(ST, V),
 	facet(minInclusive, 0, V),
 	facet(maxInclusive, 18446744073709551615, V). 
-validate_xsd_simpleType('unsignedInt', V) :-
-	validate_xsd_simpleType('unsignedLong', V),
+validate_xsd_simpleType(T, V) :-
+	T = 'unsignedInt',
+	xsd_simpleType_direct_inheritance(T, ST),
+	validate_xsd_simpleType(ST, V),
 	facet(minInclusive, 0, V),
 	facet(maxInclusive, 4294967295, V). 
-validate_xsd_simpleType('unsignedShort', V) :-
-	validate_xsd_simpleType('unsignedInt', V),
+validate_xsd_simpleType(T, V) :-
+	T = 'unsignedShort',
+	xsd_simpleType_direct_inheritance(T, ST),
+	validate_xsd_simpleType(ST, V),
 	facet(minInclusive, 0, V),
 	facet(maxInclusive, 65535, V). 
-validate_xsd_simpleType('unsignedByte', V) :-
-	validate_xsd_simpleType('unsignedShort', V),
+validate_xsd_simpleType(T, V) :-
+	T = 'unsignedByte',
+	xsd_simpleType_direct_inheritance(T, ST),
+	validate_xsd_simpleType(ST, V),
 	facet(minInclusive, 0, V),
 	facet(maxInclusive, 255, V).
 % positive integers
-validate_xsd_simpleType('positiveInteger', V) :-
-	validate_xsd_simpleType('nonNegativeInteger', V),
+validate_xsd_simpleType(T, V) :-
+	T = 'positiveInteger',
+	xsd_simpleType_direct_inheritance(T, ST),
+	validate_xsd_simpleType(ST, V),
 	facet(minInclusive, 1, V).
 
 % strings
-validate_xsd_simpleType('string', V) :-
-	validate_xsd_simpleType('anyAtomicType', V),
+validate_xsd_simpleType(T, V) :-
+	T = 'string',
+	xsd_simpleType_direct_inheritance(T, ST),
+	validate_xsd_simpleType(ST, V),
 	string_codes(V, CL),
 	forall(
 		member(C, CL), 
 		validate_xsd_character(C)
 	).
-validate_xsd_simpleType('normalizedString', V) :-
-	validate_xsd_simpleType('string', V),
+validate_xsd_simpleType(T, V) :-
+	T = 'normalizedString',
+	xsd_simpleType_direct_inheritance(T, ST),
+	validate_xsd_simpleType(ST, V),
 	V \~ '[\f|\r|\t]'.
-validate_xsd_simpleType('token', V) :-
-	validate_xsd_simpleType('normalizedString', V),
+validate_xsd_simpleType(T, V) :-
+	T = 'token',
+	xsd_simpleType_direct_inheritance(T, ST),
+	validate_xsd_simpleType(ST, V),
 	V \~ '^[ ]',
 	V \~ '[ ]$',
 	V \~ '[ ]{2,}'.
-validate_xsd_simpleType('language', V) :-
-	validate_xsd_simpleType('token', V),
+validate_xsd_simpleType(T, V) :-
+	T = 'language',
+	xsd_simpleType_direct_inheritance(T, ST),
+	validate_xsd_simpleType(ST, V),
 	V =~ '^[a-zA-Z]{1,8}(-[a-zA-Z0-9]{1,8})*$'.
-validate_xsd_simpleType('NMTOKEN', V) :-
-	validate_xsd_simpleType('token', V),
+validate_xsd_simpleType(T, V) :-
+	T = 'NMTOKEN',
+	xsd_simpleType_direct_inheritance(T, ST),
+	validate_xsd_simpleType(ST, V),
 	string_codes(V, CL),
 	length(CL, CLL),
 	CLL >= 1,
@@ -225,7 +372,8 @@ validate_xsd_simpleType('NMTOKEN', V) :-
 		validate_xsd_name_character(C)
 	).
 validate_xsd_simpleType('Name', V) :-
-	validate_xsd_simpleType('token', V),
+	xsd_simpleType_direct_inheritance('Name', ST),
+	validate_xsd_simpleType(ST, V),
 	string_codes(V, CL),
 	CL = [H|T],
 	validate_xsd_name_start_character(H),
@@ -233,8 +381,10 @@ validate_xsd_simpleType('Name', V) :-
 		member(C, T),
 		validate_xsd_name_character(C)	
 	).
-validate_xsd_simpleType('NCName', V) :-
-	validate_xsd_simpleType('Name', V),
+validate_xsd_simpleType(T, V) :-
+	T = 'NCName',
+	xsd_simpleType_direct_inheritance(T, ST),
+	validate_xsd_simpleType(ST, V),
 	string_codes(V, CL),
 	forall(
 		member(C, CL),
