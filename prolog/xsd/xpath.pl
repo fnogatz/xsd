@@ -12,6 +12,7 @@
 :- op(1, fx, user:($)).
 :- op(200, fy, user:(@)).
 :- op(400, yfx, user:(mod)).
+:- op(500, yfx, user:(+)).
 :- op(700, xfx, user:(eq)).
 
 :- set_prolog_flag(allow_variable_name_as_functor, true).
@@ -129,7 +130,29 @@ xpath_expr(@Attribute, Result) :-
 	node_attribute(D_File, D_Desc_ID, Attribute, AttributeValue),
 	xpath_expr(AttributeValue, Result).
 
+
 /* ### Operators ### */
+
+xpath_expr(Value1+Value2, Result) :-
+	xpath_expr(numeric-add(Value1, Value2), Result).
+
+/* --- numerics --- */
+xpath_expr(numeric-add(Value1, Value2), data(Type, [ResultValue])) :-
+	xpath_expr(Value1, data(Type, [InternalValue1])),
+	xpath_expr(Value2, data(Type, [InternalValue2])),
+
+	member(Type, ['decimal', 'double', 'float']),
+	(
+		% if one value is nan, return it
+		(InternalValue1 = nan; InternalValue2 = nan), ResultValue = nan;
+		% if one value is infinite, return it
+		\+is_inf(InternalValue1), is_inf(InternalValue2), ResultValue = InternalValue2;
+		is_inf(InternalValue1), \+is_inf(InternalValue2), ResultValue = InternalValue1;
+		% if both values are infinite, return them if they are equal, otherwise return nan
+		is_inf(InternalValue1), is_inf(InternalValue2), (InternalValue1 = InternalValue2 -> ResultValue = InternalValue1; nan);
+		% if both values are finite, perform an arithmetic addition.
+		\+is_inf(InternalValue1), \+is_inf(InternalValue2), ResultValue is InternalValue1 + InternalValue2
+	).
 
 /* --- eq --- */
 xpath_expr(Value1 eq Value2, data('boolean', [ResultValue])) :-
@@ -544,15 +567,18 @@ parse_duration(Value, Result) :-
 	).
 
 parse_float(Value, nan) :-
-	Value =~ '^\\+?NaN$'.
-parse_float(Value, -nan) :-
-	Value =~ '^-NaN$'.
+	Value =~ '^(\\+|-)?NaN$'.
 parse_float(Value, inf) :-
 	Value =~ '^\\+?INF$'.
 parse_float(Value, -inf) :-
 	Value =~ '^-INF$'.
 parse_float(Value, ResultValue) :-
 	atom_number(Value, ResultValue).
+
+is_inf(V) :-
+	V = inf.
+is_inf(V) :-
+	V = -inf.
 
 
 /* ~~~ Normalization ~~~ */
