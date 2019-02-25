@@ -149,7 +149,7 @@ xpath_expr(numeric-add(Value1, Value2), data(Type, [ResultValue])) :-
 		\+is_inf(InternalValue1), is_inf(InternalValue2), ResultValue = InternalValue2;
 		is_inf(InternalValue1), \+is_inf(InternalValue2), ResultValue = InternalValue1;
 		% if both values are infinite, return them if they are equal, otherwise return nan
-		is_inf(InternalValue1), is_inf(InternalValue2), (InternalValue1 = InternalValue2 -> ResultValue = InternalValue1; nan);
+		is_inf(InternalValue1), is_inf(InternalValue2), (InternalValue1 = InternalValue2 -> ResultValue = InternalValue1; ResultValue = nan);
 		% if both values are finite, perform an arithmetic addition.
 		\+is_inf(InternalValue1), \+is_inf(InternalValue2), ResultValue is InternalValue1 + InternalValue2
 	).
