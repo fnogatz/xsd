@@ -1,9 +1,6 @@
-:- module(test_xpath_constructors, [
-      '==>'/2,
-      op(800, xfx, '==>')
+:- module(constructors, [
+      user:('==>')/2
    ]).
-
-:- discontiguous test_xpath_constructors:'==>'/2.
 
 % string
 string('NaN') ==> data('string', ['NaN']).
