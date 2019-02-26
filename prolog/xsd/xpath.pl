@@ -11,8 +11,11 @@
 
 :- op(1, fx, user:($)).
 :- op(200, fy, user:(@)).
+:- op(200, fy, user:(+)).
+:- op(200, fy, user:(-)).
 :- op(400, yfx, user:(mod)).
 :- op(500, yfx, user:(+)).
+:- op(500, yfx, user:(-)).
 :- op(700, xfx, user:(eq)).
 
 :- set_prolog_flag(allow_variable_name_as_functor, true).
@@ -136,11 +139,21 @@ xpath_expr(@Attribute, Result) :-
 xpath_expr(Value1+Value2, Result) :-
 	xpath_expr(numeric-add(Value1, Value2), Result).
 
+xpath_expr(Value1-Value2, Result) :-
+	xpath_expr(Value1, Internal1),
+	xpath_expr(Value2, Internal2),
+	xpath_expr(numeric-subtract(Internal1, Internal2), Result).
+
+xpath_expr(+Value, Result) :-
+	xpath_expr(numeric-unary-plus(Value), Result).
+
+xpath_expr(-Value, Result) :-
+	xpath_expr(numeric-unary-minus(Value), Result).
+
 /* --- numerics --- */
 xpath_expr(numeric-add(Value1, Value2), data(Type, [ResultValue])) :-
 	xpath_expr(Value1, data(Type, [InternalValue1])),
 	xpath_expr(Value2, data(Type, [InternalValue2])),
-
 	member(Type, ['decimal', 'double', 'float']),
 	(
 		% if one value is nan, return it
@@ -153,6 +166,47 @@ xpath_expr(numeric-add(Value1, Value2), data(Type, [ResultValue])) :-
 		% if both values are finite, perform an arithmetic addition.
 		\+is_inf(InternalValue1), \+is_inf(InternalValue2), ResultValue is InternalValue1 + InternalValue2
 	).
+
+xpath_expr(numeric-subtract(Value1, Value2), data(Type, [ResultValue])) :-
+	(
+		Value1 = data(Type, [InternalValue1]),
+		Value2 = data(Type, [InternalValue2])
+		;
+		xpath_expr(Value1, data(Type, [InternalValue1])),
+		xpath_expr(Value2, data(Type, [InternalValue2]))	
+	),
+	member(Type, ['decimal', 'double', 'float']),
+	(
+		% if one value is nan, return it
+		(InternalValue1 = nan; InternalValue2 = nan), ResultValue = nan;
+		% if the first operand is not inf and the second one is, return the second one's negation
+		\+is_inf(InternalValue1), is_inf(InternalValue2), 
+			xpath_expr(numeric-unary-minus(Value2), data(Type, [ResultValue]));
+		% if the first operand is inf and the second is not, return the first one
+		is_inf(InternalValue1), \+is_inf(InternalValue2), ResultValue = InternalValue1;
+		% if both operands are inf, return nan if they are equal, otherwise the appropriate inf value
+		is_inf(InternalValue1), is_inf(InternalValue2), (InternalValue1 = InternalValue2 -> ResultValue = nan; ResultValue = InternalValue1);
+		% if both operands are finite, perform a regular subtraction
+		\+is_inf(InternalValue1), \+is_inf(InternalValue2), ResultValue is InternalValue1 - InternalValue2		
+	).
+
+xpath_expr(numeric-unary-plus(Value), data(Type, [ResultValue])) :-
+	xpath_expr(Value, data(Type, [ResultValue])),
+	member(Type, ['decimal', 'double', 'float']).
+
+xpath_expr(numeric-unary-minus(Value), data(Type, [ResultValue])) :-
+	xpath_expr(Value, data(Type, [InternalValue])),
+	member(Type, ['decimal', 'double', 'float']),
+	(
+		% nan cannot be negated
+		InternalValue = nan, ResultValue = InternalValue;
+		% inf needs to be handled specially
+		InternalValue = inf, ResultValue = -inf;
+		InternalValue = -inf, ResultValue = inf;
+		% otherwise it is equal to 0 - value
+		ResultValue is 0 - InternalValue
+	).
+
 
 /* --- eq --- */
 xpath_expr(Value1 eq Value2, data('boolean', [ResultValue])) :-
