@@ -11,11 +11,6 @@
 
 :- op(1, fx, user:($)).
 :- op(200, fy, user:(@)).
-:- op(200, fy, user:(+)).
-:- op(200, fy, user:(-)).
-:- op(400, yfx, user:(mod)).
-:- op(500, yfx, user:(+)).
-:- op(500, yfx, user:(-)).
 :- op(700, xfx, user:(eq)).
 
 :- set_prolog_flag(allow_variable_name_as_functor, true).
