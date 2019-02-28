@@ -21,7 +21,6 @@ is_xsd_simpleType(T) :-
 /*
 	TYPE HIERARCHY
 */
-xsd_simpleType_inheritance('anyType', 'anyType').
 xsd_simpleType_inheritance('anySimpleType', 'anyType').
 xsd_simpleType_inheritance('untyped', 'anyType').
 xsd_simpleType_inheritance('anyAtomicType', 'anySimpleType').

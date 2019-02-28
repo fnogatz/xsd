@@ -4,7 +4,6 @@
 
 % numeric-add
 numeric-add(3, 2) ==> data('decimal', [5]).
-true + 1.5 ==> false.
 1.5 + 'NaN' ==> data('float', [nan]).
 'NaN' + 1.5 ==> data('float', [nan]).
 'INF' + -3 ==> data('float', [inf]).
@@ -20,10 +19,11 @@ true + 1.5 ==> false.
 1.4 + 1 ==> data('float', [2.4]).
 1.5 + 1.5 + 1.5 ==> data('float', [4.5]).
 2.4 + 1.6 + 'NaN' ==> data('float', [nan]).
+unsignedLong('3') + 2.5 ==> data('float', [5.5]).
+boolean('true') + 2.5 ==> false.
 
 % numeric-subtract
 numeric-subtract(3, 2) ==> data('decimal', [1]).
-true - 1.5 ==> false.
 1.5 - 'NaN' ==> data('float', [nan]).
 'NaN' - 1.5 ==> data('float', [nan]).
 'INF' - 3 ==> data('float', [inf]).
@@ -40,6 +40,8 @@ true - 1.5 ==> false.
 5 - 7 ==> data('decimal', [-2]).
 13 - 7 - 8 ==> data('decimal', [-2]).
 'INF' - 7 - 8 ==> data('float', [inf]).
+unsignedLong('3') - 1 ==> data('decimal', [2]).
+boolean('true') - 2.5 ==> false.
 
 % numeric-unary-plus
 numeric-unary-plus(1) ==> data('decimal', [1]).
@@ -49,6 +51,8 @@ numeric-unary-plus(1) ==> data('decimal', [1]).
 +0.0 ==> data('float', [0.0]).
 +0 ==> data('decimal', [0]).
 +5 ==> data('decimal', [5]).
++unsignedLong('3') ==> data('unsignedLong', [3]).
++boolean('true') ==> false.
 
 % numeric-unary-minus
 numeric-unary-minus(1) ==> data('decimal', [-1]).
@@ -58,3 +62,5 @@ numeric-unary-minus(1) ==> data('decimal', [-1]).
 -0.0 ==> data('float', [0.0]).
 -0 ==> data('decimal', [0]).
 -5 ==> data('decimal', [-5]).
+-unsignedLong('3') ==> data('unsignedLong', [-3]).
+-boolean('true') ==> false.

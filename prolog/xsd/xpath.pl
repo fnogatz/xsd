@@ -135,9 +135,9 @@ xpath_expr(Value1+Value2, Result) :-
 	xpath_expr(numeric-add(Value1, Value2), Result).
 
 xpath_expr(Value1-Value2, Result) :-
-	xpath_expr(Value1, Internal1),
-	xpath_expr(Value2, Internal2),
-	xpath_expr(numeric-subtract(Internal1, Internal2), Result).
+	(compound(Value1); number(Value1); Value1 =~ '^(\\+|-)?INF|NaN$'),
+	(compound(Value2); number(Value2); Value2 =~ '^(\\+|-)?INF|NaN$'),
+	xpath_expr(numeric-subtract(Value1, Value2), Result).
 
 xpath_expr(+Value, Result) :-
 	xpath_expr(numeric-unary-plus(Value), Result).
@@ -147,8 +147,10 @@ xpath_expr(-Value, Result) :-
 
 /* --- numerics --- */
 xpath_expr(numeric-add(Value1, Value2), data(Type, [ResultValue])) :-
-	xpath_expr(Value1, data(Type, [InternalValue1])),
-	xpath_expr(Value2, data(Type, [InternalValue2])),
+	xpath_expr(Value1, Inter1),
+	xpath_expr_cast(Inter1, data(Type, [InternalValue1])),
+	xpath_expr(Value2, Inter2),
+	xpath_expr_cast(Inter2, data(Type, [InternalValue2])),
 	member(Type, ['decimal', 'double', 'float']),
 	(
 		% if one value is nan, return it
@@ -164,12 +166,14 @@ xpath_expr(numeric-add(Value1, Value2), data(Type, [ResultValue])) :-
 
 xpath_expr(numeric-subtract(Value1, Value2), data(Type, [ResultValue])) :-
 	(
-		Value1 = data(Type, [InternalValue1]),
-		Value2 = data(Type, [InternalValue2])
-		;
-		xpath_expr(Value1, data(Type, [InternalValue1])),
-		xpath_expr(Value2, data(Type, [InternalValue2]))	
+		Value1 = data(_, _), Value2 = data(_, _) ->
+			Value1 = Inter1, Value2 = Inter2
+			;
+			xpath_expr(Value1, Inter1),
+			xpath_expr(Value2, Inter2)
 	),
+	xpath_expr_cast(Inter1, data(Type, [InternalValue1])),
+	xpath_expr_cast(Inter2, data(Type, [InternalValue2])),
 	member(Type, ['decimal', 'double', 'float']),
 	(
 		% if one value is nan, return it
@@ -187,11 +191,13 @@ xpath_expr(numeric-subtract(Value1, Value2), data(Type, [ResultValue])) :-
 
 xpath_expr(numeric-unary-plus(Value), data(Type, [ResultValue])) :-
 	xpath_expr(Value, data(Type, [ResultValue])),
-	member(Type, ['decimal', 'double', 'float']).
+	xsd_simpleType_is_a(Type, AllowedType),
+	member(AllowedType, ['decimal', 'double', 'float']).
 
 xpath_expr(numeric-unary-minus(Value), data(Type, [ResultValue])) :-
 	xpath_expr(Value, data(Type, [InternalValue])),
-	member(Type, ['decimal', 'double', 'float']),
+	xsd_simpleType_is_a(Type, AllowedType),
+	member(AllowedType, ['decimal', 'double', 'float']),
 	(
 		% nan cannot be negated
 		InternalValue = nan, ResultValue = InternalValue;
@@ -565,6 +571,24 @@ xpath_expr(untypedAtomic(Value), data('untypedAtomic', [Value])) :-
 
 
 /* ~~~ Parsing ~~~ */
+
+/**
+ * This predicate mimics casting functionality.
+ * Only numbers can be casted for now!
+ * 
+ * E.g. an unsignedLong with value 3 can be casted to a float with value 3,
+ * although the type unsignedLong is no direct descendant of type float,
+ * but it can be casted to it due to its value space.
+ */
+xpath_expr_cast(data(_, [InternalValue]), Result) :-
+	number(InternalValue),
+	xpath_expr(InternalValue, Result).
+xpath_expr_cast(data(_, [-inf]), Result) :-
+	xpath_expr('-INF', Result).
+xpath_expr_cast(data(_, [inf]), Result) :-
+	xpath_expr('INF', Result).
+xpath_expr_cast(data(_, [nan]), Result) :-
+	xpath_expr('NaN', Result).
 
 parse_duration(Value, Result) :-
 	atom_string(Value, ValueString),
