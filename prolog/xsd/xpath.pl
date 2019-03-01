@@ -131,13 +131,16 @@ xpath_expr(@Attribute, Result) :-
 
 /* ### Operators ### */
 
-xpath_expr(Value1+Value2, Result) :-
+xpath_expr(Value1 + Value2, Result) :-
 	xpath_expr(numeric-add(Value1, Value2), Result).
 
-xpath_expr(Value1-Value2, Result) :-
+xpath_expr(Value1 - Value2, Result) :-
 	(compound(Value1); number(Value1); Value1 =~ '^(\\+|-)?INF|NaN$'),
 	(compound(Value2); number(Value2); Value2 =~ '^(\\+|-)?INF|NaN$'),
 	xpath_expr(numeric-subtract(Value1, Value2), Result).
+
+xpath_expr(Value1 * Value2, Result) :-
+	xpath_expr(numeric-multiply(Value1, Value2), Result).
 
 xpath_expr(+Value, Result) :-
 	xpath_expr(numeric-unary-plus(Value), Result).
@@ -153,40 +156,66 @@ xpath_expr(numeric-add(Value1, Value2), data(Type, [ResultValue])) :-
 	xpath_expr_cast(Inter2, data(Type, [InternalValue2])),
 	member(Type, ['decimal', 'double', 'float']),
 	(
-		% if one value is nan, return it
+		% if one operand is nan, return it
 		(InternalValue1 = nan; InternalValue2 = nan), ResultValue = nan;
-		% if one value is infinite, return it
+		% if one operand is infinite, return it
 		\+is_inf(InternalValue1), is_inf(InternalValue2), ResultValue = InternalValue2;
 		is_inf(InternalValue1), \+is_inf(InternalValue2), ResultValue = InternalValue1;
-		% if both values are infinite, return them if they are equal, otherwise return nan
+		% if both operands are infinite, return them if they are equal, otherwise return nan
 		is_inf(InternalValue1), is_inf(InternalValue2), (InternalValue1 = InternalValue2 -> ResultValue = InternalValue1; ResultValue = nan);
-		% if both values are finite, perform an arithmetic addition.
+		% if both operands are finite, perform an arithmetic addition.
 		\+is_inf(InternalValue1), \+is_inf(InternalValue2), ResultValue is InternalValue1 + InternalValue2
 	).
 
 xpath_expr(numeric-subtract(Value1, Value2), data(Type, [ResultValue])) :-
-	(
-		Value1 = data(_, _), Value2 = data(_, _) ->
-			Value1 = Inter1, Value2 = Inter2
-			;
-			xpath_expr(Value1, Inter1),
-			xpath_expr(Value2, Inter2)
-	),
+	xpath_expr(Value1, Inter1),
 	xpath_expr_cast(Inter1, data(Type, [InternalValue1])),
+	xpath_expr(Value2, Inter2),
 	xpath_expr_cast(Inter2, data(Type, [InternalValue2])),
 	member(Type, ['decimal', 'double', 'float']),
 	(
-		% if one value is nan, return it
+		% if one operand is nan, return it
 		(InternalValue1 = nan; InternalValue2 = nan), ResultValue = nan;
 		% if the first operand is not inf and the second one is, return the second one's negation
 		\+is_inf(InternalValue1), is_inf(InternalValue2), 
-			xpath_expr(numeric-unary-minus(Value2), data(Type, [ResultValue]));
+			xpath_expr(-Value2, data(Type, [ResultValue]));
 		% if the first operand is inf and the second is not, return the first one
 		is_inf(InternalValue1), \+is_inf(InternalValue2), ResultValue = InternalValue1;
 		% if both operands are inf, return nan if they are equal, otherwise the appropriate inf value
 		is_inf(InternalValue1), is_inf(InternalValue2), (InternalValue1 = InternalValue2 -> ResultValue = nan; ResultValue = InternalValue1);
 		% if both operands are finite, perform a regular subtraction
 		\+is_inf(InternalValue1), \+is_inf(InternalValue2), ResultValue is InternalValue1 - InternalValue2		
+	).
+
+xpath_expr(numeric-multiply(Value1, Value2), data(Type, [ResultValue])) :-
+	xpath_expr(Value1, Inter1),
+	xpath_expr_cast(Inter1, data(Type, [InternalValue1])),
+	xpath_expr(Value2, Inter2),
+	xpath_expr_cast(Inter2, data(Type, [InternalValue2])),
+	member(Type, ['decimal', 'double', 'float']),
+	(
+		% if one operand is nan, return it
+		(InternalValue1 = nan; InternalValue2 = nan), ResultValue = nan;
+		% if one operand is zero and the other is an infinity, return nan
+		InternalValue1 =:= 0, is_inf(InternalValue2), ResultValue = nan;
+		is_inf(InternalValue1), InternalValue2 =:= 0, ResultValue = nan;
+		% if one operand is an infinity and the other one is a finite number != 0, return the effective infinity
+		InternalValue1 =\= 0, \+is_inf(InternalValue1), is_inf(InternalValue2),
+			(InternalValue1 < 0 ->
+				xpath_expr(-Value2, data(_, [ResultValue]))
+				;
+				ResultValue = InternalValue2
+			);
+		is_inf(InternalValue1), InternalValue2 =\= 0, \+is_inf(InternalValue2),
+			(InternalValue2 < 0 ->
+				xpath_expr(-Value1, data(_, [ResultValue]))
+				;
+				ResultValue = InternalValue1
+			);
+		% if both operands are infinities, multiply them
+		is_inf(InternalValue1), is_inf(InternalValue2), (InternalValue1 = InternalValue2 -> ResultValue = inf; ResultValue = -inf);
+		% if no operand is an infinity, perform a regular arithmetic multiplication
+		\+is_inf(InternalValue1), \+is_inf(InternalValue2), ResultValue is InternalValue1 * InternalValue2
 	).
 
 xpath_expr(numeric-unary-plus(Value), data(Type, [ResultValue])) :-
@@ -199,12 +228,12 @@ xpath_expr(numeric-unary-minus(Value), data(Type, [ResultValue])) :-
 	xsd_simpleType_is_a(Type, AllowedType),
 	member(AllowedType, ['decimal', 'double', 'float']),
 	(
-		% nan cannot be negated
+		% if the operand is nan, return it
 		InternalValue = nan, ResultValue = InternalValue;
-		% inf needs to be handled specially
+		% inf is negated separately
 		InternalValue = inf, ResultValue = -inf;
 		InternalValue = -inf, ResultValue = inf;
-		% otherwise it is equal to 0 - value
+		% otherwise the negation is equal to 0 - value
 		ResultValue is 0 - InternalValue
 	).
 
@@ -648,11 +677,6 @@ parse_float(Value, -inf) :-
 parse_float(Value, ResultValue) :-
 	atom_number(Value, ResultValue).
 
-is_inf(V) :-
-	V = inf.
-is_inf(V) :-
-	V = -inf.
-
 
 /* ~~~ Normalization ~~~ */
 
@@ -703,6 +727,11 @@ normalize_duration(
 
 
 /* ~~~ Helping Functions ~~~ */
+/* --- checks if the given value is a positive or negative infinity --- */
+is_inf(V) :-
+	V = inf.
+is_inf(V) :-
+	V = -inf.
 /* --- convert time zone parts to compact time zone offset --- */
 timezone_offset('-', TimeZoneHour, TimeZoneMinute, TimeZoneOffset) :-
 	TimeZoneOffset is (-1 * (60 * TimeZoneHour + TimeZoneMinute)).

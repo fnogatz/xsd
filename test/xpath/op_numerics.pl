@@ -43,6 +43,32 @@ numeric-subtract(3, 2) ==> data('decimal', [1]).
 unsignedLong('3') - 1 ==> data('decimal', [2]).
 boolean('true') - 2.5 ==> false.
 
+% numeric-multiply
+numeric-multiply(3, 2) ==> data('decimal', [6]).
+1.5 * 'NaN' ==> data('float', [nan]).
+'NaN' * -1.5 ==> data('float', [nan]).
+0 * '+INF' ==> data('double', [nan]).
+'-INF' * 0.0 ==> data('double', [nan]).
+3 * 'INF' ==> data('float', [inf]).
+3 * '-INF' ==> data('float', [-inf]).
+-3 * 'INF' ==> data('float', [-inf]).
+-3 * '-INF' ==> data('float', [inf]).
+'INF' * 3 ==> data('float', [inf]).
+'INF' * -3 ==> data('float', [-inf]).
+'-INF' * 3 ==> data('float', [-inf]).
+'-INF' * -3 ==> data('float', [inf]).
+'INF' * 'INF' ==> data('double', [inf]).
+'-INF' * 'INF' ==> data('double', [-inf]).
+'INF' * '-INF' ==> data('double', [-inf]).
+'-INF' * '-INF' ==> data('double', [inf]).
+-3 * 2 ==> data('decimal', [-6]).
+0 * 0 ==> data('decimal', [0]).
+'INF' * '-INF' * 0 ==> data('float', [nan]).
+'INF' * -1 * 5 ==> data('float', [-inf]).
+5 * 2 * 10 ==> data('decimal', [100]).
+unsignedLong('3') * 1.5 ==> data('float', [4.5]).
+boolean('true') * 2 ==> false.
+
 % numeric-unary-plus
 numeric-unary-plus(1) ==> data('decimal', [1]).
 +'NaN' ==> data('float', [nan]).
