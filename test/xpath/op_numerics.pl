@@ -69,6 +69,27 @@ numeric-multiply(3, 2) ==> data('decimal', [6]).
 unsignedLong('3') * 1.5 ==> data('float', [4.5]).
 boolean('true') * 2 ==> false.
 
+% numeric-divide
+numeric-divide(3, 2) ==> data('float', [1.5]).
+1.5 / 'NaN' ==> data('float', [nan]).
+'NaN' / -1.5 ==> data('float', [nan]).
+5 / 0 ==> data('float', [inf]).
+5 / -0 ==> data('float', [inf]). % should theoretically result in -inf
+-5 / 0 ==> data('float', [-inf]).
+-5 / -0 ==> data('float', [-inf]). % should theoretically result in inf
+0 / 0 ==> data('double', [nan]).
+0 / -0 ==> data('double', [nan]).
+-0 / 0 ==> data('double', [nan]).
+-0 / -0 ==> data('double', [nan]).
+'INF' / 'INF' ==> data('double', [nan]).
+'INF' / '-INF' ==> data('double', [nan]).
+'-INF' / 'INF' ==> data('double', [nan]).
+'-INF' / '-INF' ==> data('double', [nan]).
+6 / 3 ==> data('decimal', [2]).
+1.5 / 3 ==> data('float', [0.5]).
+3 / 1.5 ==> data('float', [2.0]).
+4.5 / 1.5 ==> data('double', [3.0]).
+
 % numeric-unary-plus
 numeric-unary-plus(1) ==> data('decimal', [1]).
 +'NaN' ==> data('float', [nan]).

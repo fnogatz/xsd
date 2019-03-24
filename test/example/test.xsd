@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="EvenNumber">
+		<xs:simpleType>
+			<xs:restriction base="xs:int">
+				<xs:assertion test="$value eq 2"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+</xs:schema>
+
+
+
+

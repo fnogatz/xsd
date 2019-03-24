@@ -142,6 +142,9 @@ xpath_expr(Value1 - Value2, Result) :-
 xpath_expr(Value1 * Value2, Result) :-
 	xpath_expr(numeric-multiply(Value1, Value2), Result).
 
+xpath_expr(Value1 / Value2, Result) :-
+	xpath_expr(numeric-divide(Value1, Value2), Result).
+
 xpath_expr(+Value, Result) :-
 	xpath_expr(numeric-unary-plus(Value), Result).
 
@@ -216,6 +219,28 @@ xpath_expr(numeric-multiply(Value1, Value2), data(Type, [ResultValue])) :-
 		is_inf(InternalValue1), is_inf(InternalValue2), (InternalValue1 = InternalValue2 -> ResultValue = inf; ResultValue = -inf);
 		% if no operand is an infinity, perform a regular arithmetic multiplication
 		\+is_inf(InternalValue1), \+is_inf(InternalValue2), ResultValue is InternalValue1 * InternalValue2
+	).
+xpath_expr(numeric-divide(Value1, Value2), data(Type, [ResultValue])) :-
+	xpath_expr(Value1, Inter1),
+	xpath_expr_cast(Inter1, data(Type, [InternalValue1])),
+	xpath_expr(Value2, Inter2),
+	xpath_expr_cast(Inter2, data(Type, [InternalValue2])),
+	member(Type, ['decimal', 'double', 'float']),
+	(
+		% if one operand is nan, return it
+		(InternalValue1 = nan; InternalValue2 = nan), ResultValue = nan;
+		% if a positive number is divided by a zero, return inf with the same sign as the zero
+		% PROBLEM: prolog cannot decide between -0 and 0, so return inf.
+		InternalValue1 > 0, InternalValue2 =:= 0, ResultValue = inf;
+		% if a negative number is divided by a zero, return inf with the opposite sign as the zero
+		% PROBLEM: prolog cannot decide between -0 and 0, so return -inf.
+		InternalValue1 < 0, InternalValue2 =:= 0, ResultValue = -inf;
+		% if a zero is divided by a zero, return nan
+		InternalValue1 =:= 0, InternalValue2 =:= 0, ResultValue = nan;
+		% if an inf is divided by an inf, return nan
+		is_inf(InternalValue1), is_inf(InternalValue2), ResultValue = nan;
+		% else perform a regular arithmetic division
+		ResultValue is InternalValue1 / InternalValue2
 	).
 
 xpath_expr(numeric-unary-plus(Value), data(Type, [ResultValue])) :-
