@@ -71,24 +71,51 @@ boolean('true') * 2 ==> false.
 
 % numeric-divide
 numeric-divide(3, 2) ==> data('float', [1.5]).
-1.5 / 'NaN' ==> data('float', [nan]).
-'NaN' / -1.5 ==> data('float', [nan]).
-5 / 0 ==> data('float', [inf]).
-5 / -0 ==> data('float', [inf]). % should theoretically result in -inf
--5 / 0 ==> data('float', [-inf]).
--5 / -0 ==> data('float', [-inf]). % should theoretically result in inf
-0 / 0 ==> data('double', [nan]).
-0 / -0 ==> data('double', [nan]).
--0 / 0 ==> data('double', [nan]).
--0 / -0 ==> data('double', [nan]).
-'INF' / 'INF' ==> data('double', [nan]).
-'INF' / '-INF' ==> data('double', [nan]).
-'-INF' / 'INF' ==> data('double', [nan]).
-'-INF' / '-INF' ==> data('double', [nan]).
-6 / 3 ==> data('decimal', [2]).
-1.5 / 3 ==> data('float', [0.5]).
-3 / 1.5 ==> data('float', [2.0]).
-4.5 / 1.5 ==> data('double', [3.0]).
+1.5 div 'NaN' ==> data('float', [nan]).
+'NaN' div -1.5 ==> data('float', [nan]).
+5 div 0 ==> data('float', [inf]).
+5 div -0 ==> data('float', [inf]). % should theoretically result in -inf
+-5 div 0 ==> data('float', [-inf]).
+-5 div -0 ==> data('float', [-inf]). % should theoretically result in inf
+0 div 0 ==> data('double', [nan]).
+0 div -0 ==> data('double', [nan]).
+-0 div 0 ==> data('double', [nan]).
+-0 div -0 ==> data('double', [nan]).
+'INF' div 'INF' ==> data('double', [nan]).
+'INF' div '-INF' ==> data('double', [nan]).
+'-INF' div 'INF' ==> data('double', [nan]).
+'-INF' div '-INF' ==> data('double', [nan]).
+6 div 3 ==> data('decimal', [2]).
+1.5 div 3 ==> data('float', [0.5]).
+3 div 1.5 ==> data('float', [2.0]).
+4.5 div 1.5 ==> data('double', [3.0]).
+
+% numeric-integer-divide
+numeric-integer-divide(3, 2) ==> data('integer', [1]).
+1.5 idiv 'NaN' ==> false.
+'NaN' idiv -1.5 ==> false.
+5 idiv 0 ==> false.
+5 idiv +0 ==> false.
+5 idiv -0 ==> false.
+'INF' idiv 3 ==> false.
+'+INF' idiv 3 ==> false. 
+'-INF' idiv 3 ==> false.
+'INF' idiv 'INF' ==> false.
+'-INF' idiv 'INF' ==> false.
+'INF' idiv '-INF' ==> false.
+'-INF' idiv '-INF' ==> false.
+5 idiv 'INF' ==> data('integer', [0]).
+5 idiv '+INF' ==> data('integer', [0]).
+5 idiv '-INF' ==> data('integer', [0]).
+10 idiv 3 ==> data('integer', [3]).
+3 idiv -2 ==> data('integer', [-1]).
+-3 idiv 2 ==> data('integer', [-1]).
+-3 idiv -2 ==> data('integer', [1]).
+9.0 idiv 3 ==> data('integer', [3]).
+-3.5 idiv 3 ==> data('integer', [-1]).
+3.0 idiv 4 ==> data('integer', [0]).
+3.1E1 idiv 6 ==> data('integer', [5]).
+3.1E1 idiv 7 ==> data('integer', [4]).
 
 % numeric-unary-plus
 numeric-unary-plus(1) ==> data('decimal', [1]).

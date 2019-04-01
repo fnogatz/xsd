@@ -11,6 +11,7 @@
 
 :- op(1, fx, user:($)).
 :- op(200, fy, user:(@)).
+:- op(400, yfx, user:(idiv)).
 :- op(700, xfx, user:(eq)).
 
 :- set_prolog_flag(allow_variable_name_as_functor, true).
@@ -142,8 +143,11 @@ xpath_expr(Value1 - Value2, Result) :-
 xpath_expr(Value1 * Value2, Result) :-
 	xpath_expr(numeric-multiply(Value1, Value2), Result).
 
-xpath_expr(Value1 / Value2, Result) :-
+xpath_expr(Value1 div Value2, Result) :-
 	xpath_expr(numeric-divide(Value1, Value2), Result).
+
+xpath_expr(Value1 idiv Value2, Result) :-
+	xpath_expr(numeric-integer-divide(Value1, Value2), Result).
 
 xpath_expr(+Value, Result) :-
 	xpath_expr(numeric-unary-plus(Value), Result).
@@ -241,6 +245,29 @@ xpath_expr(numeric-divide(Value1, Value2), data(Type, [ResultValue])) :-
 		is_inf(InternalValue1), is_inf(InternalValue2), ResultValue = nan;
 		% else perform a regular arithmetic division
 		ResultValue is InternalValue1 / InternalValue2
+	).
+xpath_expr(numeric-integer-divide(Value1, Value2), data('integer', [ResultValue])) :-
+	xpath_expr(Value1, Inter1),
+	xpath_expr_cast(Inter1, data(Type, [InternalValue1])),
+	xpath_expr(Value2, Inter2),
+	xpath_expr_cast(Inter2, data(Type, [InternalValue2])),
+	member(Type, ['decimal', 'double', 'float']),
+	(
+		% the first operand may not be an inf or nan
+		\+is_inf(InternalValue1),
+		InternalValue1 \= nan,
+		% the second operand may not be zero or nan
+		InternalValue2 =\= 0,
+		InternalValue2 \= nan,
+		(
+			% if the second operand is an inf, return 0
+			is_inf(InternalValue2), ResultValue = 0
+			;
+			% $a idiv $b is the same as ($a div $b) cast as xs:integer (flooring)
+			xpath_expr(numeric-divide(Value1, Value2), data(_, [DivisionResultValue])),
+			!,
+			ResultValue is truncate(DivisionResultValue)
+		)
 	).
 
 xpath_expr(numeric-unary-plus(Value), data(Type, [ResultValue])) :-
