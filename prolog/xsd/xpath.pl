@@ -38,7 +38,7 @@ validate_xpath(XPathString) :-
 	term_string(XPathExpr, XPathString),
 	!,
 	(
-		xpath_expr(XPathExpr, Result), Result = data(T, R), (T \= 'boolean'; R = [true]) ->
+		xpath_expr(XPathExpr, Result), Result = data(T, R), !, (T \= 'boolean'; R = [true]) ->
 			true
 			;
 			nb_current(context_documentation, Documentation),
@@ -66,7 +66,9 @@ xpath_expr(Value, Result) :-
 	),
 	(
 		member(ValueAtom, ['false', 'true']) ->
+			!,
 			xpath_expr(boolean(ValueAtom), Result);
+			!,
 			(
 				xpath_expr(string(ValueAtom), Result);
 				xpath_expr(decimal(ValueAtom), Result);
@@ -136,6 +138,7 @@ xpath_expr(Value1 + Value2, Result) :-
 	xpath_expr(numeric-add(Value1, Value2), Result).
 
 xpath_expr(Value1 - Value2, Result) :-
+	/* the next two lines are there to avoid performance issues caused by recursion */
 	(compound(Value1); number(Value1); Value1 =~ '^(\\+|-)?INF|NaN$'),
 	(compound(Value2); number(Value2); Value2 =~ '^(\\+|-)?INF|NaN$'),
 	xpath_expr(numeric-subtract(Value1, Value2), Result).
@@ -149,6 +152,12 @@ xpath_expr(Value1 div Value2, Result) :-
 xpath_expr(Value1 idiv Value2, Result) :-
 	xpath_expr(numeric-integer-divide(Value1, Value2), Result).
 
+xpath_expr(Value1 mod Value2, Result) :-
+	/* the next two lines are there to avoid performance issues caused by recursion */
+	(compound(Value1); number(Value1); Value1 =~ '^(\\+|-)?INF|NaN$'),
+	(compound(Value2); number(Value2); Value2 =~ '^(\\+|-)?INF|NaN$'),
+	xpath_expr(numeric-mod(Value1, Value2), Result).
+
 xpath_expr(+Value, Result) :-
 	xpath_expr(numeric-unary-plus(Value), Result).
 
@@ -158,8 +167,9 @@ xpath_expr(-Value, Result) :-
 /* --- numerics --- */
 xpath_expr(numeric-add(Value1, Value2), data(Type, [ResultValue])) :-
 	xpath_expr(Value1, Inter1),
-	xpath_expr_cast(Inter1, data(Type, [InternalValue1])),
 	xpath_expr(Value2, Inter2),
+	!,
+	xpath_expr_cast(Inter1, data(Type, [InternalValue1])),
 	xpath_expr_cast(Inter2, data(Type, [InternalValue2])),
 	member(Type, ['decimal', 'double', 'float']),
 	(
@@ -173,11 +183,11 @@ xpath_expr(numeric-add(Value1, Value2), data(Type, [ResultValue])) :-
 		% if both operands are finite, perform an arithmetic addition.
 		\+is_inf(InternalValue1), \+is_inf(InternalValue2), ResultValue is InternalValue1 + InternalValue2
 	).
-
 xpath_expr(numeric-subtract(Value1, Value2), data(Type, [ResultValue])) :-
 	xpath_expr(Value1, Inter1),
-	xpath_expr_cast(Inter1, data(Type, [InternalValue1])),
 	xpath_expr(Value2, Inter2),
+	!,
+	xpath_expr_cast(Inter1, data(Type, [InternalValue1])),
 	xpath_expr_cast(Inter2, data(Type, [InternalValue2])),
 	member(Type, ['decimal', 'double', 'float']),
 	(
@@ -193,11 +203,11 @@ xpath_expr(numeric-subtract(Value1, Value2), data(Type, [ResultValue])) :-
 		% if both operands are finite, perform a regular subtraction
 		\+is_inf(InternalValue1), \+is_inf(InternalValue2), ResultValue is InternalValue1 - InternalValue2		
 	).
-
 xpath_expr(numeric-multiply(Value1, Value2), data(Type, [ResultValue])) :-
 	xpath_expr(Value1, Inter1),
-	xpath_expr_cast(Inter1, data(Type, [InternalValue1])),
 	xpath_expr(Value2, Inter2),
+	!,
+	xpath_expr_cast(Inter1, data(Type, [InternalValue1])),
 	xpath_expr_cast(Inter2, data(Type, [InternalValue2])),
 	member(Type, ['decimal', 'double', 'float']),
 	(
@@ -226,8 +236,9 @@ xpath_expr(numeric-multiply(Value1, Value2), data(Type, [ResultValue])) :-
 	).
 xpath_expr(numeric-divide(Value1, Value2), data(Type, [ResultValue])) :-
 	xpath_expr(Value1, Inter1),
-	xpath_expr_cast(Inter1, data(Type, [InternalValue1])),
 	xpath_expr(Value2, Inter2),
+	!,
+	xpath_expr_cast(Inter1, data(Type, [InternalValue1])),
 	xpath_expr_cast(Inter2, data(Type, [InternalValue2])),
 	member(Type, ['decimal', 'double', 'float']),
 	(
@@ -248,8 +259,9 @@ xpath_expr(numeric-divide(Value1, Value2), data(Type, [ResultValue])) :-
 	).
 xpath_expr(numeric-integer-divide(Value1, Value2), data('integer', [ResultValue])) :-
 	xpath_expr(Value1, Inter1),
-	xpath_expr_cast(Inter1, data(Type, [InternalValue1])),
 	xpath_expr(Value2, Inter2),
+	!,
+	xpath_expr_cast(Inter1, data(Type, [InternalValue1])),
 	xpath_expr_cast(Inter2, data(Type, [InternalValue2])),
 	member(Type, ['decimal', 'double', 'float']),
 	(
@@ -269,7 +281,40 @@ xpath_expr(numeric-integer-divide(Value1, Value2), data('integer', [ResultValue]
 			ResultValue is truncate(DivisionResultValue)
 		)
 	).
-
+xpath_expr(numeric-mod(Value1, Value2), data(Type, [ResultValue])) :-
+	xpath_expr(Value1, Inter1),
+	xpath_expr(Value2, Inter2),
+	!,
+	xpath_expr_cast(Inter1, data(Type, [InternalValue1])),
+	xpath_expr_cast(Inter2, data(Type, [InternalValue2])),
+	member(Type, ['decimal', 'double', 'float']),
+	(
+		% if the type is decimal, a zero as second operator is not allowed
+		Type \= 'decimal';
+		InternalValue2 \= 0
+	),
+	(
+		% if at least one operand is nan, return nan
+		(InternalValue1 = nan; InternalValue2 = nan), ResultValue = nan, !;
+		% if the first operand is an infinity, return nan
+		is_inf(InternalValue1), ResultValue = nan;
+		% if the second operand is a zero, return nan
+		InternalValue2 =:= 0, ResultValue = nan;
+		% if the first operand is finite and the second is an infinity, return the first operand
+		is_inf(InternalValue2), ResultValue = InternalValue1;
+		% if the first operand is a zero and the second is finite, return the first operand
+		InternalValue1 =:= 0, \+is_inf(InternalValue2), ResultValue = InternalValue1;
+		% else perform regular modulo operation
+		InternalValue1 =\= 0,
+		InternalValue1 \= nan,
+		\+is_inf(InternalValue1),
+		InternalValue2 =\= 0,
+		InternalValue2 \= nan,
+		\+is_inf(InternalValue2),
+		xpath_expr(numeric-integer-divide(InternalValue1, InternalValue2), data(_, [Divident])),
+		!,
+		ResultValue is InternalValue1 - InternalValue2 * Divident
+	).
 xpath_expr(numeric-unary-plus(Value), data(Type, [ResultValue])) :-
 	xpath_expr(Value, data(Type, [ResultValue])),
 	xsd_simpleType_is_a(Type, AllowedType),
@@ -294,25 +339,12 @@ xpath_expr(numeric-unary-minus(Value), data(Type, [ResultValue])) :-
 xpath_expr(Value1 eq Value2, data('boolean', [ResultValue])) :-
 	xpath_expr(Value1, Result1),
 	xpath_expr(Value2, Result2),
-
-	Result1 = data(Type1, ValueList1),
-	Result2 = data(Type2, ValueList2),
-
-	Type1 = Type2, ValueList1 = ValueList2 ->
+	!,
+	xpath_expr_cast(Result1, Cast1),
+	xpath_expr_cast(Result2, Cast2),
+	Cast1 = Cast2 ->
 		ResultValue = true;
 		ResultValue = false.
-/* --- mod --- */
-xpath_expr(Value1 mod Value2, data(T, [ModuloValue])) :-
-	xpath_expr(Value1, data(T, [EvaluatedValue1])),
-	xpath_expr(Value2, data(T, [EvaluatedValue2])),
-
-	member(T, [
-		'decimal', 'integer', 'nonPositiveInteger', 'negativeInteger',
-		'long', 'int', 'short', 'byte',
-		'nonNegativeInteger', 'unsignedLong', 'unsingedInt', 'unsignedShort', 'unsignedByte', 'positiveInteger'
-	]),
-	
-	ModuloValue is EvaluatedValue1 mod EvaluatedValue2.
 
 
 /* ### Functions ### */
@@ -670,6 +702,9 @@ xpath_expr_cast(data(_, [inf]), Result) :-
 	xpath_expr('INF', Result).
 xpath_expr_cast(data(_, [nan]), Result) :-
 	xpath_expr('NaN', Result).
+xpath_expr_cast(data(_, [InternalValue]), Result) :-
+	\+number(InternalValue),
+	xpath_expr(InternalValue, Result).
 
 parse_duration(Value, Result) :-
 	atom_string(Value, ValueString),

@@ -117,6 +117,30 @@ numeric-integer-divide(3, 2) ==> data('integer', [1]).
 3.1E1 idiv 6 ==> data('integer', [5]).
 3.1E1 idiv 7 ==> data('integer', [4]).
 
+% numeric-mod
+numeric-mod(3, 2) ==> data('decimal', [1]).
+decimal(1) mod decimal(0) ==> false.
+'NaN' mod 3 ==> data('float', [nan]).
+3 mod 'NaN' ==> data('double', [nan]).
+'NaN' mod 'NaN' ==> data('float', [nan]).
+'INF' mod 3 ==> data('float', [nan]).
+'-INF' mod 3 ==> data('float', [nan]).
+1.5 mod 0 ==> data('float', [nan]).
+1.5 mod -0 ==> data('float', [nan]).
+'INF' mod 0 ==> data('float', [nan]).
+'-INF' mod 0 ==> data('float', [nan]).
+'INF' mod -0 ==> data('float', [nan]).
+'-INF' mod -0 ==> data('float', [nan]).
+-3 mod 'INF' ==> data('float', [-3]).
+3 mod '-INF' ==> data('float', [3]).
+0 mod 3.5 ==> data('float', [0]).
+-0 mod 4 ==> data('float', [0]).
+10 mod 3 ==> data('float', [1]).
+6 mod -2 ==> data('decimal', [0]).
+4.5 mod 1.2 ==> data('float', [0.9000000000000004]).
+1.23e2 mod 0.6e1 ==> data('float', [3.0]).
+
+
 % numeric-unary-plus
 numeric-unary-plus(1) ==> data('decimal', [1]).
 +'NaN' ==> data('float', [nan]).
