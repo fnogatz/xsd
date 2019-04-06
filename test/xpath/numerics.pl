@@ -1,4 +1,4 @@
-:- module(op_numerics, [
+:- module(numerics, [
       user:('==>')/2
    ]).
 
@@ -140,7 +140,6 @@ decimal(1) mod decimal(0) ==> false.
 4.5 mod 1.2 ==> data('float', [0.9000000000000004]).
 1.23e2 mod 0.6e1 ==> data('float', [3.0]).
 
-
 % numeric-unary-plus
 numeric-unary-plus(1) ==> data('decimal', [1]).
 +'NaN' ==> data('float', [nan]).
@@ -162,3 +161,103 @@ numeric-unary-minus(1) ==> data('decimal', [-1]).
 -5 ==> data('decimal', [-5]).
 -unsignedLong('3') ==> data('unsignedLong', [-3]).
 -boolean('true') ==> false.
+
+% numeric-equal
+numeric-equal(1, 1) ==> data('boolean', [true]).
+% rest see eq, ne, le, ge
+
+% numeric-less-than
+numeric-less-than(1, 2) ==> data('boolean', [true]).
+% rest see lt, le
+
+% numeric-greater-than
+numeric-greater-than(2, 1) ==> data('boolean', [true]).
+% rest see gt, ge
+
+% eq
+0 eq 0 ==> data('boolean', [true]).
+-0 eq +0 ==> data('boolean', [true]).
+1 eq 1 ==> data('boolean', [true]).
+-1 eq +1 ==> data('boolean', [false]).
+0 eq 1 ==> data('boolean', [false]).
+'-INF' eq '-INF' ==> data('boolean', [true]).
+'-INF' eq 'INF' ==> data('boolean', [false]).
+'+INF' eq 'INF' ==> data('boolean', [true]).
+'INF' eq 'INF' ==> data('boolean', [true]).
+1 eq 'INF' ==> data('boolean', [false]).
+'-INF' eq -999999999 ==> data('boolean', [false]).
+'NaN' eq 'NaN' ==> data('boolean', [false]).
+'NaN' eq 5 ==> data('boolean', [false]).
+unsignedLong('3') eq long('3') ==> data('boolean', [true]).
+
+% ne
+0 ne 0 ==> data('boolean', [false]).
+-0 ne +0 ==> data('boolean', [false]).
+1 ne 1 ==> data('boolean', [false]).
+-1 ne +1 ==> data('boolean', [true]).
+0 ne 1 ==> data('boolean', [true]).
+'-INF' ne '-INF' ==> data('boolean', [false]).
+'-INF' ne 'INF' ==> data('boolean', [true]).
+'+INF' ne 'INF' ==> data('boolean', [false]).
+'INF' ne 'INF' ==> data('boolean', [false]).
+1 ne 'INF' ==> data('boolean', [true]).
+'-INF' ne -999999999 ==> data('boolean', [true]).
+'NaN' ne 'NaN' ==> data('boolean', [true]).
+'NaN' ne 5 ==> data('boolean', [true]).
+unsignedLong('3') ne long('3') ==> data('boolean', [false]).
+
+% le
+-1 le 0 ==> data('boolean', [true]).
+0 le -1 ==> data('boolean', [false]).
+0 le -0 ==> data('boolean', [true]).
+'-INF' le '-INF' ==> data('boolean', [true]).
+'-INF' le -3 ==> data('boolean', [true]).
+'-INF' le 'INF' ==> data('boolean', [true]).
+'-INF' le 'NaN' ==> data('boolean', [false]).
+3 le 'INF' ==> data('boolean', [true]).
+'INF' le 'INF' ==> data('boolean', [true]).
+'NaN' le 'INF' ==> data('boolean', [false]).
+'NaN' le 'NaN' ==> data('boolean', [false]).
+unsignedLong('3') le long('3') ==> data('boolean', [true]).
+
+% lt
+-1 lt 0 ==> data('boolean', [true]).
+0 lt -1 ==> data('boolean', [false]).
+0 lt -0 ==> data('boolean', [false]).
+'-INF' lt '-INF' ==> data('boolean', [false]).
+'-INF' lt -3 ==> data('boolean', [true]).
+'-INF' lt 'INF' ==> data('boolean', [true]).
+'-INF' lt 'NaN' ==> data('boolean', [false]).
+3 lt 'INF' ==> data('boolean', [true]).
+'INF' lt 'INF' ==> data('boolean', [false]).
+'NaN' lt 'INF' ==> data('boolean', [false]).
+'NaN' lt 'NaN' ==> data('boolean', [false]).
+unsignedLong('2') lt long('3') ==> data('boolean', [true]).
+
+% ge
+-1 ge 0 ==> data('boolean', [false]).
+0 ge -1 ==> data('boolean', [true]).
+0 ge -0 ==> data('boolean', [true]).
+'-INF' ge '-INF' ==> data('boolean', [true]).
+-3 ge '-INF' ==> data('boolean', [true]).
+'INF' ge '-INF' ==> data('boolean', [true]).
+'NaN' ge '-INF' ==> data('boolean', [false]).
+'INF' ge 3 ==> data('boolean', [true]).
+'INF' ge 'INF' ==> data('boolean', [true]).
+'INF' ge 'NaN' ==> data('boolean', [false]).
+'NaN' ge 'NaN' ==> data('boolean', [false]).
+unsignedLong('3') ge long('3') ==> data('boolean', [true]).
+
+% gt
+-1 gt 0 ==> data('boolean', [false]).
+0 gt -1 ==> data('boolean', [true]).
+0 gt -0 ==> data('boolean', [false]).
+'-INF' gt '-INF' ==> data('boolean', [false]).
+-3 gt '-INF' ==> data('boolean', [true]).
+'INF' gt '-INF' ==> data('boolean', [true]).
+'NaN' gt '-INF' ==> data('boolean', [false]).
+'INF' gt 3 ==> data('boolean', [true]).
+'INF' gt 'INF' ==> data('boolean', [false]).
+'INF' gt 'NaN' ==> data('boolean', [false]).
+'NaN' gt 'NaN' ==> data('boolean', [false]).
+unsignedLong('3') gt long('2') ==> data('boolean', [true]).

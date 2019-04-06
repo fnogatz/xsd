@@ -13,6 +13,11 @@
 :- op(200, fy, user:(@)).
 :- op(400, yfx, user:(idiv)).
 :- op(700, xfx, user:(eq)).
+:- op(700, xfx, user:(ne)).
+:- op(700, xfx, user:(le)).
+:- op(700, xfx, user:(lt)).
+:- op(700, xfx, user:(ge)).
+:- op(700, xfx, user:(gt)).
 
 :- set_prolog_flag(allow_variable_name_as_functor, true).
 
@@ -163,6 +168,39 @@ xpath_expr(+Value, Result) :-
 
 xpath_expr(-Value, Result) :-
 	xpath_expr(numeric-unary-minus(Value), Result).
+
+xpath_expr(Value1 eq Value2, Result) :-
+	% TODO: other types
+	xpath_expr(numeric-equal(Value1, Value2), Result).
+xpath_expr(Value1 ne Value2, data('boolean', [ResultValue])) :-
+	% TODO: other types
+	xpath_expr(numeric-equal(Value1, Value2), data('boolean', [EqualValue])),
+	(
+		EqualValue = true ->
+			ResultValue = false;
+			ResultValue = true
+	).
+xpath_expr(Value1 le Value2, data('boolean', [ResultValue])) :-
+	xpath_expr(numeric-less-than(Value1, Value2), data('boolean', [ResultValue1])),
+	xpath_expr(numeric-equal(Value1, Value2), data('boolean', [ResultValue2])),
+	(
+		ResultValue1 = true; ResultValue2 = true ->
+			ResultValue = true;
+			ResultValue = false 
+	).
+xpath_expr(Value1 lt Value2, Result) :-
+	xpath_expr(numeric-less-than(Value1, Value2), Result).
+xpath_expr(Value1 ge Value2, data('boolean', [ResultValue])) :-
+	xpath_expr(numeric-greater-than(Value1, Value2), data('boolean', [ResultValue1])),
+	xpath_expr(numeric-equal(Value1, Value2), data('boolean', [ResultValue2])),
+	(
+		ResultValue1 = true; ResultValue2 = true ->
+			ResultValue = true;
+			ResultValue = false 
+	).
+xpath_expr(Value1 gt Value2, Result) :-
+	xpath_expr(numeric-greater-than(Value1, Value2), Result).
+
 
 /* --- numerics --- */
 xpath_expr(numeric-add(Value1, Value2), data(Type, [ResultValue])) :-
@@ -333,18 +371,54 @@ xpath_expr(numeric-unary-minus(Value), data(Type, [ResultValue])) :-
 		% otherwise the negation is equal to 0 - value
 		ResultValue is 0 - InternalValue
 	).
-
-
-/* --- eq --- */
-xpath_expr(Value1 eq Value2, data('boolean', [ResultValue])) :-
-	xpath_expr(Value1, Result1),
-	xpath_expr(Value2, Result2),
+xpath_expr(numeric-equal(Value1, Value2), data('boolean', [ResultValue])) :-
+	xpath_expr(Value1, Inter1),
+	xpath_expr(Value2, Inter2),
 	!,
-	xpath_expr_cast(Result1, Cast1),
-	xpath_expr_cast(Result2, Cast2),
-	Cast1 = Cast2 ->
-		ResultValue = true;
-		ResultValue = false.
+	xpath_expr_cast(Inter1, data(Type, [InternalValue1])),
+	xpath_expr_cast(Inter2, data(Type, [InternalValue2])),
+	member(Type, ['decimal', 'double', 'float']),
+	(
+		% +0 equals -0, but it is the same for prolog anyway
+		% nan does not equal itself, all other values do equal themselves
+		InternalValue1 \= nan, InternalValue1 = InternalValue2 ->
+			ResultValue = true;
+			ResultValue = false
+	).
+xpath_expr(numeric-less-than(Value1, Value2), data('boolean', [ResultValue])) :-
+	xpath_expr(Value1, Inter1),
+	xpath_expr(Value2, Inter2),
+	!,
+	xpath_expr_cast(Inter1, data(Type, [InternalValue1])),
+	xpath_expr_cast(Inter2, data(Type, [InternalValue2])),
+	member(Type, ['decimal', 'double', 'float']),
+	(
+		% positive inf is greater than everything else, except nan and itself
+		InternalValue1 \= inf, InternalValue1 \= nan, InternalValue2 = inf;
+		% negative inf is less than everything else, except nan and itself
+		InternalValue1 = -inf, InternalValue2 \= nan, InternalValue2 \= -inf;
+		% if both values are neither an inf nor nan, return true if operand1 < operand2
+		\+is_inf(InternalValue1), \+is_inf(InternalValue2),
+		InternalValue1 \= nan, InternalValue2 \= nan,
+		InternalValue1 < InternalValue2
+	) -> ResultValue = true; ResultValue = false.
+xpath_expr(numeric-greater-than(Value1, Value2), data('boolean', [ResultValue])) :-
+	xpath_expr(Value1, Inter1),
+	xpath_expr(Value2, Inter2),
+	!,
+	xpath_expr_cast(Inter1, data(Type, [InternalValue1])),
+	xpath_expr_cast(Inter2, data(Type, [InternalValue2])),
+	member(Type, ['decimal', 'double', 'float']),
+	(
+		% positive inf is greater than everything else, except nan and itself
+		InternalValue1 = inf, InternalValue2 \= inf, InternalValue2 \= nan;
+		% negative inf is less than everything else, except nan and itself
+		InternalValue1 \= nan, InternalValue1 \= -inf, InternalValue2 = -inf;
+		% if both values are neither an inf nor nan, return true if operand1 < operand2
+		\+is_inf(InternalValue1), \+is_inf(InternalValue2),
+		InternalValue1 \= nan, InternalValue2 \= nan,
+		InternalValue1 > InternalValue2
+	) -> ResultValue = true; ResultValue = false.
 
 
 /* ### Functions ### */

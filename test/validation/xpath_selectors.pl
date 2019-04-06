@@ -12,10 +12,10 @@
 
 'attribute value required and given':
 {|xml||
-	<attribute_comparison lang="en-US"/>
+	<attribute_comparison id="0"/>
 |}.
 
 'attribute value required and not given'(fail):
 {|xml||
-	<attribute_comparison lang="en-UK"/>
+	<attribute_comparison id="1"/>
 |}.
