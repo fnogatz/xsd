@@ -261,3 +261,53 @@ unsignedLong('3') ge long('3') ==> data('boolean', [true]).
 'INF' gt 'NaN' ==> data('boolean', [false]).
 'NaN' gt 'NaN' ==> data('boolean', [false]).
 unsignedLong('3') gt long('2') ==> data('boolean', [true]).
+
+% abs
+abs(-0) ==> data('decimal', [0]).
+abs(+0) ==> data('decimal', [0]).
+abs(-10.5) ==> data('float', [10.5]).
+abs(10.5e2) ==> data('float', [10.5e2]).
+abs('NaN') ==> data('float', [nan]).
+abs('-INF') ==> data('float', [inf]).
+abs('INF') ==> data('float', [inf]).
+abs('+INF') ==> data('float', [inf]).
+abs('1') ==> data('decimal', [1]).
+abs('STRING') ==> false.
+
+% ceiling
+ceiling(-0) ==> data('decimal', [0]).
+ceiling(+0) ==> data('decimal', [0]).
+ceiling(-10.5) ==> data('float', [-10]).
+ceiling(10.5) ==> data('float', [11]).
+ceiling('NaN') ==> data('float', [nan]).
+ceiling('-INF') ==> data('float', [-inf]).
+ceiling('INF') ==> data('float', [inf]).
+ceiling('+INF') ==> data('float', [inf]).
+ceiling('1') ==> data('decimal', [1]).
+ceiling('STRING') ==> false.
+
+% floor
+floor(-0) ==> data('decimal', [0]).
+floor(+0) ==> data('decimal', [0]).
+floor(-10.5) ==> data('float', [-11]).
+floor(10.5) ==> data('float', [10]).
+floor('NaN') ==> data('float', [nan]).
+floor('-INF') ==> data('float', [-inf]).
+floor('INF') ==> data('float', [inf]).
+floor('+INF') ==> data('float', [inf]).
+floor('1') ==> data('decimal', [1]).
+floor('STRING') ==> false.
+
+% round
+round(-0) ==> data('decimal', [0]).
+round(+0) ==> data('decimal', [0]).
+round(-10.5) ==> data('float', [-10]).
+round(-11.5) ==> data('float', [-11]).
+round(10.5) ==> data('float', [11]).
+round(11.5) ==> data('float', [12]).
+round('NaN') ==> data('float', [nan]).
+round('-INF') ==> data('float', [-inf]).
+round('INF') ==> data('float', [inf]).
+round('+INF') ==> data('float', [inf]).
+round('1') ==> data('decimal', [1]).
+round('STRING') ==> false.

@@ -419,6 +419,59 @@ xpath_expr(numeric-greater-than(Value1, Value2), data('boolean', [ResultValue]))
 		InternalValue1 \= nan, InternalValue2 \= nan,
 		InternalValue1 > InternalValue2
 	) -> ResultValue = true; ResultValue = false.
+xpath_expr(abs(Value), data(Type, [ResultValue])) :-
+	xpath_expr(Value, Inter),
+	!,
+	xpath_expr_cast(Inter, data(Type, [InternalValue])),
+	member(Type, ['decimal', 'double', 'float']),
+	(
+		% return nan for nan operands
+		InternalValue = nan, ResultValue = nan;
+		% return positive infinity for infinity operands
+		is_inf(InternalValue), ResultValue = inf;
+		% return the negation for negative values
+		InternalValue < 0, xpath_expr(numeric-unary-minus(Value), data(Type, [ResultValue]));
+		% return the operand itself for positive operands
+		InternalValue >= 0, ResultValue = InternalValue
+	).
+xpath_expr(ceiling(Value), data(Type, [ResultValue])) :-
+	xpath_expr(Value, Inter),
+	!,
+	xpath_expr_cast(Inter, data(Type, [InternalValue])),
+	member(Type, ['decimal', 'double', 'float']),
+	(
+		% return the operand itself for nan and any inf
+		member(InternalValue, [nan, inf, -inf]), ResultValue = InternalValue;
+		% otherwise return the ceiling of the operand
+		ResultValue is ceiling(InternalValue)
+	).
+xpath_expr(floor(Value), data(Type, [ResultValue])) :-
+	xpath_expr(Value, Inter),
+	!,
+	xpath_expr_cast(Inter, data(Type, [InternalValue])),
+	member(Type, ['decimal', 'double', 'float']),
+	(
+		% return the operand itself for nan and any inf
+		member(InternalValue, [nan, inf, -inf]), ResultValue = InternalValue;
+		% otherwise return the floor of the operand
+		ResultValue is floor(InternalValue)
+	).
+xpath_expr(round(Value), data(Type, [ResultValue])) :-
+	xpath_expr(Value, Inter),
+	!,
+	xpath_expr_cast(Inter, data(Type, [InternalValue])),
+	member(Type, ['decimal', 'double', 'float']),
+	(
+		% return the operand itself for nan and any inf
+		member(InternalValue, [nan, inf, -inf]), ResultValue = InternalValue;
+		% otherwise return the rounded value of the operand
+		(
+			xpath_expr(numeric-mod(InternalValue, 1), data(_, [-0.5])) ->
+				% -.5 is rounded towards positive infinity, so it is ceiled
+				ResultValue is ceiling(InternalValue);
+				ResultValue is round(InternalValue)
+		)
+	).
 
 
 /* ### Functions ### */
