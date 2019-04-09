@@ -472,6 +472,38 @@ xpath_expr(round(Value), data(Type, [ResultValue])) :-
 				ResultValue is round(InternalValue)
 		)
 	).
+xpath_expr(round-half-to-even(Value), Result) :-
+	xpath_expr(round-half-to-even(Value, 0), Result).
+xpath_expr(round-half-to-even(Value, Precision), data(Type, [ResultValue])) :-
+	xpath_expr(Value, Inter),
+	!,
+	xpath_expr_cast(Inter, data(Type, [InternalValue])),
+	member(Type, ['decimal', 'double', 'float']),
+	(
+		% return the operand itself for nan and any inf
+		member(InternalValue, [nan, inf, -inf]), ResultValue = InternalValue
+		;
+		% otherwise return the rounded value of the operand with respect to the precision
+		% apply precision
+		PrecisionedValue is InternalValue * 10 ** Precision,
+		(
+			xpath_expr(numeric-mod(PrecisionedValue, 1), data(_, [Mod])),
+			member(Mod, [0.5, -0.5]) ->
+				% -.5 is rounded towards the adjacent even number
+				Ceil is ceiling(PrecisionedValue),
+				Floor is floor(PrecisionedValue), 
+				(
+					Ceil mod 2 =:= 0 ->
+						PrecisionedResultValue = Ceil;
+						PrecisionedResultValue = Floor	
+				)
+				;
+				% otherwise it is rounded as usual
+				PrecisionedResultValue is round(PrecisionedValue)
+		),
+		% reverse precision
+		ResultValue is PrecisionedResultValue * 10 ** (0-Precision)
+	).
 
 
 /* ### Functions ### */

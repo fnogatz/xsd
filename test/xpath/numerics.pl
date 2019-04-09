@@ -311,3 +311,28 @@ round('INF') ==> data('float', [inf]).
 round('+INF') ==> data('float', [inf]).
 round('1') ==> data('decimal', [1]).
 round('STRING') ==> false.
+
+% round-half-to-even
+round-half-to-even(-0) ==> data('decimal', [0]).
+round-half-to-even(+0) ==> data('decimal', [0]).
+round-half-to-even(-11.6) ==> data('float', [-12]).
+round-half-to-even(-11.5) ==> data('float', [-12]).
+round-half-to-even(-11.4) ==> data('float', [-11]).
+round-half-to-even(-10.6) ==> data('float', [-11]).
+round-half-to-even(-10.5) ==> data('float', [-10]).
+round-half-to-even(-10.4) ==> data('float', [-10]).
+round-half-to-even(10.4) ==> data('float', [10]).
+round-half-to-even(10.5) ==> data('float', [10]).
+round-half-to-even(10.6) ==> data('float', [11]).
+round-half-to-even(11.4) ==> data('float', [11]).
+round-half-to-even(11.5) ==> data('float', [12]).
+round-half-to-even(11.6) ==> data('float', [12]).
+round-half-to-even(3.567812E+3, 2) ==> data('float', [3567.810000000001]).
+round-half-to-even(4.7564E-3, 2) ==> data('float', [0.0]).
+round-half-to-even(35612.25, -2) ==> data('float', [35600]).
+round-half-to-even('NaN') ==> data('float', [nan]).
+round-half-to-even('-INF') ==> data('float', [-inf]).
+round-half-to-even('INF') ==> data('float', [inf]).
+round-half-to-even('+INF') ==> data('float', [inf]).
+round-half-to-even('1') ==> data('decimal', [1]).
+round-half-to-even('STRING') ==> false.
