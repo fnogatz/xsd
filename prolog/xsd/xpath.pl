@@ -12,7 +12,9 @@
 
 :- op(1, fx, user:($)).
 :- op(200, fy, user:(@)).
+:- op(300, yfx, user:(::)).
 :- op(400, yfx, user:(idiv)).
+:- op(400, yfx, user:(/)).
 :- op(700, xfx, user:(eq)).
 :- op(700, xfx, user:(ne)).
 :- op(700, xfx, user:(le)).
@@ -128,6 +130,26 @@ xpath_expr($value, Result) :-
 
 
 /* ### Location path expressions ### */
+
+/* --- steps --- */
+/* -- axes -- */
+xpath_expr(child::Nodename, data('node', [D_Child_ID])) :-
+	nb_current(context_file, D_File),
+	nb_current(context_id, D_ID),
+	child(D_File, D_ID, D_Child_ID),
+	(
+		Nodename = '*';
+		node(D_File, D_Child_ID, _, Nodename)
+	).
+xpath_expr(Node/child::Nodename, data('node', [D_Child_ID])) :-
+	xpath_expr(Node, data('node', [D_Parent_ID])),
+	nb_current(context_file, D_File),
+	child(D_File, D_Parent_ID, D_Child_ID),
+	(
+		Nodename = '*';
+		node(D_File, D_Child_ID, _, Nodename)
+	).
+
 
 /* --- attributes --- */
 xpath_expr(@Attribute, Result) :-
