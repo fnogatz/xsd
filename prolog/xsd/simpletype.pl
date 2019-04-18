@@ -336,7 +336,11 @@ validate_xsd_simpleType(T, V) :-
 	T = 'string',
 	xsd_simpleType_inheritance(T, ST),
 	validate_xsd_simpleType(ST, V),
-	string_codes(V, CL),
+	(
+		atom(V), atom_string(V, S);
+		string(V), V = S
+	),
+	string_codes(S, CL),
 	forall(
 		member(C, CL), 
 		validate_xsd_character(C)

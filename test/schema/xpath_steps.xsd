@@ -24,4 +24,19 @@
 			<xs:assert test="child::element1/child::element2"/>
 		</xs:complexType>
 	</xs:element>
+	<xs:element name="step_slash_specific">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="element1">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="element2" type="xs:integer" />
+						</xs:sequence>
+						<xs:assert test="element2"/>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+			<xs:assert test="element1/element2"/>
+		</xs:complexType>
+	</xs:element>
 </xs:schema>

@@ -74,9 +74,7 @@ xpath_expr(Value, Result) :-
 	),
 	(
 		member(ValueAtom, ['false', 'true']) ->
-			!,
 			xpath_expr(boolean(ValueAtom), Result);
-			!,
 			(
 				xpath_expr(string(ValueAtom), Result);
 				xpath_expr(decimal(ValueAtom), Result);
@@ -133,21 +131,33 @@ xpath_expr($value, Result) :-
 
 /* --- steps --- */
 /* -- axes -- */
-xpath_expr(child::Nodename, data('node', [D_Child_ID])) :-
+xpath_expr(Nodename, Result) :-
+	\+compound(Nodename),
+	xpath_expr(child::Nodename, Result).
+xpath_expr(Axe::Nodename, data('node', [D_Node_ID])) :-
 	nb_current(context_file, D_File),
 	nb_current(context_id, D_ID),
-	child(D_File, D_ID, D_Child_ID),
+	(
+		Axe = child, child(D_File, D_ID, D_Node_ID)
+		% TODO: implement other axes
+	),
 	(
 		Nodename = '*';
-		node(D_File, D_Child_ID, _, Nodename)
+		node(D_File, D_Node_ID, _, Nodename)
 	).
-xpath_expr(Node/child::Nodename, data('node', [D_Child_ID])) :-
+xpath_expr(Node/Nodename, Result) :-
+	\+compound(Nodename),
+	xpath_expr(Node/child::Nodename, Result).
+xpath_expr(Node/Axe::Nodename, data('node', [D_Node_ID])) :-
 	xpath_expr(Node, data('node', [D_Parent_ID])),
 	nb_current(context_file, D_File),
-	child(D_File, D_Parent_ID, D_Child_ID),
+	(
+		Axe = child, child(D_File, D_Parent_ID, D_Node_ID)
+		% TODO: implement other axes
+	),
 	(
 		Nodename = '*';
-		node(D_File, D_Child_ID, _, Nodename)
+		node(D_File, D_Node_ID, _, Nodename)
 	).
 
 

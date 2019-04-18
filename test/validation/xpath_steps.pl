@@ -35,3 +35,25 @@
 	<step_child_specific>
 	</step_child_specific>
 |}.
+
+'steps - slash - specific - true':
+{|xml||
+	<step_slash_specific>
+		<element1>
+			<element2>1</element2>
+		</element1>
+	</step_slash_specific>
+|}.
+
+'steps - slash - specific - false(inner)'(fail):
+{|xml||
+	<step_slash_specific>
+		<element1></element1>
+	</step_slash_specific>
+|}.
+
+'steps - slash - specific - false(outer)'(fail):
+{|xml||
+	<step_slash_specific>
+	</step_slash_specific>
+|}.
