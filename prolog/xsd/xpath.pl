@@ -12,6 +12,7 @@
 
 :- op(1, fx, user:($)).
 :- op(200, fy, user:(@)).
+:- op(250, yf, user:([])).
 :- op(300, yfx, user:(::)).
 :- op(400, yfx, user:(idiv)).
 :- op(400, yfx, user:(/)).
@@ -46,7 +47,7 @@ validate_xpath(XPathString) :-
 	term_string(XPathExpr, XPathString),
 	!,
 	(
-		xpath_expr(XPathExpr, Result), Result = data(T, R), !, (T \= 'boolean'; R = [true]) ->
+		xpath_expr(XPathExpr, Result), !, isValid(Result) ->
 			true
 			;
 			nb_current(context_documentation, Documentation),
@@ -160,13 +161,17 @@ xpath_expr(Node/Axe::Nodename, data('node', [D_Node_ID])) :-
 		node(D_File, D_Node_ID, _, Nodename)
 	).
 
+/* --- predicates --- */
+xpath_expr(Node[Predicate], data('node', [D_Node_ID])) :-
+	xpath_expr(Node, data('node', [D_Node_ID])),
+	xpath_expr(Predicate, PredicateResult),
+	isValid(PredicateResult).
 
 /* --- attributes --- */
 xpath_expr(@Attribute, Result) :-
 	nb_current(context_file, D_File),
 	nb_current(context_id, D_ID),
-	descendant_or_self(D_File, D_ID, D_Desc_ID),
-	node_attribute(D_File, D_Desc_ID, Attribute, AttributeValue),
+	node_attribute(D_File, D_ID, Attribute, AttributeValue),
 	xpath_expr(AttributeValue, Result).
 
 
@@ -1068,6 +1073,9 @@ normalize_duration(
 
 
 /* ~~~ Helping Functions ~~~ */
+/* --- checks if data structure is valid ("true / not empty ...") --- */
+isValid(data(T, R)) :-
+	T \= 'boolean'; R = [true].
 /* --- recursive string concatenation function --- */
 string_concat([], "").
 string_concat([H|T], OUT) :-
