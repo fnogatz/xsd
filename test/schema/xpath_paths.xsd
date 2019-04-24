@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
 	<!-- steps -->
 	<xs:element name="step_child_arbitrary">
 		<xs:complexType>
@@ -81,18 +82,16 @@
 			<xs:assert test="@id eq 0"/>
 		</xs:complexType>
 	</xs:element>
-	<!--
-	NOT IMPLEMENTED YET
 	<xs:element name="attribute_child_bool">
 		<xs:complexType>
 			<xs:sequence>
 				<xs:element name="element">
 					<xs:complexType>
-						<xs:attribute name="lang" type="xs:language" />
+						<xs:attribute name="id" type="xs:decimal" />
 					</xs:complexType>
 				</xs:element>
 			</xs:sequence>
-			<xs:assert test="element[@lang eq 'de-DE']"/>
+			<xs:assert test="element[@id eq 1]"/>
 		</xs:complexType>
 	</xs:element>
 	<xs:element name="attribute_child_other">
@@ -100,13 +99,12 @@
 			<xs:sequence>
 				<xs:element name="element">
 					<xs:complexType>
-						<xs:attribute name="lang" type="xs:language" />
+						<xs:attribute name="id" type="xs:decimal" />
 					</xs:complexType>
 				</xs:element>
 			</xs:sequence>
-			<xs:assert test="element[@lang]"/>
+			<xs:assert test="element[@id]"/>
 		</xs:complexType>
 	</xs:element>
-	-->
 
 </xs:schema>

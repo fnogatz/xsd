@@ -166,10 +166,10 @@ execute_tests([test_definition(GlobalIdentifier, Test_Name, Test_Definition, Mod
       Test_Definition = (IN ==> OUT),
       (
          Mode = success,
-         Test_Run = (xpath:xpath_expr(IN, OUT))
+         Test_Run = (xpath:xpath_expr(_, IN, OUT))
          ;
          Mode = fail,
-         Test_Run = (\+xpath:xpath_expr(IN, _))  
+         Test_Run = (\+xpath:xpath_expr(_, IN, _))  
       )
       ;
       \+compound(Test_Definition), % schema/instance dependent tests

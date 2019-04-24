@@ -104,26 +104,24 @@
 	<attribute_comparison id="1"/>
 |}.
 
-/*
-NOT IMPLEMENTED YET
 'attribute - child - bool - true':
 {|xml||
 	<attribute_child_bool>
-		<element lang='de-DE'></element>
+		<element id="1"></element>
 	</attribute_child_bool>
 |}.
 
 'attribute - child - bool - false'(fail):
 {|xml||
 	<attribute_child_bool>
-		<element lang='de-CH'></element>
+		<element id="0"></element>
 	</attribute_child_bool>
 |}.
 
 'attribute - child - other - true':
 {|xml||
 	<attribute_child_other>
-		<element lang='de-DE'></element>
+		<element id="1"></element>
 	</attribute_child_other>
 |}.
 
@@ -133,4 +131,3 @@ NOT IMPLEMENTED YET
 		<element></element>
 	</attribute_child_other>
 |}.
-*/
