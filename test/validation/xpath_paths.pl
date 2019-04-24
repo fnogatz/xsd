@@ -1,6 +1,5 @@
 /* steps */
 
-/*
 'steps - child - arbitrary - true':
 {|xml||
 	<step_child_arbitrary>
@@ -13,7 +12,6 @@
 	<step_child_arbitrary>
 	</step_child_arbitrary>
 |}.
-*/
 
 'steps - child - specific - true':
 {|xml||

@@ -14,6 +14,7 @@
 :- op(200, fy, user:(@)).
 :- op(250, yf, user:([])).
 :- op(300, yfx, user:(::)).
+:- op(300, yf, user:(::*)).
 :- op(400, yfx, user:(idiv)).
 :- op(400, yfx, user:(/)).
 :- op(700, xfx, user:(eq)).
@@ -142,9 +143,13 @@ xpath_expr(Axe::Nodename, data('node', [D_Node_ID])) :-
 		Axe = child, child(D_File, D_ID, D_Node_ID)
 		% TODO: implement other axes
 	),
+	node(D_File, D_Node_ID, _, Nodename).
+xpath_expr(Axe::*, data('node', [D_Node_ID])) :-
+	nb_current(context_file, D_File),
+	nb_current(context_id, D_ID),
 	(
-		Nodename = '*';
-		node(D_File, D_Node_ID, _, Nodename)
+		Axe = child, child(D_File, D_ID, D_Node_ID)
+		% TODO: implement other axes
 	).
 xpath_expr(Node/Nodename, Result) :-
 	\+compound(Nodename),
@@ -156,9 +161,13 @@ xpath_expr(Node/Axe::Nodename, data('node', [D_Node_ID])) :-
 		Axe = child, child(D_File, D_Parent_ID, D_Node_ID)
 		% TODO: implement other axes
 	),
+	node(D_File, D_Node_ID, _, Nodename).
+xpath_expr(Node/Axe::*, data('node', [D_Node_ID])) :-
+	xpath_expr(Node, data('node', [D_Parent_ID])),
+	nb_current(context_file, D_File),
 	(
-		Nodename = '*';
-		node(D_File, D_Node_ID, _, Nodename)
+		Axe = child, child(D_File, D_Parent_ID, D_Node_ID)
+		% TODO: implement other axes
 	).
 
 /* --- predicates --- */
