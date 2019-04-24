@@ -93,7 +93,7 @@ Developed and tested in SWI-Prolog, version 7.4.1, 64 bit.
 This tool has been developed as part of a practical course at the University of Würzburg, Germany. It contains contributions of:
 - Kevin Jonscher
 - [Jona Kalkus](https://github.com/jonakalkus)
-- Lucas Kinne
+- [Lucas Kinne](https://github.com/DeveloperPad)
 - [Falco Nogatz](https://github.com/fnogatz)
 
 Please cite the work as: *Nogatz, F., Kalkus, J.: Declarative XML Schema Validation with SWI-Prolog. In: Seipel, D., Hanus, M., and Abreu, S. (eds.) Declarative Programming and Knowledge Management. pp. 187-197 (2018).* In this paper, we present the general idea of the validation process and give some examples.
