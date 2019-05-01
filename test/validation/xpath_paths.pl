@@ -131,3 +131,15 @@
 		<element></element>
 	</attribute_child_other>
 |}.
+
+
+/* combined */
+
+'steps - combined - true':
+{|xml||
+	<combined_hierarchy>
+		<item id='1'>
+			<item id='2'/>
+		</item>
+	</combined_hierarchy>
+|}.

@@ -107,4 +107,20 @@
 		</xs:complexType>
 	</xs:element>
 
+	<!-- combined -->
+	<xs:complexType name="item">
+		<xs:sequence>
+			<xs:element name="item" type="item" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:decimal" use="required"/>
+	</xs:complexType>
+	<xs:element name="combined_hierarchy">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="item" type="item" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+			<xs:assert test="item[@id eq '1']/item[@id eq '2']"/>
+		</xs:complexType>
+	</xs:element>
+
 </xs:schema>

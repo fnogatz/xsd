@@ -11,10 +11,10 @@
 :- use_module(library(xsd/xsd_messages)).
 
 :- op(1, fx, user:($)).
-:- op(200, fy, user:(@)).
-:- op(250, yf, user:([])).
-:- op(300, yfx, user:(::)).
-:- op(300, yf, user:(::*)).
+:- op(400, fy, user:(@)).
+:- op(400, yf, user:([])).
+:- op(400, yfx, user:(::)).
+:- op(400, yf, user:(::*)).
 :- op(400, yfx, user:(idiv)).
 :- op(400, yfx, user:(/)).
 :- op(700, xfx, user:(eq)).
