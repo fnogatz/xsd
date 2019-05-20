@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+	<!-- steps -->
+	<xs:element name="step_child_arbitrary">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="element" type="xs:integer" />
+			</xs:sequence>
+			<xs:assert test="child::*"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="step_child_specific">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="element1">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="element2" type="xs:integer" />
+						</xs:sequence>
+						<xs:assert test="child::element2"/>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+			<xs:assert test="child::element1/child::element2"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="step_slash_specific">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="element1">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="element2" type="xs:integer" />
+						</xs:sequence>
+						<xs:assert test="element2"/>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+			<xs:assert test="element1/element2"/>
+		</xs:complexType>
+	</xs:element>
+
+	<!-- predicates -->
+	<xs:element name="predicate_bool_true">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="element" type="xs:int"/>
+			</xs:sequence>
+			<xs:assert test="element[1 eq 1]"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="predicate_bool_false">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="element" type="xs:int"/>
+			</xs:sequence>
+			<xs:assert test="element[0 eq 1]"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="predicate_other">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="element" type="xs:int"/>
+			</xs:sequence>
+			<xs:assert test="element['string']"/>
+		</xs:complexType>
+	</xs:element>
+
+	<!-- attributes -->
+	<xs:element name="attribute_presence">
+		<xs:complexType>
+			<xs:sequence/>
+			<xs:attribute name="lang" type="xs:language"/>
+			<xs:assert test="@lang"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="attribute_comparison">
+		<xs:complexType>
+			<xs:sequence/>
+			<xs:attribute name="id" type="xs:decimal"/>
+			<xs:assert test="@id eq 0"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="attribute_child_bool">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="element">
+					<xs:complexType>
+						<xs:attribute name="id" type="xs:decimal" />
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+			<xs:assert test="element[@id eq 1]"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="attribute_child_other">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="element">
+					<xs:complexType>
+						<xs:attribute name="id" type="xs:decimal" />
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+			<xs:assert test="element[@id]"/>
+		</xs:complexType>
+	</xs:element>
+
+	<!-- combined -->
+	<xs:complexType name="item">
+		<xs:sequence>
+			<xs:element name="item" type="item" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:decimal" use="required"/>
+	</xs:complexType>
+	<xs:element name="combined_hierarchy">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="item" type="item" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+			<xs:assert test="item[@id eq '1']/item[@id eq '2']"/>
+		</xs:complexType>
+	</xs:element>
+
+</xs:schema>

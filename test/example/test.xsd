@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="step_slash_specific">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="element1">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="element2" type="xs:integer" />
+						</xs:sequence>
+						<xs:assert test="element2"/>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+			<xs:assert test="element1/element2"/>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>
+
+
+
+
