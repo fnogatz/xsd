@@ -11,3 +11,6 @@ maintainer('Jona Kalkus','jonakalkus@gmail.com').
 packager('Falco Nogatz','fnogatz@gmail.com').
 
 home('https://github.com/jonakalkus/xsd').
+
+requires(regex).
+requires(tap).
