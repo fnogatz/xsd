@@ -16,8 +16,8 @@ xsd_validate(Xsd, Xml, Options) :-
 	ensure_flattened(Xml, Xml_),
 	validate:validate(Xsd_, Xml_, Options).
 
-ensure_flattened(Id, Id) :-
-	xml_loaded(Id, _).
+ensure_flattened(A, Id) :-
+	xml_loaded(A, Id).
 
 ensure_flattened(A, Id) :-
 	\+xml_loaded(A, _),
