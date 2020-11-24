@@ -22,6 +22,15 @@
 :- op(700, xfx, user:(lt)).
 :- op(700, xfx, user:(ge)).
 :- op(700, xfx, user:(gt)).
+:- op(800, yfx, user:and).
+:- op(850, yfx, user:or).
+:- op(900, fx, user:if).
+:- op(900, xfx, user:else).
+:- op(950, xfx, user:then).
+:- op(900, fx, user:some).
+:- op(900, fx, user:every).
+:- op(920, xfx, user:in).
+:- op(950, xfx, user:satisfies).
 
 :- set_prolog_flag(allow_variable_name_as_functor, true).
 
