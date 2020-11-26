@@ -1,4 +1,26 @@
 :- module(xpath, [
+% op(1, fx, $), % built-in
+  op(400, fy, @),
+  op(400, yfx, ::),
+  op(400, yf, ::*),
+  op(400, yfx, /),
+  op(400, yfx, idiv),
+  op(400, yf, []),
+  op(700, xfx, eq),
+  op(700, xfx, ne),
+  op(700, xfx, le),
+  op(700, xfx, lt),
+  op(700, xfx, ge),
+  op(700, xfx, gt),
+  op(700, xfx, in), % following library(clpfd)
+  op(800, yfx, and),
+  op(850, yfx, or),
+  op(900, fx, if),
+  op(900, xfx, else),
+  op(900, fx, some),
+  op(900, fx, every),
+  op(950, xfx, then),
+  op(950, xfx, satisfies),
   assert/5
 ]).
 
@@ -9,31 +31,7 @@
 :- use_module(library(xsd/xsd_helper)).
 :- use_module(library(xsd/xsd_messages)).
 
-:- op(1, fx, user:($)).
-:- op(400, fy, user:(@)).
-:- op(400, yf, user:([])).
-:- op(400, yfx, user:(::)).
-:- op(400, yf, user:(::*)).
-:- op(400, yfx, user:(idiv)).
-:- op(400, yfx, user:(/)).
-:- op(700, xfx, user:(eq)).
-:- op(700, xfx, user:(ne)).
-:- op(700, xfx, user:(le)).
-:- op(700, xfx, user:(lt)).
-:- op(700, xfx, user:(ge)).
-:- op(700, xfx, user:(gt)).
-:- op(800, yfx, user:and).
-:- op(850, yfx, user:or).
-:- op(900, fx, user:if).
-:- op(900, xfx, user:else).
-:- op(950, xfx, user:then).
-:- op(900, fx, user:some).
-:- op(900, fx, user:every).
-:- op(920, xfx, user:in).
-:- op(950, xfx, user:satisfies).
-
 :- set_prolog_flag(allow_variable_name_as_functor, true).
-
 
 % this is the exported predicate, which is used in validate.pl
 assert(D_File, D_ID, D_Text, XPathString, Documentation) :-
