@@ -22,6 +22,7 @@
   op(700, xfx, ge),
   op(700, xfx, gt),
   op(700, xfx, in), % following library(clpfd)
+  op(750, xf, !), % for !=
   op(800, yfx, and),
   op(850, yfx, or),
   op(900, fx, if),
