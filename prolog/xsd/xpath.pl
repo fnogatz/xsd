@@ -1,11 +1,20 @@
 :- module(xpath, [
 % op(1, fx, $), % built-in
-  op(400, fy, @),
-  op(400, yfx, ::),
-  op(400, yf, ::*),
-  op(400, yfx, /),
-  op(400, yfx, idiv),
+  op(200, fy, @),
   op(400, yf, []),
+  op(400, yfx, idiv),
+  op(400, yfx, ::),
+  op(400, yf, ::*), % or `:: *`
+% op(400, yfx, /), % built-in
+  op(400, yfx, //),
+  op(400, fy, /),
+  op(400, fy, ./),
+  op(400, fy, //),
+  op(400, fy, .//),
+  op(400, yfx, ~),
+  op(400, yfx, >),
+  op(700, xfx, *=),
+  op(700, xfx, ~=),
   op(700, xfx, eq),
   op(700, xfx, ne),
   op(700, xfx, le),
