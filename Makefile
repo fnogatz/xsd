@@ -10,7 +10,15 @@ all: install
 
 check: test.validate
 
-install: cli
+install: install.packs cli
+
+install.packs: install.packs.regex install.packs.tap
+
+install.packs.regex:
+	@$(SWIPL) -q -g 'pack_install(regex,[interactive(false)]),halt(0)' -t 'halt(1)'
+
+install.packs.tap:
+	@$(SWIPL) -q -g 'pack_install(tap,[interactive(false)]),halt(0)' -t 'halt(1)'
 
 cli:
 	@$(SWIPL) -g main -o $(CLI) -c cli.pl && chmod +x $(CLI)
