@@ -19,10 +19,10 @@ jobs:
     - name: Install SWI-Prolog pack dependencies
       run: |
         source ~/.swivm/swivm.sh
-        make link
-        make install
+        make link SWIPL=$(swivm which)
+        make install SWIPL=$(swivm which)
 
     - name: Run tests
       run: |
         source ~/.swivm/swivm.sh
-        make test
+        make test SWIPL=$(swivm which)

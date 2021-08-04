@@ -1,16 +1,20 @@
 .PHONY: all test clean
 
-version := $(shell swipl -q -s pack -g 'version(V),writeln(V)' -t 'halt(1)')
-pack_dir := $(shell swipl -q -s pack -g "absolute_file_name(pack('.'),D),writeln(D)" -t 'halt(1)')
+SWIPL ?= swipl
+
+version := $(shell $(SWIPL) -q -s pack -g 'version(V),writeln(V)' -t 'halt(1)')
+pack_dir := $(shell $(SWIPL) -q -s pack -g "absolute_file_name(pack('.'),D),writeln(D)" -t 'halt(1)')
 packfile = xsd-$(version).tgz
 
-SWIPL := swipl
 CLI := ./cli.exe
 
 all: install
 
 version:
 	@echo $(version)
+
+version.swi:
+	@$(shell swipl --version)
 
 check: test.validate
 
