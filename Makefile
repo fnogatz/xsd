@@ -19,6 +19,9 @@ version.swi:
 check: test.validate
 
 link:
+	echo $(SWIPL)
+	echo $(pack_dir)
+	$(SWIPL) --version
 	ln -s $(shell pwd) $(pack_dir)/xsd
 
 install: install.packs cli
