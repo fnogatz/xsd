@@ -1,6 +1,7 @@
 .PHONY: all test clean
 
-version := $(shell swipl -q -s pack -g 'version(V),writeln(V)' -t halt)
+version := $(shell swipl -q -s pack -g 'version(V),writeln(V)' -t 'halt(1)')
+pack_dir := $(shell swipl -q -s pack -g "absolute_file_name(pack('.'),D),writeln(D)" -t 'halt(1)')wd)
 packfile = xsd-$(version).tgz
 
 SWIPL := swipl
@@ -8,17 +9,23 @@ CLI := ./cli.exe
 
 all: install
 
+version:
+	@echo $(version)
+
 check: test.validate
+
+link:
+	@ln -s $(shell pwd) $(pack_dir)/xsd
 
 install: install.packs cli
 
 install.packs: install.packs.regex install.packs.tap
 
 install.packs.regex:
-	@$(SWIPL) -q -g 'pack_install(regex,[interactive(false)]),halt(0)' -t 'halt(1)'
+	@$(SWIPL) -g 'pack_install(regex,[interactive(false)]),halt(0)' -t 'halt(1)'
 
 install.packs.tap:
-	@$(SWIPL) -q -g 'pack_install(tap,[interactive(false)]),halt(0)' -t 'halt(1)'
+	@$(SWIPL) -g 'pack_install(tap,[interactive(false)]),halt(0)' -t 'halt(1)'
 
 cli:
 	@$(SWIPL) -g main -o $(CLI) -c cli.pl && chmod +x $(CLI)

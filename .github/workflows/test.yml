@@ -20,6 +20,7 @@ jobs:
       run: |
         source ~/.swivm/swivm.sh
         make install
+        make link
 
     - name: Run tests
       run: |
