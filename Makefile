@@ -15,7 +15,7 @@ version:
 check: test.validate
 
 link:
-	@ln -s $(shell pwd) $(pack_dir)/xsd
+	ln -s $(shell pwd) $(pack_dir)/xsd
 
 install: install.packs cli
 
