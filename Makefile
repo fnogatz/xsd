@@ -18,13 +18,6 @@ version.swi:
 
 check: test.validate
 
-link:
-	echo $(SWIPL)
-	echo $(pack_dir)
-	$(SWIPL) -g "absolute_file_name(pack('.'),D),writeln(D)" -t 'halt(1)'
-	$(SWIPL) --version
-	ln -s $(shell pwd) $(pack_dir)/xsd
-
 install: install.packs cli
 
 install.packs: install.packs.regex install.packs.tap
