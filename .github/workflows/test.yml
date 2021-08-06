@@ -19,7 +19,7 @@ jobs:
     - name: Install SWI-Prolog pack dependencies
       run: |
         source ~/.swivm/swivm.sh
-        ln -s $(shell pwd) $(swivm current --pack)/xsd
+        ln -s $(pwd) $(swivm current --pack)/xsd
         make install SWIPL=$(swivm which)
 
     - name: Run tests
