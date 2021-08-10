@@ -1,24 +1,39 @@
 .PHONY: all test clean
 
-version := $(shell swipl -q -s pack -g 'version(V),writeln(V)' -t halt)
+SWIPL ?= swipl
+
+version := $(shell $(SWIPL) -q -s pack -g 'version(V),writeln(V)' -t 'halt(1)')
 packfile = xsd-$(version).tgz
 
-SWIPL := swipl
 CLI := ./cli.exe
 
 all: install
 
+version:
+	@echo $(version)
+
+version.swi:
+	@$(shell swipl --version)
+
 check: test.validate
 
-install: cli
+install: install.packs cli
+
+install.packs: install.packs.regex install.packs.tap
+
+install.packs.regex:
+	@$(SWIPL) -g 'pack_install(regex,[interactive(false)]),halt(0)' -t 'halt(1)'
+
+install.packs.tap:
+	@$(SWIPL) -g 'pack_install(tap,[interactive(false)]),halt(0)' -t 'halt(1)'
 
 cli:
-	@$(SWIPL) -g main -o $(CLI) -c cli.pl && chmod +x $(CLI)
+	@$(SWIPL) -p library=$(shell pwd)/prolog -g main -o $(CLI) -c cli.pl && chmod +x $(CLI)
 
 test: cli test.cli test.validate
 
 test.validate:
-	@$(SWIPL) -q -g 'main,halt(0)' -t 'halt(1)' -s test/test.pl
+	@$(SWIPL) -p library=$(shell pwd)/prolog -q -g 'main,halt(0)' -t 'halt(1)' -s test/test.pl
 
 test.cli:
 	@$(CLI) ./test/schema/simpleType_int.xsd ./test/cli/simpleType_int.xml
