@@ -1,6 +1,6 @@
 name(xsd).
 
-version('1.0.0').
+version('1.0.1').
 download('https://github.com/fnogatz/xsd/releases/*.zip').
 
 title('XML Schema validation with Prolog').
