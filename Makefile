@@ -3,7 +3,6 @@
 SWIPL ?= swipl
 
 version := $(shell $(SWIPL) -q -s pack -g 'version(V),writeln(V)' -t 'halt(1)')
-pack_dir := $(shell $(SWIPL) -q -g "absolute_file_name(pack('.'),D),writeln(D)" -t 'halt(1)')
 packfile = xsd-$(version).tgz
 
 CLI := ./cli.exe
@@ -29,12 +28,12 @@ install.packs.tap:
 	@$(SWIPL) -g 'pack_install(tap,[interactive(false)]),halt(0)' -t 'halt(1)'
 
 cli:
-	@$(SWIPL) -g main -o $(CLI) -c cli.pl && chmod +x $(CLI)
+	@$(SWIPL) -p library=$(shell pwd)/prolog -g main -o $(CLI) -c cli.pl && chmod +x $(CLI)
 
 test: cli test.cli test.validate
 
 test.validate:
-	@$(SWIPL) -q -g 'main,halt(0)' -t 'halt(1)' -s test/test.pl
+	@$(SWIPL) -p library=$(shell pwd)/prolog -q -g 'main,halt(0)' -t 'halt(1)' -s test/test.pl
 
 test.cli:
 	@$(CLI) ./test/schema/simpleType_int.xsd ./test/cli/simpleType_int.xml
