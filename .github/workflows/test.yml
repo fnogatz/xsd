@@ -14,7 +14,7 @@ jobs:
     - name: Install swivm and SWI-Prolog
       uses: fnogatz/swivm/actions/load@main
       with:
-        swi-prolog-version: 8.0
+        swi-prolog-version: '8.0'
 
     - name: Install SWI-Prolog pack dependencies
       run: |
