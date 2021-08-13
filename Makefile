@@ -29,15 +29,15 @@ install.packs.tap:
 	@$(SWIPL) -g 'pack_install(tap,[interactive(false)]),halt(0)' -t 'halt(1)'
 
 cli:
-	@$(SWIPL) -p library=$(pwd)/prolog -g main -o $(CLI) -c cli.pl && chmod +x $(CLI)
+	$(SWIPL) -p library=$(pwd)/prolog -g main -o $(CLI) -c cli.pl && chmod +x $(CLI)
 
 test: cli test.cli test.validate
 
 test.validate:
-	@$(SWIPL) -p library=$(pwd)/prolog -q -g 'main,halt(0)' -t 'halt(1)' -s test/test.pl
+	$(SWIPL) -p library=$(pwd)/prolog -q -g 'main,halt(0)' -t 'halt(1)' -s test/test.pl
 
 test.cli:
-	@$(CLI) ./test/schema/simpleType_int.xsd ./test/cli/simpleType_int.xml
+	$(CLI) ./test/schema/simpleType_int.xsd ./test/cli/simpleType_int.xml
 
 # Run `make test.xsd` to check whether the files
 #   in test/schema are valid XSD 1.1 files.
